@@ -155,6 +155,15 @@
   .tmplCard .tname{ display:block; font-size:12px; color:var(--text); font-weight:600; line-height:1.2; }
   .tmplCard .tmood{ display:block; font-size:10px; color:var(--text-dim); margin-top:3px; }
 
+  /* quick controls */
+  .qlabel{ display:block; font-size:10px; color:var(--text-dim); margin:16px 0 8px;
+    text-transform:uppercase; letter-spacing:.8px; }
+  .swatchRow{ display:flex; gap:8px; flex-wrap:wrap; }
+  .swatchRow .swatch{ width:30px; height:30px; border-radius:8px; cursor:pointer;
+    border:2px solid transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); transition:.15s; }
+  .swatchRow .swatch:hover{ transform: translateY(-1px); }
+  .swatchRow .swatch.active{ border-color:#fff; }
+
   .ctrl{ margin-bottom: 12px; }
   .ctrl:last-child{ margin-bottom:0; }
   .ctrl label{ display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-bottom:6px; }
@@ -300,6 +309,35 @@
     <h2 style="margin-top:16px;">Выбери стиль</h2>
     <div class="grid2" id="tmplCards"></div>
     <div class="hint" id="catHint"></div>
+  </div>
+
+  <!-- Быстрая настройка -->
+  <div class="step" id="quickStep">
+    <h2>Быстрая настройка</h2>
+
+    <div class="qlabel" style="margin-top:0;">Цвет</div>
+    <div class="swatchRow" id="quickPalettes" role="group" aria-label="Цвет"></div>
+
+    <div class="ctrl" style="margin-top:14px;">
+      <label for="qSpeed">Скорость <span class="val" id="qSpeedV"></span></label>
+      <input type="range" id="qSpeed" aria-label="Скорость" min="0" max="3" step="0.01">
+    </div>
+    <div class="ctrl">
+      <label for="qWarp">Движение <span class="val" id="qWarpV"></span></label>
+      <input type="range" id="qWarp" aria-label="Движение" min="0" max="9" step="0.05">
+    </div>
+    <div class="ctrl" style="margin-bottom:0;">
+      <label for="qScale">Детализация <span class="val" id="qScaleV"></span></label>
+      <input type="range" id="qScale" aria-label="Детализация" min="0.3" max="5" step="0.01">
+    </div>
+
+    <div class="qlabel">Эффект</div>
+    <div class="seg" id="quickFx" role="group" aria-label="Эффект">
+      <button type="button" data-fx="none" class="active">Нет</button>
+      <button type="button" data-fx="pixel">Пиксель</button>
+      <button type="button" data-fx="dots">Полутон</button>
+      <button type="button" data-fx="ascii">ASCII</button>
+    </div>
   </div>
 
   <details class="pro" id="proPanel">
@@ -930,7 +968,7 @@ PALETTES.forEach(pl=>{
   const b=document.createElement('div'); b.className='chip'; b.dataset.pal=pl.id; b.setAttribute('role','button'); b.setAttribute('tabindex','0');
   b.setAttribute('aria-label','Палитра: '+pl.name);
   b.innerHTML=`<span class="sw" style="background:${gradCss(pl.stops)}"></span><span>${pl.name}</span>`;
-  const act=()=>{ state.pal=pl.id; if(pl.id===8){} else { state.cols=pl.stops.map(s=>s.slice()); } refreshPaletteButtons(); buildColorPickers(); syncUniforms(); };
+  const act=()=>{ state.pal=pl.id; if(pl.id===8){} else { state.cols=pl.stops.map(s=>s.slice()); } refreshPaletteButtons(); buildColorPickers(); syncUniforms(); refreshQuick(); };
   b.onclick=act; b.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();act();} };
   palettesEl.appendChild(b);
 });
@@ -959,7 +997,7 @@ Object.keys(sliderMap).forEach(id=>{
   el.addEventListener('input', e=>{
     const v=parseFloat(e.target.value);
     if(id==='tile'||id==='pixel'||id==='dot') state[id]=Math.round(v); else state[id]=v;
-    updateLabels(); syncUniforms();
+    updateLabels(); syncUniforms(); refreshQuick();
   });
 });
 function updateLabels(){
@@ -1010,9 +1048,9 @@ function refreshSurface(){
   dotCtrl.classList.toggle('hidden', !(state.screen===0 && state.dots));
 }
 document.querySelectorAll('#screenSeg button').forEach(b=>{
-  b.onclick=()=>{ state.screen=+b.dataset.screen; refreshSurface(); syncUniforms(); };
+  b.onclick=()=>{ state.screen=+b.dataset.screen; refreshSurface(); syncUniforms(); refreshQuick(); };
 });
-function toggleDots(){ state.dots=state.dots?0:1; refreshSurface(); syncUniforms(); }
+function toggleDots(){ state.dots=state.dots?0:1; refreshSurface(); syncUniforms(); refreshQuick(); }
 dotsToggle.onclick=toggleDots;
 dotsToggle.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleDots();} };
 
@@ -1024,6 +1062,7 @@ function loadPreset(p){
   set('speed',speed); set('scale',scale); set('warp',warp); set('grain',grain); set('pixel',pixel); set('dot',dot);
   refreshFieldButtons(); refreshPaletteButtons(); refreshSeamless(); refreshSurface();
   buildColorPickers(); updateLabels(); syncUniforms();
+  if(typeof refreshQuick==='function') refreshQuick();
 }
 
 /* ---------- Creator: categories + template cards ---------- */
@@ -1073,6 +1112,58 @@ CREATOR_CATEGORIES.forEach(cat=>{
   b.onclick=()=>selectCategory(cat);
   catChipsEl.appendChild(b);
 });
+
+/* ---------- Quick controls (человеческие, без терминов) ----------
+   Зеркалят те же поля state, что и «Профи»; refreshQuick() держит их в синхроне. */
+const quickPalEl=document.getElementById('quickPalettes');
+const FX_PRESETS={
+  none:  { screen:0, dots:0, pixel:1  },  // гладкий градиент
+  pixel: { screen:0, dots:0, pixel:10 },  // пикселизация
+  dots:  { screen:0, dots:1, pixel:4  },  // полутон (точки)
+  ascii: { screen:2, dots:0, pixel:8  },  // ASCII-атлас
+};
+function currentFx(){
+  if(state.screen===2) return 'ascii';
+  if(state.screen===0 && state.dots) return 'dots';
+  if(state.screen===0 && state.pixel>1) return 'pixel';
+  return 'none';
+}
+PALETTES.filter(p=>p.id!==8).forEach(pl=>{   // без «Свой»
+  const sw=document.createElement('div'); sw.className='swatch'; sw.dataset.pal=pl.id;
+  sw.style.background=gradCss(pl.stops); sw.title=pl.name;
+  sw.setAttribute('role','button'); sw.setAttribute('tabindex','0'); sw.setAttribute('aria-label','Цвет: '+pl.name);
+  const act=()=>{ state.pal=pl.id; state.cols=pl.stops.map(s=>s.slice()); refreshPaletteButtons(); buildColorPickers(); syncUniforms(); refreshQuick(); };
+  sw.onclick=act; sw.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();act();} };
+  quickPalEl.appendChild(sw);
+});
+document.querySelectorAll('#quickFx button').forEach(b=>{
+  b.onclick=()=>{ Object.assign(state, FX_PRESETS[b.dataset.fx]);
+    set('pixel',state.pixel); set('dot',state.dot);
+    refreshSurface(); updateLabels(); syncUniforms(); refreshQuick(); };
+});
+function bindQuick(qid, proId, key){
+  document.getElementById(qid).addEventListener('input', e=>{
+    state[key]=parseFloat(e.target.value); set(proId,state[key]);
+    updateLabels(); refreshQuickLabels(); syncUniforms();
+  });
+}
+bindQuick('qSpeed','speed','speed');
+bindQuick('qWarp','warp','warp');
+bindQuick('qScale','scale','scale');
+function refreshQuickLabels(){
+  document.getElementById('qSpeedV').textContent=state.speed.toFixed(2);
+  document.getElementById('qWarpV').textContent=state.warp.toFixed(2);
+  document.getElementById('qScaleV').textContent=state.scale.toFixed(2);
+}
+function refreshQuick(){
+  document.getElementById('qSpeed').value=state.speed;
+  document.getElementById('qWarp').value=state.warp;
+  document.getElementById('qScale').value=state.scale;
+  refreshQuickLabels();
+  document.querySelectorAll('#quickPalettes .swatch').forEach(x=>x.classList.toggle('active', +x.dataset.pal===state.pal));
+  const fx=currentFx();
+  document.querySelectorAll('#quickFx button').forEach(x=>x.classList.toggle('active', x.dataset.fx===fx));
+}
 
 /* ---------- Random ---------- */
 document.getElementById('randomBtn').onclick=()=>{
