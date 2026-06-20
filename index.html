@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>ЖИЖА — генератор живых фонов</title>
+<meta name="description" content="ЖИЖА — генератор процедурных живых фонов на WebGL. 10 типов поля, surface-эффекты, палитры, экспорт PNG и видео, шеринг по ссылке и embed." />
+<meta property="og:title" content="ЖИЖА — генератор живых фонов" />
+<meta property="og:description" content="Процедурные живые фоны на WebGL: 10 полей, surface-эффекты, экспорт PNG/видео." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236ea8ff'/%3E%3Cstop offset='1' stop-color='%23b07bff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3C/svg%3E" />
+<style>
+  :root{
+    --bg: #07080c;
+    --panel: rgba(18, 20, 30, 0.55);
+    --panel-border: rgba(255,255,255,0.10);
+    --panel-hi: rgba(255,255,255,0.06);
+    --text: #eef0f7;
+    --text-dim: #9aa0b4;
+    --accent: #6ea8ff;
+    --accent-2: #b07bff;
+    --radius: 16px;
+    --shadow: 0 20px 60px rgba(0,0,0,0.55);
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; height:100%; }
+
+  :focus{ outline: none; }
+  button:focus-visible,
+  [role=button]:focus-visible,
+  [role=switch]:focus-visible,
+  input:focus-visible,
+  select:focus-visible{
+    outline: 2px solid #9cc2ff;
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; animation: none !important; }
+  }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Stage / canvas */
+  #stage{ position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; }
+  #stageInner{ position: relative; height: 100%; width: 100%; display: grid; place-items: center; }
+  #canvasWrap{
+    position: relative; border-radius: 18px; overflow: hidden;
+    box-shadow: var(--shadow); background: #000; line-height: 0;
+    transition: width .25s ease, height .25s ease; max-width: 100%; max-height: 100%;
+  }
+  #canvasWrap.seamless{ box-shadow: 0 0 0 1px rgba(255,255,255,.08); background-repeat: repeat; }
+  canvas{ display:block; }
+
+  /* Control panel */
+  #panel{
+    position: fixed; top: 18px; left: 18px; width: 340px;
+    max-height: calc(100vh - 36px); overflow-y: auto;
+    background: var(--panel);
+    backdrop-filter: blur(22px) saturate(140%); -webkit-backdrop-filter: blur(22px) saturate(140%);
+    border: 1px solid var(--panel-border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 16px 16px 20px; z-index: 10;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.2) transparent;
+  }
+  #panel::-webkit-scrollbar{ width: 8px; }
+  #panel::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.15); border-radius: 8px; }
+
+  .brand{ display:flex; align-items:center; gap:10px; margin-bottom: 6px; }
+  .brand .logo{
+    width:30px;height:30px;border-radius:9px;
+    background: linear-gradient(135deg,var(--accent),var(--accent-2));
+    box-shadow: 0 4px 16px rgba(110,168,255,.45);
+  }
+  .brand h1{ font-size: 18px; margin:0; letter-spacing:.5px; }
+  .brand .sub{ font-size:11px; color:var(--text-dim); margin-top:1px; }
+
+  .step{ border:1px solid var(--panel-border); background: var(--panel-hi);
+    border-radius: 12px; padding: 12px; margin-top: 12px; }
+  .step h2{ font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--text-dim); margin: 0 0 10px; display:flex; align-items:center; gap:8px; }
+  .step h2 .num{ font-size:10px; color: var(--accent);
+    border:1px solid rgba(110,168,255,.4); border-radius:6px; padding:1px 5px; }
+
+  .row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .seg{ display:flex; gap:6px; flex-wrap:wrap; }
+  button.opt, .seg button{
+    flex:1; cursor:pointer; border:1px solid var(--panel-border);
+    background: rgba(255,255,255,.03); color: var(--text);
+    padding: 8px 6px; border-radius: 9px; font-size: 12px; transition: .15s; white-space: nowrap;
+  }
+  button.opt:hover, .seg button:hover{ background: rgba(255,255,255,.09); }
+  button.opt.active, .seg button.active{
+    background: linear-gradient(135deg, rgba(110,168,255,.30), rgba(176,123,255,.30));
+    border-color: rgba(150,180,255,.6); color:#fff;
+  }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
+  .chip{
+    cursor:pointer; border:1px solid var(--panel-border); border-radius:10px;
+    padding:8px; font-size:12px; color:var(--text);
+    display:flex; align-items:center; gap:8px; transition:.15s; background: rgba(255,255,255,.02);
+  }
+  .chip:hover{ background: rgba(255,255,255,.07); }
+  .chip.active{ border-color: rgba(150,180,255,.6); background: rgba(110,168,255,.12); }
+  .chip .sw{ width:18px;height:18px;border-radius:6px; flex:0 0 auto; }
+
+  .ctrl{ margin-bottom: 12px; }
+  .ctrl:last-child{ margin-bottom:0; }
+  .ctrl label{ display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-bottom:6px; }
+  .ctrl label .val{ color:var(--text); font-variant-numeric: tabular-nums; }
+
+  input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:5px;
+    border-radius:5px; background: rgba(255,255,255,.12); outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:16px;height:16px;border-radius:50%;
+    background: linear-gradient(135deg,var(--accent),var(--accent-2));
+    cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.5); border:2px solid #fff2;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:16px;height:16px;border:none;border-radius:50%;
+    background: linear-gradient(135deg,var(--accent),var(--accent-2)); cursor:pointer;
+  }
+
+  .colors{ display:flex; gap:8px; flex-wrap:wrap; }
+  .colorItem{ position:relative; }
+  .colorItem input[type=color]{
+    -webkit-appearance:none; appearance:none; border:none; background:none;
+    width:42px; height:34px; cursor:pointer; padding:0;
+  }
+  .colorItem input[type=color]::-webkit-color-swatch-wrapper{ padding:0; }
+  .colorItem input[type=color]::-webkit-color-swatch{ border:1px solid var(--panel-border); border-radius:9px; }
+  .colorItem input[type=color]::-moz-color-swatch{ border:1px solid var(--panel-border); border-radius:9px; }
+
+  .switch{ display:flex; align-items:center; justify-content:space-between; font-size:13px; }
+  .toggle{ position:relative; width:44px; height:24px; border-radius:99px;
+    background: rgba(255,255,255,.12); cursor:pointer; transition:.2s; flex:0 0 auto; border:1px solid var(--panel-border); }
+  .toggle::after{ content:""; position:absolute; top:2px; left:2px; width:18px; height:18px;
+    border-radius:50%; background:#fff; transition:.2s; }
+  .toggle.on{ background: linear-gradient(135deg,var(--accent),var(--accent-2)); }
+  .toggle.on::after{ transform: translateX(20px); }
+
+  .primary{ width:100%; cursor:pointer; border:none; border-radius:11px; padding:11px;
+    font-size:13px; font-weight:600; color:#fff; margin-top:8px;
+    background: linear-gradient(135deg,var(--accent),var(--accent-2));
+    box-shadow: 0 8px 24px rgba(110,168,255,.35); transition:.15s; }
+  .primary:hover{ filter:brightness(1.08); transform: translateY(-1px); }
+  .primary.rec{ background: linear-gradient(135deg,#ff5d6c,#ff3b30); box-shadow:0 8px 24px rgba(255,59,48,.4); }
+  .ghost{ width:100%; cursor:pointer; border:1px solid var(--panel-border); border-radius:11px;
+    padding:9px; font-size:12px; color:var(--text); background: rgba(255,255,255,.03);
+    margin-top:8px; transition:.15s; }
+  .ghost:hover{ background: rgba(255,255,255,.08); }
+  .hint{ font-size:11px; color:var(--text-dim); margin-top:8px; line-height:1.4; }
+  .hidden{ display:none !important; }
+
+  #liveBar{ position: fixed; top:18px; right:18px; z-index:10; display:flex; gap:8px;
+    background: var(--panel); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+    border:1px solid var(--panel-border); border-radius:12px; padding:6px; box-shadow: var(--shadow); }
+  #liveBar button{ cursor:pointer; border:1px solid transparent; background:transparent; color:var(--text-dim);
+    font-size:12px; padding:7px 12px; border-radius:8px; transition:.15s; }
+  #liveBar button.active{ color:#fff; background: rgba(255,255,255,.10); border-color:var(--panel-border); }
+
+  #recDot{ position:fixed; top:64px; right:18px; z-index:11; display:none; align-items:center; gap:7px;
+    background: rgba(255,59,48,.18); border:1px solid rgba(255,59,48,.5); color:#ffd2cf;
+    padding:5px 10px; border-radius:99px; font-size:11px; backdrop-filter: blur(10px); }
+  #recDot .blink{ width:9px;height:9px;border-radius:50%;background:#ff3b30; animation: blink 1s infinite; }
+  @keyframes blink{ 50%{ opacity:.25; } }
+
+  #fps{ position:fixed; bottom:14px; right:18px; z-index:10; font-size:11px; color:var(--text-dim);
+    font-variant-numeric: tabular-nums; background: var(--panel); padding:4px 9px; border-radius:8px;
+    border:1px solid var(--panel-border); backdrop-filter: blur(10px); }
+
+  #toast{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(20px);
+    background: rgba(20,22,32,.92); border:1px solid var(--panel-border); color:var(--text);
+    padding:10px 16px; border-radius:12px; font-size:13px; z-index:40; opacity:0; pointer-events:none;
+    transition:.25s; backdrop-filter: blur(12px); box-shadow: var(--shadow); }
+  #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  select, textarea{ width:100%; background: rgba(255,255,255,.05); color:var(--text);
+    border:1px solid var(--panel-border); border-radius:9px; padding:8px; font-size:12px; cursor:pointer; }
+  select option{ background:#15171f; }
+  textarea{ font-family: ui-monospace, Menlo, monospace; resize:vertical; min-height:54px; cursor:text; }
+
+  #panelToggle{ display: none; position: fixed; top: 14px; left: 14px; z-index: 30;
+    width: 46px; height: 46px; align-items: center; justify-content: center;
+    font-size: 20px; color: var(--text); cursor: pointer; background: var(--panel);
+    border: 1px solid var(--panel-border); border-radius: 13px; box-shadow: var(--shadow);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+
+  /* embed mode — hide all chrome, fluid fills the frame */
+  body.embed #panel, body.embed #liveBar, body.embed #fps, body.embed #panelToggle, body.embed #recDot{ display:none !important; }
+  body.embed #stage{ padding:0; }
+  body.embed #canvasWrap{ border-radius:0; box-shadow:none; }
+
+  @media (max-width: 760px){
+    #stage{ padding: 12px; }
+    #panelToggle{ display: flex; }
+    #liveBar{ top: 14px; right: 14px; padding: 5px; }
+    #liveBar button{ padding: 7px 9px; font-size: 11px; }
+    #fps{ bottom: 10px; left: 14px; right: auto; }
+    #panel{ width: 100%; left: 0; right: 0; top: auto; bottom: 0; max-width: 100%; max-height: 78vh;
+      border-radius: 20px 20px 0 0; border-bottom: none; padding-top: 26px;
+      transform: translateY(0); transition: transform .32s cubic-bezier(.4,.0,.2,1); }
+    #panel::before{ content: ""; position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
+      width: 44px; height: 5px; border-radius: 99px; background: rgba(255,255,255,.25); }
+    #panel.collapsed{ transform: translateY(calc(100% - 0px)); box-shadow: none; }
+  }
+  @media (max-width: 380px){
+    #liveBar button{ font-size: 0; padding: 8px; }
+    #liveBar button::first-letter{ font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="stageInner">
+    <div id="canvasWrap"><!-- canvas injected --></div>
+  </div>
+</div>
+
+<button id="panelToggle" aria-label="Показать или скрыть панель управления" aria-expanded="true" aria-controls="panel">☰</button>
+
+<div id="liveBar" role="group" aria-label="Режим воспроизведения">
+  <button id="modeLive" class="active" aria-pressed="true">▶ Анимация</button>
+  <button id="modeStill" aria-pressed="false">❚❚ Статика</button>
+</div>
+<div id="recDot"><span class="blink"></span> Идёт запись…</div>
+<div id="fps">— FPS</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<aside id="panel">
+  <div class="brand">
+    <div class="logo"></div>
+    <div>
+      <h1>ЖИЖА</h1>
+      <div class="sub">генератор живых процедурных фонов</div>
+    </div>
+  </div>
+
+  <!-- 01 Размер -->
+  <div class="step">
+    <h2><span class="num">01</span> Размер</h2>
+    <div class="seg" id="ratioSeg" role="group" aria-label="Соотношение сторон">
+      <button data-ratio="9:16" aria-pressed="false">9:16</button>
+      <button data-ratio="4:5" aria-pressed="false">4:5</button>
+      <button data-ratio="1:1" aria-pressed="false">1:1</button>
+      <button data-ratio="5:4" aria-pressed="false">5:4</button>
+      <button data-ratio="3:2" aria-pressed="false">3:2</button>
+      <button data-ratio="16:9" class="active" aria-pressed="true">16:9</button>
+    </div>
+    <div class="switch" style="margin-top:12px;">
+      <span id="seamlessLabel">Бесшовный паттерн</span>
+      <div class="toggle" id="seamlessToggle" role="switch" tabindex="0" aria-checked="false" aria-labelledby="seamlessLabel"></div>
+    </div>
+    <div class="ctrl hidden" id="tileCtrl" style="margin-top:12px; margin-bottom:0;">
+      <label for="tile">Плиток в ряд <span class="val" id="vTile"></span></label>
+      <input type="range" id="tile" aria-label="Количество плиток" min="2" max="10" step="1" value="5">
+    </div>
+    <div class="hint">Бесшовный режим строит плитку, которую можно повторять без швов (CSS&nbsp;repeat).</div>
+  </div>
+
+  <!-- 02 Шаблоны -->
+  <div class="step">
+    <h2><span class="num">02</span> Шаблоны</h2>
+    <div class="grid2" id="presets"></div>
+    <button class="ghost" id="randomBtn">🎲 Случайная вариация</button>
+  </div>
+
+  <!-- 03 Поле -->
+  <div class="step">
+    <h2><span class="num">03</span> Поле</h2>
+    <div class="grid3" id="fields"></div>
+    <div class="ctrl" style="margin-top:12px;">
+      <label for="speed">Скорость <span class="val" id="vSpeed"></span></label>
+      <input type="range" id="speed" aria-label="Скорость анимации" min="0" max="3" step="0.01" value="0.6">
+    </div>
+    <div class="ctrl">
+      <label for="scale">Масштаб (Zoom) <span class="val" id="vScale"></span></label>
+      <input type="range" id="scale" aria-label="Масштаб" min="0.3" max="5" step="0.01" value="1.6">
+    </div>
+    <div class="ctrl">
+      <label for="warp">Искажение (Warp) <span class="val" id="vWarp"></span></label>
+      <input type="range" id="warp" aria-label="Искажение" min="0" max="9" step="0.05" value="4.5">
+    </div>
+    <div class="ctrl" style="margin-bottom:0;">
+      <label for="grain">Зернистость (Grain) <span class="val" id="vGrain"></span></label>
+      <input type="range" id="grain" aria-label="Зернистость" min="0" max="0.3" step="0.005" value="0.06">
+    </div>
+  </div>
+
+  <!-- 04 Поверхность -->
+  <div class="step">
+    <h2><span class="num">04</span> Поверхность</h2>
+    <div class="seg" id="screenSeg" role="group" aria-label="Тип поверхности">
+      <button data-screen="0" class="active" aria-pressed="true">Квадрат</button>
+      <button data-screen="1" aria-pressed="false">Гекс</button>
+      <button data-screen="2" aria-pressed="false">ASCII</button>
+    </div>
+    <div class="ctrl" id="pixelCtrl" style="margin-top:12px;">
+      <label for="pixel">Пикселизация / ячейка <span class="val" id="vPixel"></span></label>
+      <input type="range" id="pixel" aria-label="Пикселизация" min="1" max="40" step="1" value="1">
+    </div>
+    <div class="switch" id="dotsRow" style="margin-top:12px;">
+      <span id="dotsLabel">Полутон (точки)</span>
+      <div class="toggle" id="dotsToggle" role="switch" tabindex="0" aria-checked="false" aria-labelledby="dotsLabel"></div>
+    </div>
+    <div class="ctrl hidden" id="dotCtrl" style="margin-top:12px; margin-bottom:0;">
+      <label for="dot">Размер точки <span class="val" id="vDot"></span></label>
+      <input type="range" id="dot" aria-label="Размер точки" min="4" max="30" step="1" value="10">
+    </div>
+  </div>
+
+  <!-- 05 Цвета -->
+  <div class="step">
+    <h2><span class="num">05</span> Цвета</h2>
+    <div class="grid2" id="palettes"></div>
+    <div class="colors" id="colorPickers" style="margin-top:12px;"></div>
+    <div class="hint">Выберите палитру или соберите свою — клик по плашке меняет цвет градиента.</div>
+  </div>
+
+  <!-- 06 Экспорт -->
+  <div class="step">
+    <h2><span class="num">06</span> Экспорт и шеринг</h2>
+    <select id="exportRes" aria-label="Разрешение экспорта">
+      <option value="thumb">Эскиз (640px)</option>
+      <option value="1080" selected>1080p (Full HD)</option>
+      <option value="2048">2048×2048</option>
+      <option value="4k">4K (Ultra HD)</option>
+    </select>
+    <button class="primary" id="downloadPng">⬇ Скачать PNG</button>
+    <button class="primary rec" id="recordBtn">⏺ Записать видео (WebM)</button>
+    <button class="ghost" id="shareBtn">🔗 Ссылка на эту сцену</button>
+    <button class="ghost" id="embedBtn">&lt;/&gt; Код для встраивания</button>
+    <textarea id="embedBox" class="hidden" readonly aria-label="Код для встраивания"></textarea>
+    <input id="importBox" type="text" style="width:100%;margin-top:8px;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--panel-border);border-radius:9px;padding:8px;font-size:12px;font-family:ui-monospace,Menlo,monospace;" placeholder="Вставьте ссылку FLUID (#p=…) или ЖИЖА (#s=…)" aria-label="Импорт ссылки" />
+    <button class="ghost" id="importBtn">⤵ Загрузить сцену из ссылки</button>
+    <div class="hint">Ссылка кодирует все параметры в URL — открывший увидит ту же сцену. Поддерживается импорт ссылок FLUID (<code>#p=</code>) и ЖИЖА (<code>#s=</code>). Запись идёт прямо с холста; повторный клик — стоп и сохранение.</div>
+  </div>
+</aside>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+/* ===================================================================
+   ЖИЖА v2 — движок портирован из FLUID (value-noise GLSL, mobile-safe)
+   в чистую Three.js-оболочку с render-on-demand.
+   =================================================================== */
+
+/* ---------- Shaders ---------- */
+const VERT = `
+  void main(){ gl_Position = vec4(position, 1.0); }
+`;
+
+const FRAG = `
+precision highp float;
+
+uniform vec2  u_res;
+uniform float u_time;
+uniform float u_seed;
+uniform float u_scale;
+uniform float u_warp;
+uniform float u_grain;
+uniform float u_pixel;
+uniform float u_dots;
+uniform float u_dot;
+uniform int   u_pal;
+uniform vec3  u_c0;
+uniform vec3  u_c1;
+uniform vec3  u_c2;
+uniform vec3  u_c3;
+uniform int   u_field;
+uniform int   u_screen;
+uniform float u_seamless;
+uniform float u_tile;
+uniform sampler2D u_glyph;
+uniform vec2  u_mouse;
+uniform float u_mouseAmt;
+
+/* precision-safe hash — no huge sin args, stable on mobile + long sessions */
+float hash(vec2 p){
+  p = fract(p * 0.3183099 + fract(u_seed * 0.1031) + 0.1);
+  p *= 17.0;
+  return fract(p.x * p.y * (p.x + p.y));
+}
+float vnoise(vec2 p){
+  vec2 i = floor(p); vec2 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float a = hash(i);
+  float b = hash(i + vec2(1.0, 0.0));
+  float c = hash(i + vec2(0.0, 1.0));
+  float d = hash(i + vec2(1.0, 1.0));
+  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+float fbm(vec2 p){
+  float v = 0.0; float a = 0.5;
+  for(int i = 0; i < 5; i++){ v += a * vnoise(p); p = p * 2.03 + vec2(11.7, 5.9); a *= 0.5; }
+  return v;
+}
+/* periodic value noise -> exact tiling */
+float pnoise(vec2 p, vec2 per){
+  vec2 i = floor(p); vec2 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float a = hash(mod(i, per));
+  float b = hash(mod(i + vec2(1.0, 0.0), per));
+  float c = hash(mod(i + vec2(0.0, 1.0), per));
+  float d = hash(mod(i + vec2(1.0, 1.0), per));
+  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+float pfbm(vec2 p, vec2 per){
+  float v = 0.0; float a = 0.5; vec2 pr = per;
+  for(int i = 0; i < 5; i++){ v += a * pnoise(p, pr); p = p * 2.0; pr *= 2.0; a *= 0.5; }
+  return v;
+}
+vec2 hash22(vec2 p){ return vec2(hash(p), hash(p + vec2(37.2, 17.3))); }
+
+vec2 hexCenter(vec2 p){
+  vec2 r = vec2(1.0, 1.7320508); vec2 h = r * 0.5;
+  vec2 a = mod(p, r) - h; vec2 b = mod(p - h, r) - h;
+  vec2 gv = dot(a, a) < dot(b, b) ? a : b;
+  return p - gv;
+}
+
+/* field B: curl of a noise potential -> divergence-free flow */
+vec2 fgrad(vec2 p, vec2 off){
+  float e = 0.06;
+  float gx = fbm(p + vec2(e, 0.0) + off) - fbm(p - vec2(e, 0.0) + off);
+  float gy = fbm(p + vec2(0.0, e) + off) - fbm(p - vec2(0.0, e) + off);
+  return vec2(gx, gy) / (2.0 * e);
+}
+float fieldFlow(vec2 p, vec2 drift){
+  vec2 g = fgrad(p, drift);
+  vec2 curl = vec2(g.y, -g.x);
+  return fbm(p + curl * (0.6 + u_warp * 0.25) + drift);
+}
+/* field C: Worley/Voronoi cellular */
+float fieldCellular(vec2 p, float t){
+  vec2 ip = floor(p); vec2 fp = fract(p);
+  float f1 = 9.0; float f2 = 9.0;
+  for (int j = -1; j <= 1; j++){ for (int i = -1; i <= 1; i++){
+    vec2 g = vec2(float(i), float(j));
+    vec2 o = hash22(ip + g);
+    o = 0.5 + 0.5 * sin(t * 0.5 + 6.2831 * o);
+    vec2 d = g + o - fp; float dd = dot(d, d);
+    if (dd < f1){ f2 = f1; f1 = dd; } else if (dd < f2){ f2 = dd; }
+  }}
+  f1 = sqrt(f1); f2 = sqrt(f2);
+  return mix(1.0 - f1, f2 - f1, clamp(u_warp / 9.0, 0.0, 1.0));
+}
+float fieldCellularP(vec2 p, float t, vec2 per){
+  vec2 ip = floor(p); vec2 fp = fract(p);
+  float f1 = 9.0; float f2 = 9.0;
+  for (int j = -1; j <= 1; j++){ for (int i = -1; i <= 1; i++){
+    vec2 g = vec2(float(i), float(j));
+    vec2 o = hash22(mod(ip + g, per));
+    o = 0.5 + 0.5 * sin(t * 0.5 + 6.2831 * o);
+    vec2 d = g + o - fp; float dd = dot(d, d);
+    if (dd < f1){ f2 = f1; f1 = dd; } else if (dd < f2){ f2 = dd; }
+  }}
+  f1 = sqrt(f1); f2 = sqrt(f2);
+  return mix(1.0 - f1, f2 - f1, clamp(u_warp / 9.0, 0.0, 1.0));
+}
+/* field D: gyroid */
+float fieldGyroid(vec2 p, float t){
+  vec3 q = vec3(p * 1.4, t * 0.3);
+  float g = sin(q.x) * cos(q.y) + sin(q.y) * cos(q.z) + sin(q.z) * cos(q.x);
+  g += (0.15 + u_warp * 0.12) * sin(2.0 * g + length(p));
+  return 0.5 + 0.5 * sin(g * 1.6);
+}
+/* field E: truchet */
+float truchetCell(vec2 p, float h){
+  vec2 fp = fract(p);
+  if (h < 0.5){ fp.x = 1.0 - fp.x; }
+  float d = min(length(fp), length(fp - 1.0));
+  d = abs(d - 0.5);
+  float bands = 4.0 + u_warp * 2.5;
+  return 0.5 + 0.5 * cos(d * bands * 6.2831853 - u_time * 1.5);
+}
+float fieldTruchet(vec2 p, float t){ return truchetCell(p, hash(floor(p))); }
+float fieldTruchetP(vec2 p, float t, vec2 per){ return truchetCell(p, hash(mod(floor(p), per))); }
+/* field F: interference */
+float fieldInterf(vec2 p, float t){
+  float v = 0.0;
+  for (int i = 0; i < 4; i++){
+    float fi = float(i);
+    vec2 c = 1.2 * vec2(sin(t * 0.2 + fi * 1.7), cos(t * 0.17 + fi * 2.3));
+    float freq = 5.0 + u_warp * 2.0 + fi * 1.6;
+    v += sin(length(p - c) * freq - t * 1.2 + fi);
+  }
+  return 0.5 + 0.5 * (v / 4.0);
+}
+/* field G: kaleidoscope */
+float fieldKaleido(vec2 p, float t){
+  float ang = atan(p.y, p.x); float rad = length(p);
+  float sectors = 3.0 + floor(u_warp * 0.7);
+  float seg = 6.2831853 / sectors;
+  ang = mod(ang, seg); ang = abs(ang - 0.5 * seg);
+  vec2 q = vec2(cos(ang), sin(ang)) * rad;
+  return fbm(q * 1.6 + vec2(t * 0.1, 0.0));
+}
+/* field H: lines */
+float fieldLines(vec2 p, float t){
+  float ang = u_warp * 0.35; float c = cos(ang), s = sin(ang);
+  vec2 q = vec2(c * p.x - s * p.y, s * p.x + c * p.y);
+  float freq = 5.0 + u_warp * 1.4;
+  return 0.5 + 0.5 * sin(q.x * freq + 0.6 * sin(q.y * 0.7 + t * 0.3));
+}
+/* field I: grid */
+float fieldGrid(vec2 p, float t){
+  float freq = 4.0 + u_warp * 1.4;
+  float gx = sin(p.x * freq + t * 0.2);
+  float gy = sin(p.y * freq - t * 0.2);
+  float lines = max(gx, gy);
+  float nodes = gx * gy;
+  return 0.5 + 0.5 * mix(lines, nodes, 0.35);
+}
+/* field J: golden */
+float fieldGolden(vec2 p, float t){
+  float r = length(p) * (1.3 + u_warp * 0.18);
+  float a = atan(p.y, p.x); float n = r * r;
+  float spiral = cos(a - n * 2.39996323 + t * 0.2);
+  float rings = cos(n * 3.14159265 - t * 0.1);
+  return 0.5 + 0.5 * spiral * rings;
+}
+
+vec3 ramp4(float t, vec3 a, vec3 b, vec3 c, vec3 d){
+  t = clamp(t, 0.0, 1.0);
+  vec3 col = mix(a, b, smoothstep(0.0, 0.34, t));
+  col = mix(col, c, smoothstep(0.33, 0.67, t));
+  col = mix(col, d, smoothstep(0.66, 1.0, t));
+  return col;
+}
+vec3 palChrome(float f){
+  float band = sin(f * 22.0);
+  vec3 c = vec3(0.10 + 0.82 * f) * (0.78 + 0.22 * band);
+  float edge = pow(1.0 - abs(band), 4.0);
+  vec3 sheen = 0.5 + 0.5 * cos(6.28318 * (f * 3.0 + vec3(0.0, 0.33, 0.67)));
+  return c + sheen * edge * 0.22;
+}
+
+void main(){
+  /* 1 - screen geometry: quantize coords */
+  float csA = max(u_pixel, 8.0);
+  vec2 fc = gl_FragCoord.xy;
+  if (u_screen == 1){ float cs = max(u_pixel, 3.0); fc = hexCenter(fc / cs) * cs; }
+  else if (u_screen == 2){ fc = (floor(fc / csA) + 0.5) * csA; }
+  else if (u_pixel > 1.5){
+    /* square screen (0): pixelate when the slider is above 1 — this stacks with
+       halftone below, exactly like the reference (Square + halftone + pixelate) */
+    if (u_seamless > 0.5){
+      vec2 px = u_res / max(vec2(1.0), floor(u_res / u_pixel));
+      fc = (floor(fc / px) + 0.5) * px;
+    } else { fc = (floor(fc / u_pixel) + 0.5) * u_pixel; }
+  }
+
+  /* 2 - field coords: isotropic, same amount of field at every aspect */
+  float mn = sqrt(u_res.x * u_res.y);
+  vec2 uv = (fc - 0.5 * u_res) / mn;
+  vec2 p;
+  vec2 tile2 = vec2(u_tile);
+  if (u_seamless > 0.5){
+    tile2 = vec2(u_tile, max(1.0, floor(u_tile * u_res.y / u_res.x + 0.5)));
+    p = (fc / u_res) * tile2;
+  } else { p = uv * u_scale * 3.0; }
+
+  /* cursor ripples (live, non-seamless) */
+  if (u_seamless < 0.5 && u_mouseAmt > 0.001){
+    vec2 mUv = (u_mouse * u_res - 0.5 * u_res) / mn;
+    vec2 dv = uv - mUv; float md = length(dv);
+    vec2 nz = vec2(fbm(dv * 6.0 + u_time * 0.3), fbm(dv * 6.0 + vec2(7.3, 2.1) - u_time * 0.25)) - 0.5;
+    float env = exp(-md * 9.0);
+    float wave = cos((md + nz.x * 0.12) * 30.0 - u_time * 2.0);
+    vec2 dir = normalize(dv / max(md, 0.0008) + nz * 0.9);
+    p += dir * wave * env * u_mouseAmt * 0.08;
+  }
+
+  /* bounded drift — orbit instead of growing coords (no float-precision flicker) */
+  float d1 = 37.0 * sin(u_time * 0.004054);
+  float d2 = 31.0 * sin(u_time * 0.004065);
+  vec2 disp = vec2(0.5);
+  float f;
+  if (u_seamless > 0.5){
+    if (u_field == 2){ f = fieldCellularP(p, u_time, tile2); }
+    else if (u_field == 4){ f = fieldTruchetP(p, u_time, tile2); }
+    else {
+      vec2 q = vec2(pfbm(p, tile2), pfbm(p + vec2(5.2, 1.3), tile2));
+      disp = vec2(
+        pfbm(p + u_warp * q + vec2(1.7, 9.2) + d1, tile2),
+        pfbm(p + u_warp * q + vec2(8.3, 2.8) + d2, tile2)
+      );
+      f = pfbm(p + u_warp * disp, tile2);
+    }
+  }
+  else if (u_field == 1){ f = fieldFlow(p, vec2(d1, d2)); }
+  else if (u_field == 2){ f = fieldCellular(p, u_time); }
+  else if (u_field == 3){ f = fieldGyroid(p, u_time); }
+  else if (u_field == 4){ f = fieldTruchet(p, u_time); }
+  else if (u_field == 5){ f = fieldInterf(p, u_time); }
+  else if (u_field == 6){ f = fieldKaleido(p, u_time); }
+  else if (u_field == 7){ f = fieldLines(p, u_time); }
+  else if (u_field == 8){ f = fieldGrid(p, u_time); }
+  else if (u_field == 9){ f = fieldGolden(p, u_time); }
+  else {
+    vec2 q = vec2(fbm(p), fbm(p + vec2(5.2, 1.3)));
+    disp = vec2(
+      fbm(p + u_warp * q + vec2(1.7, 9.2) + d1),
+      fbm(p + u_warp * q + vec2(8.3, 2.8) + d2)
+    );
+    f = fbm(p + u_warp * disp);
+  }
+  f = smoothstep(0.08, 0.92, f);
+
+  /* 4 - palette */
+  vec3 col;
+  if (u_pal == 7){ col = palChrome(f); }
+  else           { col = ramp4(f, u_c0, u_c1, u_c2, u_c3); }
+  col += smoothstep(0.72, 1.0, f) * 0.12;
+
+  /* 5 - halftone (square/smooth screen only) */
+  if (u_dots > 0.5 && u_screen == 0){
+    vec2 g = mod(gl_FragCoord.xy, u_dot) - 0.5 * u_dot;
+    float lum = dot(col, vec3(0.299, 0.587, 0.114));
+    float radius = 0.5 * u_dot * sqrt(clamp(lum, 0.0, 1.0)) * 0.92;
+    float dm = 1.0 - smoothstep(radius - 0.8, radius + 0.8, length(g));
+    col = mix(col * 0.12, col * 1.12, dm);
+  }
+  /* 5b - ascii: cell brightness picks a glyph from the atlas */
+  if (u_screen == 2){
+    float lum = clamp(dot(col, vec3(0.299, 0.587, 0.114)), 0.0, 1.0);
+    float gi = floor(lum * 9.999);
+    vec2 cl = fract(gl_FragCoord.xy / csA);
+    vec2 guv = vec2((gi + cl.x) / 10.0, 1.0 - cl.y);
+    col *= texture2D(u_glyph, guv).r;
+  }
+
+  /* 6 - grain + vignette (skipped in seamless so the tile stays clean) */
+  if (u_seamless < 0.5){
+    float gr = hash(gl_FragCoord.xy * 0.731 + mod(floor(u_time * 10.0), 61.0) * 1.7) - 0.5;
+    col += gr * u_grain;
+    col *= 1.0 - 0.22 * dot(uv, uv);
+  }
+
+  col = clamp(col, 0.0, 1.0);
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+/* ---------- Palettes (4 stops, dark->light, RGB 0-1) ---------- */
+const PALETTES = [
+  { id:0, name:'Сияние',  stops:[[0.035,0.063,0.16],[0.05,0.42,0.45],[0.27,0.78,0.55],[0.96,0.74,0.84]] },
+  { id:1, name:'Закат',   stops:[[0.10,0.045,0.18],[0.52,0.12,0.42],[0.93,0.40,0.25],[0.99,0.84,0.52]] },
+  { id:2, name:'Океан',   stops:[[0.02,0.05,0.14],[0.04,0.29,0.50],[0.18,0.66,0.76],[0.78,0.96,0.91]] },
+  { id:3, name:'Сумерки', stops:[[0.085,0.078,0.20],[0.35,0.22,0.55],[0.70,0.49,0.77],[0.97,0.80,0.87]] },
+  { id:4, name:'Уголь',   stops:[[0.035,0.02,0.02],[0.49,0.10,0.10],[0.90,0.45,0.13],[0.98,0.90,0.72]] },
+  { id:5, name:'Мята',    stops:[[0.03,0.13,0.11],[0.12,0.43,0.35],[0.45,0.83,0.67],[0.93,0.99,0.95]] },
+  { id:6, name:'Ирис',    stops:[[0.04,0.03,0.10],[0.27,0.14,0.62],[0.40,0.62,0.95],[0.92,0.86,0.99]] },
+  { id:7, name:'Хром',    stops:[[0.06,0.06,0.07],[0.35,0.36,0.38],[0.68,0.70,0.72],[0.94,0.95,0.97]] }, // procedural
+  { id:8, name:'Свой',    stops:[[0.035,0.063,0.16],[0.05,0.42,0.45],[0.27,0.78,0.55],[0.96,0.74,0.84]] },
+];
+
+const FIELDS = [
+  { id:0, name:'Поток' }, { id:1, name:'Течение' }, { id:2, name:'Клетки' },
+  { id:3, name:'Гироид' }, { id:4, name:'Труше' }, { id:5, name:'Интерф.' },
+  { id:6, name:'Калейдо' }, { id:7, name:'Линии' }, { id:8, name:'Сетка' }, { id:9, name:'Золото' },
+];
+
+/* presets: [speed,scale,warp,grain, field, pal, seamless, screen, dots, pixel, dot] */
+const PRESETS = [
+  { name:'Бореалис',  v:[0.40,2.0,3.5,0.03, 0, 0, 0, 0, 0, 1, 10] },
+  { name:'Послесвет', v:[0.50,1.6,4.0,0.03, 1, 1, 0, 0, 0, 1, 10] },
+  { name:'Прилив',    v:[0.50,1.5,5.0,0.03, 1, 2, 0, 0, 0, 1, 10] },
+  { name:'Магма',     v:[0.45,1.8,4.5,0.03, 0, 4, 0, 0, 0, 1, 10] },
+  { name:'Туманность',v:[0.40,1.9,7.0,0.03, 2, 6, 0, 0, 0, 1, 10] },
+  { name:'Плазма',    v:[0.70,1.2,8.0,0.04, 1, 0, 0, 0, 0, 1, 10] },
+  { name:'Бархат',    v:[0.30,2.6,2.0,0.02, 0, 3, 0, 0, 0, 1, 10] },
+  { name:'Оникс',     v:[0.40,1.9,8.0,0.03, 2, 7, 0, 0, 0, 1, 10] },
+  { name:'Плетение',  v:[0.40,1.6,5.0,0.03, 3, 5, 0, 0, 0, 1, 10] },
+  { name:'Контур',    v:[0.30,2.0,4.0,0.02, 4, 7, 1, 0, 0, 1, 10] },
+  { name:'Рябь',      v:[0.50,1.4,5.0,0.03, 5, 2, 0, 0, 0, 1, 10] },
+  { name:'Мандала',   v:[0.35,1.5,6.0,0.03, 6, 6, 0, 0, 0, 1, 10] },
+  { name:'Страты',    v:[0.30,1.6,3.0,0.02, 7, 3, 0, 0, 0, 1, 10] },
+  { name:'Решётка',   v:[0.30,1.8,4.0,0.02, 8, 5, 0, 0, 0, 1, 10] },
+  { name:'Подсолнух', v:[0.30,1.4,5.0,0.02, 9, 4, 0, 0, 0, 1, 10] },
+  { name:'Гидрополе', v:[0.30,1.35,4.8,0.02, 3, 2, 0, 0, 1, 4, 9] }, // = FLUID Gyroid+Ocean+halftone+pixelate
+];
+
+const RATIOS = { '9:16':9/16, '4:5':4/5, '1:1':1, '5:4':5/4, '3:2':3/2, '16:9':16/9 };
+
+/* ---------- State ---------- */
+const state = {
+  speed:0.6, scale:1.6, warp:4.5, grain:0.06,
+  field:0, pal:0, seamless:0, tile:5,
+  screen:0, pixel:1, dots:0, dot:10,
+  cols: PALETTES[0].stops.map(s=>s.slice()),
+  seed: 3 + Math.random()*89,
+  ratio:'16:9',
+};
+let aspectRatio = RATIOS['16:9'];
+let live = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+/* ---------- ASCII glyph atlas (10 chars dark->light) ---------- */
+function buildGlyphTexture(){
+  const chars = ' .:-=+*#%@';
+  const cell = 16, W = cell*10, H = cell;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  x.fillStyle = '#000'; x.fillRect(0,0,W,H);
+  x.fillStyle = '#fff'; x.font = `${cell-2}px ui-monospace, Menlo, monospace`;
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  for(let i=0;i<10;i++) x.fillText(chars[i], i*cell + cell/2, cell/2 + 1);
+  const tex = new THREE.CanvasTexture(c);
+  tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter;
+  tex.wrapS = THREE.ClampToEdgeWrapping; tex.wrapT = THREE.ClampToEdgeWrapping;
+  return tex;
+}
+
+/* ---------- Setup ---------- */
+const wrap = document.getElementById('canvasWrap');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias:true, preserveDrawingBuffer:true, alpha:false, powerPreference:'high-performance' });
+} catch(err){
+  wrap.innerHTML = '<div style="padding:40px;color:#fff;font:14px sans-serif;max-width:340px;text-align:center;">Ваш браузер не поддерживает WebGL — фон отрисовать нельзя. Попробуйте свежий Chrome, Firefox или Edge.</div>';
+  throw err;
+}
+const MAX_DPR = 1.5;
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_DPR));
+wrap.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+
+const uniforms = {
+  u_res:      { value: new THREE.Vector2(1,1) },
+  u_time:     { value: 0 },
+  u_seed:     { value: state.seed },
+  u_scale:    { value: state.scale },
+  u_warp:     { value: state.warp },
+  u_grain:    { value: state.grain },
+  u_pixel:    { value: 1 },
+  u_dots:     { value: 0 },
+  u_dot:      { value: state.dot },
+  u_pal:      { value: 0 },
+  u_c0:       { value: new THREE.Color() },
+  u_c1:       { value: new THREE.Color() },
+  u_c2:       { value: new THREE.Color() },
+  u_c3:       { value: new THREE.Color() },
+  u_field:    { value: 0 },
+  u_screen:   { value: 0 },
+  u_seamless: { value: 0 },
+  u_tile:     { value: state.tile },
+  u_glyph:    { value: buildGlyphTexture() },
+  u_mouse:    { value: new THREE.Vector2(0.5,0.5) },
+  u_mouseAmt: { value: 0 },
+};
+
+const mat = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms });
+const quad = new THREE.Mesh(new THREE.PlaneGeometry(2,2), mat);
+scene.add(quad);
+
+/* ---------- Apply state -> uniforms ---------- */
+function applyCols(){
+  const stops = state.pal === 8 ? state.cols : PALETTES[state.pal].stops;
+  uniforms.u_c0.value.setRGB(...stops[0]);
+  uniforms.u_c1.value.setRGB(...stops[1]);
+  uniforms.u_c2.value.setRGB(...stops[2]);
+  uniforms.u_c3.value.setRGB(...stops[3]);
+  uniforms.u_pal.value = state.pal;
+}
+function syncUniforms(){
+  uniforms.u_seed.value = state.seed;
+  uniforms.u_scale.value = state.scale;
+  uniforms.u_warp.value = state.warp;
+  uniforms.u_grain.value = state.grain;
+  uniforms.u_field.value = state.field;
+  uniforms.u_seamless.value = state.seamless;
+  uniforms.u_tile.value = state.tile;
+  uniforms.u_screen.value = state.screen;
+  uniforms.u_pixel.value = state.pixel; // shader pixelates square only when >1.5; hex/ascii use it as cell size
+  uniforms.u_dots.value = state.dots;
+  uniforms.u_dot.value = state.dot;
+  applyCols();
+  markDirty();
+}
+
+/* ---------- Helpers ---------- */
+function rgb01ToHex(c){ const p=x=>{const s=Math.max(0,Math.min(255,Math.round(x*255))).toString(16);return s.length<2?'0'+s:s;}; return '#'+p(c[0])+p(c[1])+p(c[2]); }
+function hexToRgb01(h){ h=h.replace('#',''); return [parseInt(h.substr(0,2),16)/255,parseInt(h.substr(2,2),16)/255,parseInt(h.substr(4,2),16)/255]; }
+function gradCss(stops){ return `linear-gradient(135deg, ${stops.map(rgb01ToHex).join(',')})`; }
+function set(id,v){ const el=document.getElementById(id); if(el) el.value=v; }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); }
+
+/* ---------- Build UI: presets ---------- */
+const presetsEl = document.getElementById('presets');
+PRESETS.forEach(p=>{
+  const b=document.createElement('div'); b.className='chip'; b.setAttribute('role','button'); b.setAttribute('tabindex','0');
+  b.setAttribute('aria-label','Шаблон: '+p.name);
+  const sw=PALETTES[p.v[5]].stops;
+  b.innerHTML=`<span class="sw" style="background:${gradCss(sw)}"></span><span>${p.name}</span>`;
+  const act=()=>{ loadPreset(p); document.querySelectorAll('#presets .chip').forEach(x=>x.classList.remove('active')); b.classList.add('active'); };
+  b.onclick=act; b.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();act();} };
+  presetsEl.appendChild(b);
+});
+
+/* ---------- Build UI: fields ---------- */
+const fieldsEl = document.getElementById('fields');
+function refreshFieldButtons(){ document.querySelectorAll('#fields .opt').forEach(x=>{ const on=+x.dataset.field===state.field; x.classList.toggle('active',on); x.setAttribute('aria-pressed',on); }); }
+FIELDS.forEach(f=>{
+  const b=document.createElement('button'); b.className='opt'; b.dataset.field=f.id; b.textContent=f.name;
+  b.setAttribute('aria-pressed','false');
+  b.onclick=()=>{ state.field=f.id; refreshFieldButtons(); syncUniforms(); };
+  fieldsEl.appendChild(b);
+});
+
+/* ---------- Build UI: palettes ---------- */
+const palettesEl = document.getElementById('palettes');
+function refreshPaletteButtons(){ document.querySelectorAll('#palettes .chip').forEach(x=>x.classList.toggle('active',+x.dataset.pal===state.pal)); }
+PALETTES.forEach(pl=>{
+  const b=document.createElement('div'); b.className='chip'; b.dataset.pal=pl.id; b.setAttribute('role','button'); b.setAttribute('tabindex','0');
+  b.setAttribute('aria-label','Палитра: '+pl.name);
+  b.innerHTML=`<span class="sw" style="background:${gradCss(pl.stops)}"></span><span>${pl.name}</span>`;
+  const act=()=>{ state.pal=pl.id; if(pl.id===8){} else { state.cols=pl.stops.map(s=>s.slice()); } refreshPaletteButtons(); buildColorPickers(); syncUniforms(); };
+  b.onclick=act; b.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();act();} };
+  palettesEl.appendChild(b);
+});
+
+/* ---------- Color pickers (edit -> custom palette) ---------- */
+function buildColorPickers(){
+  const wrapC=document.getElementById('colorPickers'); wrapC.innerHTML='';
+  const stops = state.pal===8 ? state.cols : PALETTES[state.pal].stops;
+  for(let i=0;i<4;i++){
+    const div=document.createElement('div'); div.className='colorItem';
+    const inp=document.createElement('input'); inp.type='color'; inp.value=rgb01ToHex(stops[i]);
+    inp.setAttribute('aria-label','Цвет градиента '+(i+1));
+    inp.oninput=()=>{
+      // editing any stop snaps to the custom palette
+      if(state.pal!==8){ state.cols = PALETTES[state.pal].stops.map(s=>s.slice()); state.pal=8; refreshPaletteButtons(); }
+      state.cols[i]=hexToRgb01(inp.value); syncUniforms();
+    };
+    div.appendChild(inp); wrapC.appendChild(div);
+  }
+}
+
+/* ---------- Sliders ---------- */
+const sliderMap = { speed:'speed', scale:'scale', warp:'warp', grain:'grain', tile:'tile', pixel:'pixel', dot:'dot' };
+Object.keys(sliderMap).forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener('input', e=>{
+    const v=parseFloat(e.target.value);
+    if(id==='tile'||id==='pixel'||id==='dot') state[id]=Math.round(v); else state[id]=v;
+    updateLabels(); syncUniforms();
+  });
+});
+function updateLabels(){
+  document.getElementById('vSpeed').textContent = state.speed.toFixed(2);
+  document.getElementById('vScale').textContent = state.scale.toFixed(2);
+  document.getElementById('vWarp').textContent = state.warp.toFixed(2);
+  document.getElementById('vGrain').textContent = state.grain.toFixed(3);
+  document.getElementById('vTile').textContent = state.tile;
+  document.getElementById('vPixel').textContent = state.pixel;
+  document.getElementById('vDot').textContent = state.dot;
+}
+
+/* ---------- Ratio segment ---------- */
+document.querySelectorAll('#ratioSeg button').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('#ratioSeg button').forEach(x=>{ x.classList.remove('active'); x.setAttribute('aria-pressed','false'); });
+    b.classList.add('active'); b.setAttribute('aria-pressed','true');
+    state.ratio=b.dataset.ratio; aspectRatio=RATIOS[state.ratio]; resize();
+  };
+});
+function refreshRatioButtons(){
+  document.querySelectorAll('#ratioSeg button').forEach(x=>{ const on=x.dataset.ratio===state.ratio; x.classList.toggle('active',on); x.setAttribute('aria-pressed',on); });
+}
+
+/* ---------- Seamless toggle ---------- */
+const seamlessToggle=document.getElementById('seamlessToggle');
+const tileCtrl=document.getElementById('tileCtrl');
+function refreshSeamless(){
+  const on=!!state.seamless;
+  seamlessToggle.classList.toggle('on',on); seamlessToggle.setAttribute('aria-checked',on);
+  wrap.classList.toggle('seamless',on); tileCtrl.classList.toggle('hidden',!on);
+}
+function toggleSeamless(){ state.seamless=state.seamless?0:1; refreshSeamless(); syncUniforms(); }
+seamlessToggle.onclick=toggleSeamless;
+seamlessToggle.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleSeamless();} };
+
+/* ---------- Surface (screen) segment ---------- */
+const pixelCtrl=document.getElementById('pixelCtrl');
+const dotsRow=document.getElementById('dotsRow');
+const dotCtrl=document.getElementById('dotCtrl');
+const dotsToggle=document.getElementById('dotsToggle');
+function refreshSurface(){
+  document.querySelectorAll('#screenSeg button').forEach(x=>{ const on=+x.dataset.screen===state.screen; x.classList.toggle('active',on); x.setAttribute('aria-pressed',on); });
+  // pixel slider always available: 1 = smooth, >1 = pixelate (square) / cell size (hex, ascii)
+  // halftone (точки) lives on the square surface and STACKS with pixelation
+  dotsRow.classList.toggle('hidden', state.screen!==0);
+  dotsToggle.classList.toggle('on',!!state.dots); dotsToggle.setAttribute('aria-checked',!!state.dots);
+  dotCtrl.classList.toggle('hidden', !(state.screen===0 && state.dots));
+}
+document.querySelectorAll('#screenSeg button').forEach(b=>{
+  b.onclick=()=>{ state.screen=+b.dataset.screen; refreshSurface(); syncUniforms(); };
+});
+function toggleDots(){ state.dots=state.dots?0:1; refreshSurface(); syncUniforms(); }
+dotsToggle.onclick=toggleDots;
+dotsToggle.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleDots();} };
+
+/* ---------- Load preset ---------- */
+function loadPreset(p){
+  const [speed,scale,warp,grain,field,pal,seamless,screen,dots,pixel=1,dot=10]=p.v;
+  Object.assign(state,{speed,scale,warp,grain,field,pal,seamless,screen,dots,pixel,dot});
+  if(pal!==8) state.cols=PALETTES[pal].stops.map(s=>s.slice());
+  set('speed',speed); set('scale',scale); set('warp',warp); set('grain',grain); set('pixel',pixel); set('dot',dot);
+  refreshFieldButtons(); refreshPaletteButtons(); refreshSeamless(); refreshSurface();
+  buildColorPickers(); updateLabels(); syncUniforms();
+}
+
+/* ---------- Random ---------- */
+document.getElementById('randomBtn').onclick=()=>{
+  state.seed=Math.random()*100;
+  state.field=Math.floor(Math.random()*FIELDS.length);
+  state.speed=0.3+Math.random()*1.0;
+  state.scale=1.0+Math.random()*3.0;
+  state.warp=Math.random()*9.0;
+  state.pal=Math.floor(Math.random()*8);
+  state.cols=PALETTES[state.pal].stops.map(s=>s.slice());
+  set('speed',state.speed); set('scale',state.scale); set('warp',state.warp);
+  document.querySelectorAll('#presets .chip').forEach(x=>x.classList.remove('active'));
+  refreshFieldButtons(); refreshPaletteButtons(); buildColorPickers(); updateLabels(); syncUniforms();
+};
+
+/* ---------- Live / Still ---------- */
+const mLive=document.getElementById('modeLive'), mStill=document.getElementById('modeStill');
+function setMode(l){ live=l; mLive.classList.toggle('active',l); mStill.classList.toggle('active',!l);
+  mLive.setAttribute('aria-pressed',l); mStill.setAttribute('aria-pressed',!l); markDirty(); }
+mLive.onclick=()=>setMode(true); mStill.onclick=()=>setMode(false);
+
+/* ---------- Panel drawer (mobile) ---------- */
+const panelEl=document.getElementById('panel'), panelToggle=document.getElementById('panelToggle');
+function setPanel(open){ panelEl.classList.toggle('collapsed',!open); panelToggle.setAttribute('aria-expanded',open); panelToggle.textContent=open?'✕':'☰'; }
+panelToggle.onclick=()=>setPanel(panelEl.classList.contains('collapsed'));
+const mq=window.matchMedia('(max-width: 760px)');
+const syncPanel=()=>setPanel(!mq.matches);
+mq.addEventListener('change',syncPanel); syncPanel();
+
+/* ---------- Mouse ripple ---------- */
+const dom=renderer.domElement;
+dom.setAttribute('role','img');
+dom.setAttribute('aria-label','Анимированный процедурный фон. Двигайте курсором, чтобы создавать рябь.');
+function pointer(e){
+  const r=dom.getBoundingClientRect();
+  const cx=e.touches?e.touches[0].clientX:e.clientX;
+  const cy=e.touches?e.touches[0].clientY:e.clientY;
+  uniforms.u_mouse.value.set((cx-r.left)/r.width, 1.0-(cy-r.top)/r.height);
+  uniforms.u_mouseAmt.value=Math.min(1.0, uniforms.u_mouseAmt.value+0.35);
+}
+dom.addEventListener('pointermove',pointer);
+dom.addEventListener('touchmove',pointer,{passive:true});
+
+/* ---------- Resize ---------- */
+function resize(){
+  const stage=document.getElementById('stageInner');
+  const availW=stage.clientWidth, availH=stage.clientHeight;
+  let w,h;
+  if(document.body.classList.contains('embed')){
+    // full-bleed background: fill the frame (shader is isotropic, so no distortion)
+    w=availW; h=availH;
+  } else {
+    w=availW; h=w/aspectRatio;
+    if(h>availH){ h=availH; w=h*aspectRatio; }
+  }
+  wrap.style.width=w+'px'; wrap.style.height=h+'px';
+  renderer.setSize(w,h,false);
+  uniforms.u_res.value.set(w*renderer.getPixelRatio(), h*renderer.getPixelRatio());
+  markDirty();
+}
+window.addEventListener('resize',resize);
+
+/* ---------- Render loop (render-on-demand) ---------- */
+let last=performance.now(), tClock=0;
+let fpsCount=0, fpsLast=performance.now(), lastDraw=0;
+const FRAME_MS=1000/60;
+let dirty=true, visible=true;
+const fpsEl=document.getElementById('fps');
+function markDirty(){ dirty=true; }
+
+function loop(now){
+  const dt=Math.min((now-last)/1000,0.1); last=now;
+  if(live) tClock += dt*state.speed;
+  const rippling=uniforms.u_mouseAmt.value>0.002;
+  const wantDraw=live||rippling||dirty;
+  if(wantDraw){
+    if((now-lastDraw)>=FRAME_MS-1){
+      lastDraw=now;
+      uniforms.u_time.value=tClock;
+      uniforms.u_mouseAmt.value*=0.94;
+      renderer.render(scene,camera);
+      dirty=false;
+      fpsCount++;
+      if(now-fpsLast>500){ fpsEl.textContent=Math.round(fpsCount*1000/(now-fpsLast))+' FPS'; fpsLast=now; fpsCount=0; }
+    }
+  } else { fpsEl.textContent='статика'; fpsLast=now; fpsCount=0; }
+  if(visible) requestAnimationFrame(loop);
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){ visible=false; }
+  else if(!visible){ visible=true; last=performance.now(); fpsLast=last; markDirty(); requestAnimationFrame(loop); }
+});
+
+/* ---------- PNG export ---------- */
+document.getElementById('downloadPng').onclick=()=>{
+  const res=document.getElementById('exportRes').value;
+  let base; if(res==='thumb')base=640; else if(res==='1080')base=1080; else if(res==='2048')base=2048; else base=2160;
+  let w,h;
+  if(res==='2048'){ w=h=2048; }
+  else if(aspectRatio>=1){ h=base; w=Math.round(base*aspectRatio); }
+  else { w=base; h=Math.round(base/aspectRatio); }
+  if(w>4096){ const s=4096/w; w=Math.round(w*s); h=Math.round(h*s); }
+  const oldPR=renderer.getPixelRatio();
+  renderer.setPixelRatio(1); renderer.setSize(w,h,false);
+  uniforms.u_res.value.set(w,h); uniforms.u_time.value=tClock;
+  renderer.render(scene,camera);
+  const url=renderer.domElement.toDataURL('image/png');
+  renderer.setPixelRatio(oldPR); resize();
+  const a=document.createElement('a'); a.href=url; a.download=`zhizha_${Date.now()}.png`; a.click();
+};
+
+/* ---------- Video record ---------- */
+let recorder=null, chunks=[], recording=false;
+const recBtn=document.getElementById('recordBtn'), recDot=document.getElementById('recDot');
+const canRecord=!!(window.MediaRecorder && dom.captureStream &&
+  (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')||MediaRecorder.isTypeSupported('video/webm;codecs=vp8')||MediaRecorder.isTypeSupported('video/webm')));
+if(!canRecord){
+  recBtn.disabled=true; recBtn.style.opacity='.5'; recBtn.style.cursor='not-allowed';
+  recBtn.textContent='⏺ Видео недоступно в этом браузере';
+  recBtn.title='Запись WebM не поддерживается. Используйте Chrome или Edge, либо экспорт PNG.';
+}
+recBtn.onclick=()=>{
+  if(!canRecord) return;
+  if(!recording){
+    const stream=dom.captureStream(60);
+    let mime='video/webm;codecs=vp9';
+    if(!MediaRecorder.isTypeSupported(mime)) mime='video/webm;codecs=vp8';
+    if(!MediaRecorder.isTypeSupported(mime)) mime='video/webm';
+    recorder=new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond:12_000_000});
+    chunks=[];
+    recorder.ondataavailable=e=>{ if(e.data.size>0) chunks.push(e.data); };
+    recorder.onstop=()=>{ const blob=new Blob(chunks,{type:'video/webm'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`zhizha_${Date.now()}.webm`; a.click(); };
+    recorder.start(); recording=true;
+    recBtn.textContent='⏹ Остановить и сохранить'; recDot.style.display='flex';
+    if(!live) setMode(true);
+  } else {
+    recorder.stop(); recording=false;
+    recBtn.textContent='⏺ Записать видео (WebM)'; recDot.style.display='none';
+  }
+};
+
+/* ---------- Share / Embed (state -> URL) ---------- */
+function encodeState(){
+  const s=state;
+  const o={ sp:+s.speed.toFixed(3), sc:+s.scale.toFixed(3), wa:+s.warp.toFixed(3), gr:+s.grain.toFixed(3),
+    fl:s.field, pa:s.pal, sm:s.seamless, ti:s.tile, scr:s.screen, px:s.pixel, dt:s.dots, dz:s.dot,
+    sd:+s.seed.toFixed(2), ar:s.ratio, co:s.cols.map(c=>c.map(v=>Math.round(v*255))) };
+  return btoa(JSON.stringify(o)).replace(/=+$/,'');
+}
+function decodeState(b64){
+  try{
+    const o=JSON.parse(atob(b64));
+    Object.assign(state,{ speed:o.sp, scale:o.sc, warp:o.wa, grain:o.gr, field:o.fl, pal:o.pa,
+      seamless:o.sm, tile:o.ti, screen:o.scr, pixel:o.px, dots:o.dt, dot:o.dz, seed:o.sd, ratio:o.ar });
+    if(o.co) state.cols=o.co.map(c=>c.map(v=>v/255));
+    if(!(state.ratio in RATIOS)) state.ratio='16:9';
+    aspectRatio=RATIOS[state.ratio];
+    return true;
+  }catch(e){ return false; }
+}
+/* import FLUID's native #p= format (exact order from fluid.krackeddevs.com parser).
+   [0]speed [1]scale [2]warp [3]grain [4]pixel [5]dot [6]dots [7]pal [8]seed
+   [9]liq [10]mix [11]ar [12]preset [13]embed [14]field [15]screen [16]panX [17]panY
+   [18]seamless [19]tile [20..23]custom palette stops (packed). liq/mix/pan = photo
+   source, which ЖИЖА doesn't have yet, so they're ignored. */
+function nearestRatio(ar){
+  let best='16:9', bd=1e9;
+  for(const k in RATIOS){ const d=Math.abs(RATIOS[k]-ar); if(d<bd){ bd=d; best=k; } }
+  return best;
+}
+function unpackCol(v){ v=Math.max(0,Math.round(v)); return [Math.floor(v/65536)%256/255, Math.floor(v/256)%256/255, (v%256)/255]; }
+function parseFluidP(hash){
+  const i=hash.indexOf('#p='); if(i<0) return false;
+  const n=hash.slice(i+3).split(',').map(parseFloat);
+  if(n.length<12 || n.some(isNaN)) return false;
+  state.speed=n[0]; state.scale=n[1]; state.warp=n[2]; state.grain=n[3];
+  state.pixel=Math.max(1,Math.round(n[4])); state.dot=Math.round(n[5]); state.dots=Math.round(n[6])?1:0;
+  state.pal=Math.min(8,Math.max(0,Math.round(n[7]))); state.seed=n[8];
+  const ar=(n[11]>=0.3&&n[11]<=3)?n[11]:(16/9);
+  state.ratio=nearestRatio(ar); aspectRatio=RATIOS[state.ratio];
+  state.field=n.length>14?Math.min(9,Math.max(0,Math.round(n[14]))):0;
+  state.screen=n.length>15?Math.min(2,Math.max(0,Math.round(n[15]))):0;
+  state.seamless=(n.length>18&&Math.round(n[18])===1)?1:0;
+  state.tile=(state.seamless&&n.length>19)?Math.max(2,Math.round(n[19])):5;
+  if(state.pal===8 && n.length>23) state.cols=[unpackCol(n[20]),unpackCol(n[21]),unpackCol(n[22]),unpackCol(n[23])];
+  else if(state.pal!==8) state.cols=PALETTES[state.pal].stops.map(s=>s.slice());
+  return true;
+}
+function loadFromLink(str){
+  let ok=false;
+  if(/#p=/.test(str)) ok=parseFluidP(str);
+  else { const m=str.match(/#s=([^&\s]+)/); if(m) ok=decodeState(m[1]); }
+  if(ok){ document.querySelectorAll('#presets .chip').forEach(x=>x.classList.remove('active')); refreshAllUI(); syncUniforms(); resize(); }
+  return ok;
+}
+function shareURL(){ return location.origin+location.pathname+'#s='+encodeState(); }
+document.getElementById('shareBtn').onclick=async()=>{
+  const url=shareURL();
+  try{ await navigator.clipboard.writeText(url); toast('Ссылка скопирована'); }
+  catch(e){ history.replaceState(null,'','#s='+encodeState()); toast('Ссылка в адресной строке'); }
+};
+const embedBox=document.getElementById('embedBox');
+document.getElementById('embedBtn').onclick=async()=>{
+  const url=shareURL()+'&embed=1';
+  const code=`<iframe src="${url}" style="border:0;width:100%;height:100%;aspect-ratio:${state.ratio.replace(':','/')}" loading="lazy" allow="fullscreen"></iframe>`;
+  embedBox.classList.remove('hidden'); embedBox.value=code; embedBox.focus(); embedBox.select();
+  try{ await navigator.clipboard.writeText(code); toast('Код встраивания скопирован'); }catch(e){ toast('Скопируйте код из поля'); }
+};
+
+/* ---------- Import link ---------- */
+document.getElementById('importBtn').onclick=()=>{
+  const v=document.getElementById('importBox').value.trim();
+  if(!v){ toast('Вставьте ссылку'); return; }
+  toast(loadFromLink(v) ? 'Сцена загружена' : 'Не удалось разобрать ссылку');
+};
+
+/* ---------- Full UI refresh from state ---------- */
+function refreshAllUI(){
+  set('speed',state.speed); set('scale',state.scale); set('warp',state.warp); set('grain',state.grain);
+  set('tile',state.tile); set('pixel',state.pixel); set('dot',state.dot);
+  refreshRatioButtons(); refreshFieldButtons(); refreshPaletteButtons(); refreshSeamless(); refreshSurface();
+  buildColorPickers(); updateLabels();
+}
+
+/* ---------- Init ---------- */
+function init(){
+  const hash=location.hash;
+  let pEmbed=false;
+  if(/#p=/.test(hash)){ parseFluidP(hash); const pm=hash.match(/#p=([^&]+)/); pEmbed=pm && +(pm[1].split(',')[13])===1; } // FLUID native link (idx13 = embed flag)
+  else { const sMatch=hash.match(/s=([^&]+)/); if(sMatch){ decodeState(sMatch[1]); } } // ЖИЖА link
+  if(/embed=1/.test(location.href) || pEmbed){ document.body.classList.add('embed'); }
+
+  refreshAllUI(); syncUniforms(); resize();
+  // mark active preset if none matched, clear preset highlight
+  requestAnimationFrame(loop);
+}
+init();
+</script>
+</body>
+</html>
