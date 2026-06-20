@@ -193,7 +193,7 @@
     border: 1px solid var(--panel-border); border-radius: 13px; box-shadow: var(--shadow);
     backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
 
-  /* embed mode — hide all chrome, fluid fills the frame */
+  /* embed mode — hide all chrome, background fills the frame */
   body.embed #panel, body.embed #liveBar, body.embed #fps, body.embed #panelToggle, body.embed #recDot{ display:none !important; }
   body.embed #stage{ padding:0; }
   body.embed #canvasWrap{ border-radius:0; box-shadow:none; }
@@ -340,9 +340,9 @@
     <button class="ghost" id="shareBtn">🔗 Ссылка на эту сцену</button>
     <button class="ghost" id="embedBtn">&lt;/&gt; Код для встраивания</button>
     <textarea id="embedBox" class="hidden" readonly aria-label="Код для встраивания"></textarea>
-    <input id="importBox" type="text" style="width:100%;margin-top:8px;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--panel-border);border-radius:9px;padding:8px;font-size:12px;font-family:ui-monospace,Menlo,monospace;" placeholder="Вставьте ссылку FLUID (#p=…) или ЖИЖА (#s=…)" aria-label="Импорт ссылки" />
+    <input id="importBox" type="text" style="width:100%;margin-top:8px;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--panel-border);border-radius:9px;padding:8px;font-size:12px;font-family:ui-monospace,Menlo,monospace;" placeholder="Вставьте ссылку ЖИЖА (#s=…)" aria-label="Импорт ссылки" />
     <button class="ghost" id="importBtn">⤵ Загрузить сцену из ссылки</button>
-    <div class="hint">Разрешение действует и на PNG, и на видео. Видео сохраняется в MP4, если браузер умеет (Chrome/Edge/Safari), иначе в WebM. Запись идёт с холста в реальном времени — на 4K возможны пропуски кадров на слабом GPU; повторный клик — стоп и сохранение. Ссылка кодирует все параметры в URL; поддерживается импорт ссылок FLUID (<code>#p=</code>) и ЖИЖА (<code>#s=</code>).</div>
+    <div class="hint">Разрешение действует и на PNG, и на видео. Видео сохраняется в MP4, если браузер умеет (Chrome/Edge/Safari), иначе в WebM. Запись идёт с холста в реальном времени — на 4K возможны пропуски кадров на слабом GPU; повторный клик — стоп и сохранение. Ссылка кодирует все параметры в URL (<code>#s=</code>) — вставьте её обратно, чтобы воспроизвести сцену.</div>
   </div>
 </aside>
 
@@ -354,7 +354,7 @@
 import * as THREE from 'three';
 
 /* ===================================================================
-   ЖИЖА v2 — движок портирован из FLUID (value-noise GLSL, mobile-safe)
+   ЖИЖА v2 — движок на value-noise GLSL (mobile-safe)
    в чистую Three.js-оболочку с render-on-demand.
    =================================================================== */
 
@@ -692,7 +692,7 @@ const PRESETS = [
   { name:'Страты',    v:[0.30,1.6,3.0,0.02, 7, 3, 0, 0, 0, 1, 10] },
   { name:'Решётка',   v:[0.30,1.8,4.0,0.02, 8, 5, 0, 0, 0, 1, 10] },
   { name:'Подсолнух', v:[0.30,1.4,5.0,0.02, 9, 4, 0, 0, 0, 1, 10] },
-  { name:'Гидрополе', v:[0.30,1.35,4.8,0.02, 3, 2, 0, 0, 1, 4, 9] }, // = FLUID Gyroid+Ocean+halftone+pixelate
+  { name:'Гидрополе', v:[0.30,1.35,4.8,0.02, 3, 2, 0, 0, 1, 4, 9] }, // Гироид + Океан + halftone + pixelate
 ];
 
 const RATIOS = { '9:16':9/16, '4:5':4/5, '1:1':1, '5:4':5/4, '3:2':3/2, '16:9':16/9 };
@@ -1116,38 +1116,9 @@ function decodeState(b64){
     return true;
   }catch(e){ return false; }
 }
-/* import FLUID's native #p= format (exact order from fluid.krackeddevs.com parser).
-   [0]speed [1]scale [2]warp [3]grain [4]pixel [5]dot [6]dots [7]pal [8]seed
-   [9]liq [10]mix [11]ar [12]preset [13]embed [14]field [15]screen [16]panX [17]panY
-   [18]seamless [19]tile [20..23]custom palette stops (packed). liq/mix/pan = photo
-   source, which ЖИЖА doesn't have yet, so they're ignored. */
-function nearestRatio(ar){
-  let best='16:9', bd=1e9;
-  for(const k in RATIOS){ const d=Math.abs(RATIOS[k]-ar); if(d<bd){ bd=d; best=k; } }
-  return best;
-}
-function unpackCol(v){ v=Math.max(0,Math.round(v)); return [Math.floor(v/65536)%256/255, Math.floor(v/256)%256/255, (v%256)/255]; }
-function parseFluidP(hash){
-  const i=hash.indexOf('#p='); if(i<0) return false;
-  const n=hash.slice(i+3).split(',').map(parseFloat);
-  if(n.length<12 || n.some(isNaN)) return false;
-  state.speed=n[0]; state.scale=n[1]; state.warp=n[2]; state.grain=n[3];
-  state.pixel=Math.max(1,Math.round(n[4])); state.dot=Math.round(n[5]); state.dots=Math.round(n[6])?1:0;
-  state.pal=Math.min(8,Math.max(0,Math.round(n[7]))); state.seed=n[8];
-  const ar=(n[11]>=0.3&&n[11]<=3)?n[11]:(16/9);
-  state.ratio=nearestRatio(ar); aspectRatio=RATIOS[state.ratio];
-  state.field=n.length>14?Math.min(9,Math.max(0,Math.round(n[14]))):0;
-  state.screen=n.length>15?Math.min(2,Math.max(0,Math.round(n[15]))):0;
-  state.seamless=(n.length>18&&Math.round(n[18])===1)?1:0;
-  state.tile=(state.seamless&&n.length>19)?Math.max(2,Math.round(n[19])):5;
-  if(state.pal===8 && n.length>23) state.cols=[unpackCol(n[20]),unpackCol(n[21]),unpackCol(n[22]),unpackCol(n[23])];
-  else if(state.pal!==8) state.cols=PALETTES[state.pal].stops.map(s=>s.slice());
-  return true;
-}
 function loadFromLink(str){
-  let ok=false;
-  if(/#p=/.test(str)) ok=parseFluidP(str);
-  else { const m=str.match(/#s=([^&\s]+)/); if(m) ok=decodeState(m[1]); }
+  const m=str.match(/#s=([^&\s]+)/);
+  const ok = m ? decodeState(m[1]) : false;
   if(ok){ document.querySelectorAll('#presets .chip').forEach(x=>x.classList.remove('active')); refreshAllUI(); syncUniforms(); resize(); }
   return ok;
 }
@@ -1183,10 +1154,8 @@ function refreshAllUI(){
 /* ---------- Init ---------- */
 function init(){
   const hash=location.hash;
-  let pEmbed=false;
-  if(/#p=/.test(hash)){ parseFluidP(hash); const pm=hash.match(/#p=([^&]+)/); pEmbed=pm && +(pm[1].split(',')[13])===1; } // FLUID native link (idx13 = embed flag)
-  else { const sMatch=hash.match(/s=([^&]+)/); if(sMatch){ decodeState(sMatch[1]); } } // ЖИЖА link
-  if(/embed=1/.test(location.href) || pEmbed){ document.body.classList.add('embed'); }
+  const sMatch=hash.match(/s=([^&]+)/); if(sMatch){ decodeState(sMatch[1]); } // ЖИЖА link
+  if(/embed=1/.test(location.href)){ document.body.classList.add('embed'); }
 
   refreshAllUI(); syncUniforms(); resize();
   // mark active preset if none matched, clear preset highlight

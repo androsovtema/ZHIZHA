@@ -1,11 +1,11 @@
 /* ============================================================================
-   <fluid-bg> — фон ЖИЖА как веб-компонент. Работает где угодно:
+   <zhizha-bg> — фон ЖИЖА как веб-компонент. Работает где угодно:
    чистый HTML, React/Next, Vue, Svelte — это нативный Custom Element.
 
    Подключение:
-     <script src="https://ВАШ-ДОМЕН/embed/fluid-bg.js" defer></script>
-     <fluid-bg src="https://ВАШ-ДОМЕН/index.html#p=...&embed=1"
-               fallback="https://ВАШ-ДОМЕН/assets/fluid-bg.jpg"></fluid-bg>
+     <script src="https://ВАШ-ДОМЕН/embed/zhizha-bg.js" defer></script>
+     <zhizha-bg src="https://ВАШ-ДОМЕН/index.html#s=...&embed=1"
+                fallback="https://ВАШ-ДОМЕН/assets/zhizha-bg.jpg"></zhizha-bg>
 
    Атрибуты:
      src       — URL вашей копии ЖИЖА со сценой в hash (+ embed=1, чтобы скрыть панель). Обязателен.
@@ -15,9 +15,9 @@
    Слой фиксированный, полноэкранный и НЕ перехватывает клики (pointer-events:none).
    ============================================================================ */
 (function () {
-  if (customElements.get('fluid-bg')) return;
+  if (customElements.get('zhizha-bg')) return;
 
-  class FluidBg extends HTMLElement {
+  class ZhizhaBg extends HTMLElement {
     connectedCallback() {
       const src = this.getAttribute('src') || '';
       const fallback = this.getAttribute('fallback') || '';
@@ -43,5 +43,5 @@
     }
   }
 
-  customElements.define('fluid-bg', FluidBg);
+  customElements.define('zhizha-bg', ZhizhaBg);
 })();
