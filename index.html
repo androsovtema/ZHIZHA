@@ -188,6 +188,14 @@
   .swatchRow .swatch:hover{ transform: translateY(-1px); }
   .swatchRow .swatch.active{ border-color:#fff; }
 
+  /* author footer */
+  .author{ margin-top:16px; padding-top:14px; border-top:1px solid var(--panel-border); }
+  .authorLinks{ display:flex; flex-wrap:wrap; gap:7px; }
+  .authorLinks a{ text-decoration:none; font-size:12px; color:var(--text-dim);
+    border:1px solid var(--panel-border); border-radius:99px; padding:7px 12px;
+    background:rgba(255,255,255,.03); transition:.15s; white-space:nowrap; }
+  .authorLinks a:hover{ background:rgba(255,255,255,.08); color:var(--text); }
+
   .ctrl{ margin-bottom: 12px; }
   .ctrl:last-child{ margin-bottom:0; }
   .ctrl label{ display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-bottom:6px; }
@@ -477,6 +485,17 @@
     <input id="importBox" type="text" style="width:100%;margin-top:8px;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--panel-border);border-radius:9px;padding:8px;font-size:12px;font-family:ui-monospace,Menlo,monospace;" placeholder="Вставьте ссылку ЖИЖА (#s=…)" aria-label="Импорт ссылки" />
     <button class="ghost" id="importBtn">⤵ Загрузить сцену из ссылки</button>
     <div class="hint">Разрешение действует и на PNG, и на видео. Видео сохраняется в MP4, если браузер умеет (Chrome/Edge/Safari), иначе в WebM. Запись идёт с холста в реальном времени — на 4K возможны пропуски кадров на слабом GPU; повторный клик — стоп и сохранение. Рядом с пометкой «Идёт запись» показан таймер; при выборе фиксированной длительности запись останавливается и сохраняется сама. Ссылка кодирует все параметры в URL (<code>#s=</code>) — вставьте её обратно, чтобы воспроизвести сцену.</div>
+  </div>
+
+  <!-- Автор -->
+  <div class="author">
+    <div class="qlabel" style="margin-top:0;">Автор</div>
+    <div class="authorLinks">
+      <a href="https://androsov.art/ru" target="_blank" rel="noopener noreferrer">🌐 Сайт</a>
+      <a href="https://t.me/androsovart" target="_blank" rel="noopener noreferrer">✈ Telegram</a>
+      <a href="https://www.youtube.com/@wedesignerz" target="_blank" rel="noopener noreferrer">▶ YouTube</a>
+      <a href="https://www.threads.com/@androsovtema" target="_blank" rel="noopener noreferrer">@ Threads</a>
+    </div>
   </div>
 </aside>
 
