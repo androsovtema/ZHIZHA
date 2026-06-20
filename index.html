@@ -43,10 +43,16 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
+    /* строгое разделение: панель слева | окно фона справа */
+    height: 100%;
+    display: grid;
+    grid-template-columns: 360px 1fr;
   }
+  body.embed{ grid-template-columns: 1fr; }
 
-  /* Stage / canvas */
-  #stage{ position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; }
+  /* Stage / canvas (правая колонка — фон всегда виден целиком, не перекрыт) */
+  #stage{ position: relative; grid-column: 2; grid-row: 1; height: 100vh; display: grid; place-items: center; padding: 24px; }
+  body.embed #stage{ grid-column: 1; }
   #stageInner{ position: relative; height: 100%; width: 100%; display: grid; place-items: center; }
   #canvasWrap{
     position: relative; border-radius: 18px; overflow: hidden;
@@ -58,14 +64,14 @@
 
   /* Control panel */
   #panel{
-    position: fixed; top: 18px; left: 18px; width: 340px;
-    max-height: calc(100vh - 36px); overflow-y: auto;
+    grid-column: 1; grid-row: 1; height: 100vh; overflow-y: auto;
     background: var(--panel);
     backdrop-filter: blur(22px) saturate(140%); -webkit-backdrop-filter: blur(22px) saturate(140%);
-    border: 1px solid var(--panel-border); border-radius: var(--radius);
-    box-shadow: var(--shadow); padding: 16px 16px 20px; z-index: 10;
+    border-right: 1px solid var(--panel-border);
+    box-shadow: var(--shadow); padding: 16px 16px 24px; z-index: 10;
     scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.2) transparent;
   }
+  body.embed #panel{ display: none; }
   #panel::-webkit-scrollbar{ width: 8px; }
   #panel::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.15); border-radius: 8px; }
 
@@ -84,6 +90,21 @@
     color: var(--text-dim); margin: 0 0 10px; display:flex; align-items:center; gap:8px; }
   .step h2 .num{ font-size:10px; color: var(--accent);
     border:1px solid rgba(110,168,255,.4); border-radius:6px; padding:1px 5px; }
+
+  /* «Профи» — сворачиваемый блок с техническими секциями */
+  .pro{ margin-top: 14px; }
+  .pro > summary{
+    list-style:none; cursor:pointer; user-select:none;
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:12px; letter-spacing:.4px; color:var(--text-dim);
+    border:1px solid var(--panel-border); border-radius:11px;
+    padding:11px 13px; background: rgba(255,255,255,.02); transition:.15s;
+  }
+  .pro > summary:hover{ background: rgba(255,255,255,.06); color:var(--text); }
+  .pro > summary::-webkit-details-marker{ display:none; }
+  .pro > summary::after{ content:"▾"; transition: transform .2s; font-size:11px; }
+  .pro[open] > summary{ color:var(--text); margin-bottom:2px; }
+  .pro[open] > summary::after{ transform: rotate(180deg); }
 
   .row{ display:flex; gap:8px; flex-wrap:wrap; }
   .seg{ display:flex; gap:6px; flex-wrap:wrap; }
@@ -225,12 +246,14 @@
   body.embed #canvasWrap{ border-radius:0; box-shadow:none; }
 
   @media (max-width: 760px){
-    #stage{ padding: 12px; }
+    body{ grid-template-columns: 1fr; }
+    #stage{ grid-column: 1; padding: 12px; }
     #panelToggle{ display: flex; }
     #liveBar{ top: 14px; right: 14px; padding: 5px; }
     #liveBar button{ padding: 7px 9px; font-size: 11px; }
     #fps{ bottom: 10px; left: 14px; right: auto; }
-    #panel{ width: 100%; left: 0; right: 0; top: auto; bottom: 0; max-width: 100%; max-height: 78vh;
+    #panel{ position: fixed; height: auto; grid-column: auto; border-right: none;
+      width: 100%; left: 0; right: 0; top: auto; bottom: 0; max-width: 100%; max-height: 78vh;
       border-radius: 20px 20px 0 0; border-bottom: none; padding-top: 26px;
       transform: translateY(0); transition: transform .32s cubic-bezier(.4,.0,.2,1); }
     #panel::before{ content: ""; position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
@@ -278,6 +301,9 @@
     <div class="grid2" id="tmplCards"></div>
     <div class="hint" id="catHint"></div>
   </div>
+
+  <details class="pro" id="proPanel">
+  <summary>⚙ Профи · точная настройка</summary>
 
   <!-- 01 Размер -->
   <div class="step">
@@ -359,6 +385,8 @@
     <div class="colors" id="colorPickers" style="margin-top:12px;"></div>
     <div class="hint">Выберите палитру или соберите свою — клик по плашке меняет цвет градиента.</div>
   </div>
+
+  </details>
 
   <!-- 06 Экспорт -->
   <div class="step">
@@ -1005,8 +1033,11 @@ const catHintEl=document.getElementById('catHint');
 let activeCat=null;
 
 function applyTemplate(t){
-  if(t.ratio && RATIOS[t.ratio]!=null){ state.ratio=t.ratio; aspectRatio=RATIOS[t.ratio]; }
+  // ШАБЛОН задаёт только вид (поле/палитра/движение/поверхность). ФОРМАТ (ratio)
+  // принадлежит категории и тут НЕ меняется — иначе выбор стиля сбивал бы формат.
+  const keepRatio=state.ratio;
   loadPreset({v:t.v});                 // applies field/palette/surface state + UI
+  state.ratio=keepRatio; aspectRatio=RATIOS[keepRatio];
   refreshRatioButtons(); resize();
   document.querySelectorAll('#presets .chip').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('#tmplCards .tmplCard').forEach(x=>x.classList.toggle('active', x.dataset.tid===t.id));
@@ -1030,6 +1061,8 @@ function selectCategory(cat){
   activeCat=cat;
   document.querySelectorAll('#catChips button').forEach(x=>x.classList.toggle('active', x.dataset.cid===cat.id));
   catHintEl.textContent=cat.exportHint;
+  // КАТЕГОРИЯ задаёт формат
+  if(RATIOS[cat.ratio]!=null){ state.ratio=cat.ratio; aspectRatio=RATIOS[cat.ratio]; refreshRatioButtons(); resize(); }
   renderTemplates(cat);
   const def=TEMPLATE_BY_ID[cat.default]||TEMPLATE_BY_ID[cat.templates[0]];
   if(def) applyTemplate(def);
