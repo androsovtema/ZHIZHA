@@ -109,6 +109,31 @@
   .chip.active{ border-color: rgba(150,180,255,.6); background: rgba(110,168,255,.12); }
   .chip .sw{ width:18px;height:18px;border-radius:6px; flex:0 0 auto; }
 
+  /* creator: category chips */
+  .catChips{ display:flex; flex-wrap:wrap; gap:7px; }
+  .catChips button{
+    cursor:pointer; border:1px solid var(--panel-border); border-radius:99px;
+    padding:7px 13px; font-size:12px; color:var(--text-dim); background: rgba(255,255,255,.03);
+    transition:.15s; white-space:nowrap;
+  }
+  .catChips button:hover{ background: rgba(255,255,255,.08); color:var(--text); }
+  .catChips button.active{
+    color:#fff; border-color: transparent;
+    background: linear-gradient(135deg,var(--accent),var(--accent-2));
+  }
+  /* creator: template cards */
+  .tmplCard{
+    cursor:pointer; border:1px solid var(--panel-border); border-radius:12px;
+    overflow:hidden; background: rgba(255,255,255,.02); transition:.15s; text-align:left;
+    display:flex; flex-direction:column;
+  }
+  .tmplCard:hover{ background: rgba(255,255,255,.06); transform: translateY(-1px); }
+  .tmplCard.active{ border-color: rgba(150,180,255,.7); box-shadow: 0 0 0 1px rgba(110,168,255,.4) inset; }
+  .tmplCard .thumb{ height:46px; width:100%; }
+  .tmplCard .meta{ padding:7px 9px; }
+  .tmplCard .tname{ display:block; font-size:12px; color:var(--text); font-weight:600; line-height:1.2; }
+  .tmplCard .tmood{ display:block; font-size:10px; color:var(--text-dim); margin-top:3px; }
+
   .ctrl{ margin-bottom: 12px; }
   .ctrl:last-child{ margin-bottom:0; }
   .ctrl label{ display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-bottom:6px; }
@@ -243,6 +268,15 @@
       <h1>ЖИЖА</h1>
       <div class="sub">генератор живых процедурных фонов</div>
     </div>
+  </div>
+
+  <!-- Creator: для чего нужен фон -->
+  <div class="step" id="creatorStep">
+    <h2>Для чего нужен фон?</h2>
+    <div class="catChips" id="catChips" role="group" aria-label="Категория фона"></div>
+    <h2 style="margin-top:16px;">Выбери стиль</h2>
+    <div class="grid2" id="tmplCards"></div>
+    <div class="hint" id="catHint"></div>
   </div>
 
   <!-- 01 Размер -->
@@ -707,6 +741,34 @@ const PRESETS = [
 
 const RATIOS = { '9:16':9/16, '4:5':4/5, '1:1':1, '5:4':5/4, '3:2':3/2, '16:9':16/9 };
 
+/* ---------- Creator templates (поверх PRESETS-движка) ----------
+   v = [speed, scale, warp, grain, field, pal, seamless, screen, dots, pixel, dot] */
+const TEMPLATES = [
+  { id:'neon-pulse',      name:'Неоновый импульс',          mood:'быстро · ярко',     ratio:'9:16', v:[0.85,1.40,6.0,0.03, 5, 6, 0, 0, 0, 1, 10] },
+  { id:'soft-gradient',   name:'Мягкий градиент',           mood:'спокойно · мягко',  ratio:'9:16', v:[0.25,2.30,2.2,0.02, 0, 3, 0, 0, 0, 1, 10] },
+  { id:'acid-clip',       name:'Кислотный клип',            mood:'кисло · дерзко',    ratio:'9:16', v:[0.95,1.30,7.0,0.04, 6, 5, 0, 0, 0, 1, 10] },
+  { id:'calm-text',       name:'Спокойный фон под текст',   mood:'тихо · читаемо',    ratio:'16:9', v:[0.18,2.50,1.6,0.015, 0, 7, 0, 0, 0, 1, 10] },
+  { id:'dark-techno',     name:'Тёмный техно',              mood:'темно · чётко',     ratio:'16:9', v:[0.40,1.80,3.5,0.03, 8, 4, 0, 0, 0, 1, 10] },
+  { id:'liquid-ocean',    name:'Жидкий океан',              mood:'жидко · глубоко',   ratio:'9:16', v:[0.30,1.40,4.8,0.02, 3, 2, 0, 0, 0, 1, 10] },
+  { id:'chrome-light',    name:'Хромированный свет',        mood:'глянец · металл',   ratio:'16:9', v:[0.35,1.60,5.0,0.02, 3, 7, 0, 0, 0, 1, 10] },
+  { id:'pulse-grid',      name:'Пульсирующая сетка',        mood:'ритм · паттерн',    ratio:'1:1',  v:[0.50,1.60,3.0,0.03, 8, 6, 1, 0, 1, 4, 9] },
+  { id:'poster-noise',    name:'Постерный шум',             mood:'грубо · постер',    ratio:'4:5',  v:[0.30,1.50,4.0,0.03, 2, 1, 0, 0, 1, 6, 9] },
+  { id:'digital-mandala', name:'Цифровая мандала',          mood:'симметрия · транс', ratio:'1:1',  v:[0.35,1.50,6.0,0.03, 6, 6, 0, 0, 0, 1, 10] },
+];
+const TEMPLATE_BY_ID = Object.fromEntries(TEMPLATES.map(t=>[t.id,t]));
+
+/* ---------- Creator categories (для чего нужен фон) ---------- */
+const CREATOR_CATEGORIES = [
+  { id:'tiktok',  name:'TikTok / Reels', ratio:'9:16', exportHint:'Вертикальное видео — экспорт видео на первом месте.',  default:'neon-pulse',   templates:['neon-pulse','acid-clip','liquid-ocean','pulse-grid','digital-mandala'] },
+  { id:'stories', name:'Stories',        ratio:'9:16', exportHint:'Чистый фон под текст и стикеры.',                       default:'soft-gradient',templates:['soft-gradient','liquid-ocean','neon-pulse','chrome-light'] },
+  { id:'youtube', name:'YouTube',        ratio:'16:9', exportHint:'Интро, аутро и подложка под контент.',                 default:'dark-techno',  templates:['dark-techno','chrome-light','neon-pulse','liquid-ocean'] },
+  { id:'text',    name:'Фон под текст',  ratio:'16:9', exportHint:'Читаемый центр, мягкое медленное движение.',           default:'calm-text',    templates:['calm-text','soft-gradient','chrome-light'] },
+  { id:'cover',   name:'Обложка',        ratio:'4:5',  exportHint:'Сильная статичная картинка — скачивай PNG.',           default:'poster-noise', templates:['poster-noise','chrome-light','digital-mandala','dark-techno'] },
+  { id:'present', name:'Презентация',    ratio:'16:9', exportHint:'Спокойные палитры, ровное движение.',                  default:'soft-gradient',templates:['soft-gradient','calm-text','chrome-light','dark-techno'] },
+  { id:'pattern', name:'Паттерн',        ratio:'1:1',  exportHint:'Бесшовная плитка — повторяется без швов.',             default:'pulse-grid',   templates:['pulse-grid','poster-noise','digital-mandala'] },
+  { id:'loop',    name:'Абстрактный луп',ratio:'16:9', exportHint:'Движение и эксперименты.',                             default:'liquid-ocean', templates:['liquid-ocean','neon-pulse','acid-clip','digital-mandala','chrome-light'] },
+];
+
 /* ---------- State ---------- */
 const state = {
   speed:0.6, scale:1.6, warp:4.5, grain:0.06,
@@ -935,6 +997,49 @@ function loadPreset(p){
   refreshFieldButtons(); refreshPaletteButtons(); refreshSeamless(); refreshSurface();
   buildColorPickers(); updateLabels(); syncUniforms();
 }
+
+/* ---------- Creator: categories + template cards ---------- */
+const catChipsEl=document.getElementById('catChips');
+const tmplCardsEl=document.getElementById('tmplCards');
+const catHintEl=document.getElementById('catHint');
+let activeCat=null;
+
+function applyTemplate(t){
+  if(t.ratio && RATIOS[t.ratio]!=null){ state.ratio=t.ratio; aspectRatio=RATIOS[t.ratio]; }
+  loadPreset({v:t.v});                 // applies field/palette/surface state + UI
+  refreshRatioButtons(); resize();
+  document.querySelectorAll('#presets .chip').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('#tmplCards .tmplCard').forEach(x=>x.classList.toggle('active', x.dataset.tid===t.id));
+}
+
+function renderTemplates(cat){
+  tmplCardsEl.innerHTML='';
+  cat.templates.forEach(id=>{
+    const t=TEMPLATE_BY_ID[id]; if(!t) return;
+    const stops=PALETTES[t.v[5]].stops;
+    const card=document.createElement('button'); card.type='button'; card.className='tmplCard'; card.dataset.tid=t.id;
+    card.setAttribute('aria-label','Шаблон: '+t.name);
+    card.innerHTML=`<span class="thumb" style="background:${gradCss(stops)}"></span>`+
+      `<span class="meta"><span class="tname">${t.name}</span><span class="tmood">${t.mood}</span></span>`;
+    card.onclick=()=>applyTemplate(t);
+    tmplCardsEl.appendChild(card);
+  });
+}
+
+function selectCategory(cat){
+  activeCat=cat;
+  document.querySelectorAll('#catChips button').forEach(x=>x.classList.toggle('active', x.dataset.cid===cat.id));
+  catHintEl.textContent=cat.exportHint;
+  renderTemplates(cat);
+  const def=TEMPLATE_BY_ID[cat.default]||TEMPLATE_BY_ID[cat.templates[0]];
+  if(def) applyTemplate(def);
+}
+
+CREATOR_CATEGORIES.forEach(cat=>{
+  const b=document.createElement('button'); b.type='button'; b.dataset.cid=cat.id; b.textContent=cat.name;
+  b.onclick=()=>selectCategory(cat);
+  catChipsEl.appendChild(b);
+});
 
 /* ---------- Random ---------- */
 document.getElementById('randomBtn').onclick=()=>{
@@ -1181,7 +1286,8 @@ function init(){
   if(/embed=1/.test(location.href)){ document.body.classList.add('embed'); }
 
   refreshAllUI(); syncUniforms(); resize();
-  // mark active preset if none matched, clear preset highlight
+  // нет сцены в URL — стартуем с creator-категории (применяет дефолтный шаблон)
+  if(!sMatch) selectCategory(CREATOR_CATEGORIES[0]);
   requestAnimationFrame(loop);
 }
 init();
