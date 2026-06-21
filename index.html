@@ -394,6 +394,30 @@
     </div>
   </div>
 
+  <!-- Экспорт (главное действие) -->
+  <div class="step" id="exportStep">
+    <h2>Скачать</h2>
+    <label for="exportRes" style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:6px;">Разрешение (PNG и видео)</label>
+    <select id="exportRes" aria-label="Разрешение экспорта (PNG и видео)">
+      <option value="thumb">Эскиз (640px)</option>
+      <option value="1080" selected>1080p (Full HD)</option>
+      <option value="2048">2048×2048</option>
+      <option value="4k">4K (Ultra HD)</option>
+    </select>
+    <button class="primary" id="downloadPng">⬇ Скачать PNG</button>
+    <label for="recDur" style="display:block;font-size:11px;color:var(--text-dim);margin:10px 0 6px;">Длительность видео</label>
+    <select id="recDur" aria-label="Длительность записи видео">
+      <option value="0" selected>Без лимита (стоп вручную)</option>
+      <option value="5">5 секунд</option>
+      <option value="10">10 секунд</option>
+      <option value="15">15 секунд</option>
+      <option value="30">30 секунд</option>
+      <option value="60">60 секунд</option>
+    </select>
+    <button class="primary rec" id="recordBtn">⏺ Записать видео</button>
+    <div class="hint">Видео — MP4 (или WebM, если браузер не умеет MP4). Запись идёт с холста вживую: повторный клик — стоп и сохранение, таймер показан рядом. На 4K возможны пропуски кадров на слабом GPU.</div>
+  </div>
+
   <details class="pro" id="proPanel">
   <summary>⚙ Профи · точная настройка</summary>
 
@@ -480,34 +504,18 @@
 
   </details>
 
-  <!-- 06 Экспорт -->
+  <!-- Для сайта — ссылка, встраивание, импорт -->
+  <details class="pro" id="forSite">
+  <summary>&lt;/&gt; Для сайта · ссылка и встраивание</summary>
   <div class="step">
-    <h2><span class="num">06</span> Экспорт и шеринг</h2>
-    <label for="exportRes" style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:6px;">Разрешение (PNG и видео)</label>
-    <select id="exportRes" aria-label="Разрешение экспорта (PNG и видео)">
-      <option value="thumb">Эскиз (640px)</option>
-      <option value="1080" selected>1080p (Full HD)</option>
-      <option value="2048">2048×2048</option>
-      <option value="4k">4K (Ultra HD)</option>
-    </select>
-    <button class="primary" id="downloadPng">⬇ Скачать PNG</button>
-    <label for="recDur" style="display:block;font-size:11px;color:var(--text-dim);margin:10px 0 6px;">Длительность видео</label>
-    <select id="recDur" aria-label="Длительность записи видео">
-      <option value="0" selected>Без лимита (стоп вручную)</option>
-      <option value="5">5 секунд</option>
-      <option value="10">10 секунд</option>
-      <option value="15">15 секунд</option>
-      <option value="30">30 секунд</option>
-      <option value="60">60 секунд</option>
-    </select>
-    <button class="primary rec" id="recordBtn">⏺ Записать видео</button>
-    <button class="ghost" id="shareBtn">🔗 Ссылка на эту сцену</button>
+    <button class="ghost" id="shareBtn" style="margin-top:0;">🔗 Ссылка на эту сцену</button>
     <button class="ghost" id="embedBtn">&lt;/&gt; Код для встраивания</button>
     <textarea id="embedBox" class="hidden" readonly aria-label="Код для встраивания"></textarea>
-    <input id="importBox" type="text" style="width:100%;margin-top:8px;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--panel-border);border-radius:9px;padding:8px;font-size:12px;font-family:ui-monospace,Menlo,monospace;" placeholder="Вставьте ссылку ЖИЖА (#s=…)" aria-label="Импорт ссылки" />
+    <input id="importBox" type="text" style="width:100%;margin-top:8px;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--panel-border);border-radius:var(--r-sm);padding:8px;font-size:12px;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;" placeholder="Вставь ссылку ЖИЖА (#s=…)" aria-label="Импорт ссылки" />
     <button class="ghost" id="importBtn">⤵ Загрузить сцену из ссылки</button>
-    <div class="hint">Разрешение действует и на PNG, и на видео. Видео сохраняется в MP4, если браузер умеет (Chrome/Edge/Safari), иначе в WebM. Запись идёт с холста в реальном времени — на 4K возможны пропуски кадров на слабом GPU; повторный клик — стоп и сохранение. Рядом с пометкой «Идёт запись» показан таймер; при выборе фиксированной длительности запись останавливается и сохраняется сама. Ссылка кодирует все параметры в URL (<code>#s=</code>) — вставьте её обратно, чтобы воспроизвести сцену.</div>
+    <div class="hint">Ссылка кодирует всю сцену в URL (<code>#s=</code>) — вставь её обратно, чтобы повторить фон 1-в-1. «Код для встраивания» даёт готовый <code>&lt;iframe&gt;</code> для твоего сайта.</div>
   </div>
+  </details>
 
   <!-- Автор -->
   <div class="author">
