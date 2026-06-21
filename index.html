@@ -308,20 +308,27 @@
   body.embed #stage{ padding:0; }
   body.embed #canvasWrap{ border-radius:0; box-shadow:none; }
 
+  /* Mobile: stacked — превью закреплено сверху, контролы листаются снизу */
   @media (max-width: 760px){
-    body{ grid-template-columns: 1fr; }
-    #stage{ grid-column: 1; padding: 12px; }
-    #panelToggle{ display: flex; }
-    #liveBar{ top: 14px; right: 14px; padding: 5px; }
+    html, body{ overflow: visible; height: auto; }
+    body{ display: block; max-width: 100%; }
+    #stage{ position: sticky; top: 0; z-index: 5; grid-column: auto;
+      height: 46vh; padding: 10px; background: var(--ink-900);
+      border-bottom: 1px solid var(--panel-border); }
+    #stageInner{ height: 100%; }
+    #panelToggle{ display: none; }
+    #liveBar{ top: 12px; right: 12px; padding: 5px; }
     #liveBar button{ padding: 7px 9px; font-size: 11px; }
-    #fps{ bottom: 10px; left: 14px; right: auto; }
-    #panel{ position: fixed; height: auto; grid-column: auto; border-right: none;
-      width: 100%; left: 0; right: 0; top: auto; bottom: 0; max-width: 100%; max-height: 78vh;
-      border-radius: 20px 20px 0 0; border-bottom: none; padding-top: 26px;
-      transform: translateY(0); transition: transform .32s cubic-bezier(.4,.0,.2,1); }
-    #panel::before{ content: ""; position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
+    #fps{ display: none; }
+    #panel{ position: static; height: auto; max-height: none; width: 100%;
+      grid-column: auto; overflow: visible; border-right: none;
+      border-radius: 22px 22px 0 0; margin-top: -20px; z-index: 6;
+      padding: 24px 14px calc(28px + env(safe-area-inset-bottom));
+      transform: none; box-shadow: 0 -16px 40px rgba(0,0,0,.5); }
+    #panel::before{ content: ""; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
       width: 44px; height: 5px; border-radius: 99px; background: rgba(255,255,255,.25); }
-    #panel.collapsed{ transform: translateY(calc(100% - 0px)); box-shadow: none; }
+    /* нейтрализуем JS-сворачивание оверлея — в stacked панель всегда видна */
+    #panel.collapsed{ transform: none; box-shadow: 0 -16px 40px rgba(0,0,0,.5); }
   }
   @media (max-width: 380px){
     #liveBar button{ font-size: 0; padding: 8px; }
@@ -440,7 +447,7 @@
       <label for="tile">Плиток в ряд <span class="val" id="vTile"></span></label>
       <input type="range" id="tile" aria-label="Количество плиток" min="2" max="10" step="1" value="5">
     </div>
-    <div class="hint">Бесшовный режим строит плитку, которую можно повторять без швов (CSS&nbsp;repeat).</div>
+    <div class="hint">Бесшовный режим строит плитку — повторяется без швов, хоть на всю страницу.</div>
   </div>
 
   <!-- 02 Шаблоны -->
@@ -459,23 +466,23 @@
       <input type="range" id="speed" aria-label="Скорость анимации" min="0" max="3" step="0.01" value="0.6">
     </div>
     <div class="ctrl">
-      <label for="scale">Масштаб (Zoom) <span class="val" id="vScale"></span></label>
+      <label for="scale">Масштаб <span class="val" id="vScale"></span></label>
       <input type="range" id="scale" aria-label="Масштаб" min="0.3" max="5" step="0.01" value="1.6">
     </div>
     <div class="ctrl">
-      <label for="warp">Искажение (Warp) <span class="val" id="vWarp"></span></label>
+      <label for="warp">Искажение <span class="val" id="vWarp"></span></label>
       <input type="range" id="warp" aria-label="Искажение" min="0" max="9" step="0.05" value="4.5">
     </div>
     <div class="ctrl" style="margin-bottom:0;">
-      <label for="grain">Зернистость (Grain) <span class="val" id="vGrain"></span></label>
+      <label for="grain">Зерно <span class="val" id="vGrain"></span></label>
       <input type="range" id="grain" aria-label="Зернистость" min="0" max="0.3" step="0.005" value="0.06">
     </div>
   </div>
 
   <!-- 04 Поверхность -->
   <div class="step">
-    <h2><span class="num">04</span> Поверхность</h2>
-    <div class="seg" id="screenSeg" role="group" aria-label="Тип поверхности">
+    <h2><span class="num">04</span> Фактура</h2>
+    <div class="seg" id="screenSeg" role="group" aria-label="Фактура">
       <button data-screen="0" class="active" aria-pressed="true">Квадрат</button>
       <button data-screen="1" aria-pressed="false">Гекс</button>
       <button data-screen="2" aria-pressed="false">ASCII</button>
@@ -485,7 +492,7 @@
       <input type="range" id="pixel" aria-label="Пикселизация" min="1" max="40" step="1" value="1">
     </div>
     <div class="switch" id="dotsRow" style="margin-top:12px;">
-      <span id="dotsLabel">Полутон (точки)</span>
+      <span id="dotsLabel">Полутон</span>
       <div class="toggle" id="dotsToggle" role="switch" tabindex="0" aria-checked="false" aria-labelledby="dotsLabel"></div>
     </div>
     <div class="ctrl hidden" id="dotCtrl" style="margin-top:12px; margin-bottom:0;">
@@ -499,7 +506,7 @@
     <h2><span class="num">05</span> Цвета</h2>
     <div class="grid2" id="palettes"></div>
     <div class="colors" id="colorPickers" style="margin-top:12px;"></div>
-    <div class="hint">Выберите палитру или соберите свою — клик по плашке меняет цвет градиента.</div>
+    <div class="hint">Выбери палитру или собери свою — клик по плашке меняет цвет градиента.</div>
   </div>
 
   </details>
@@ -1264,7 +1271,7 @@ function setPanel(open){ panelEl.classList.toggle('collapsed',!open); panelToggl
 panelToggle.onclick=()=>setPanel(panelEl.classList.contains('collapsed'));
 const mq=window.matchMedia('(max-width: 760px)');
 const syncPanel=()=>setPanel(!mq.matches);
-mq.addEventListener('change',syncPanel); syncPanel();
+mq.addEventListener('change',()=>{ syncPanel(); resize(); }); syncPanel();
 
 /* ---------- Mouse ripple ---------- */
 const dom=renderer.domElement;
@@ -1458,14 +1465,14 @@ document.getElementById('embedBtn').onclick=async()=>{
   const url=shareURL()+'&embed=1';
   const code=`<iframe src="${url}" style="border:0;width:100%;height:100%;aspect-ratio:${state.ratio.replace(':','/')}" loading="lazy" allow="fullscreen"></iframe>`;
   embedBox.classList.remove('hidden'); embedBox.value=code; embedBox.focus(); embedBox.select();
-  try{ await navigator.clipboard.writeText(code); toast('Код встраивания скопирован'); }catch(e){ toast('Скопируйте код из поля'); }
+  try{ await navigator.clipboard.writeText(code); toast('Код встраивания скопирован'); }catch(e){ toast('Скопируй код из поля'); }
 };
 
 /* ---------- Import link ---------- */
 document.getElementById('importBtn').onclick=()=>{
   const v=document.getElementById('importBox').value.trim();
-  if(!v){ toast('Вставьте ссылку'); return; }
-  toast(loadFromLink(v) ? 'Сцена загружена' : 'Не удалось разобрать ссылку');
+  if(!v){ toast('Вставь ссылку ЖИЖА'); return; }
+  toast(loadFromLink(v) ? 'Готово. Сцена на месте' : 'Не разобрал ссылку — проверь её');
 };
 
 /* ---------- Full UI refresh from state ---------- */
