@@ -889,30 +889,74 @@ const RATIOS = { '9:16':9/16, '4:5':4/5, '1:1':1, '5:4':5/4, '3:2':3/2, '16:9':1
 
 /* ---------- Creator templates (поверх PRESETS-движка) ----------
    v = [speed, scale, warp, grain, field, pal, seamless, screen, dots, pixel, dot] */
+/* Большая библиотека стилей. fam = муд-семья (см. docs/BRAND_KIT.md):
+   calm/energy/deep/graphic/ornament. Формат (ratio) задаёт КАТЕГОРИЯ, не стиль.
+   Порядок — чередование семей, чтобы любой формат выглядел разнообразно. */
 const TEMPLATES = [
-  { id:'neon-pulse',      name:'Неоновый импульс',          mood:'быстро · ярко',     ratio:'9:16', v:[0.85,1.40,6.0,0.03, 5, 6, 0, 0, 0, 1, 10] },
-  { id:'soft-gradient',   name:'Мягкий градиент',           mood:'спокойно · мягко',  ratio:'9:16', v:[0.25,2.30,2.2,0.02, 0, 3, 0, 0, 0, 1, 10] },
-  { id:'acid-clip',       name:'Кислотный клип',            mood:'кисло · дерзко',    ratio:'9:16', v:[0.95,1.30,7.0,0.04, 6, 5, 0, 0, 0, 1, 10] },
-  { id:'calm-text',       name:'Спокойный фон под текст',   mood:'тихо · читаемо',    ratio:'16:9', v:[0.18,2.50,1.6,0.015, 0, 7, 0, 0, 0, 1, 10] },
-  { id:'dark-techno',     name:'Тёмный техно',              mood:'темно · чётко',     ratio:'16:9', v:[0.40,1.80,3.5,0.03, 8, 4, 0, 0, 0, 1, 10] },
-  { id:'liquid-ocean',    name:'Жидкий океан',              mood:'жидко · глубоко',   ratio:'9:16', v:[0.30,1.40,4.8,0.02, 3, 2, 0, 0, 0, 1, 10] },
-  { id:'chrome-light',    name:'Хромированный свет',        mood:'глянец · металл',   ratio:'16:9', v:[0.35,1.60,5.0,0.02, 3, 7, 0, 0, 0, 1, 10] },
-  { id:'pulse-grid',      name:'Пульсирующая сетка',        mood:'ритм · паттерн',    ratio:'1:1',  v:[0.50,1.60,3.0,0.03, 8, 6, 1, 0, 1, 4, 9] },
-  { id:'poster-noise',    name:'Постерный шум',             mood:'грубо · постер',    ratio:'4:5',  v:[0.30,1.50,4.0,0.03, 2, 1, 0, 0, 1, 6, 9] },
-  { id:'digital-mandala', name:'Цифровая мандала',          mood:'симметрия · транс', ratio:'1:1',  v:[0.35,1.50,6.0,0.03, 6, 6, 0, 0, 0, 1, 10] },
+  /* — волна 1 — */
+  { id:'mist',      name:'Туман',        mood:'тихо · мягко',        fam:'calm',     v:[0.22,2.40,2.4,0.020, 0, 3, 0, 0, 0, 1, 10] },
+  { id:'flash',     name:'Вспышка',      mood:'быстро · ярко',       fam:'energy',   v:[0.85,1.40,6.5,0.030, 5, 0, 0, 0, 0, 1, 10] },
+  { id:'abyss',     name:'Бездна',       mood:'глубоко · темно',     fam:'deep',     v:[0.40,1.50,7.0,0.025, 3, 2, 0, 0, 0, 1, 10] },
+  { id:'pixel',     name:'Пиксель',      mood:'ретро · чётко',       fam:'graphic',  v:[0.35,1.50,3.0,0.025, 0, 2, 0, 0, 0,14, 10] },
+  { id:'mandala',   name:'Мандала',      mood:'симметрия · транс',   fam:'ornament', v:[0.35,1.50,6.0,0.030, 6, 6, 0, 0, 0, 1, 10] },
+  /* — волна 2 — */
+  { id:'silk',      name:'Шёлк',         mood:'нежно · ровно',       fam:'calm',     v:[0.20,2.20,2.0,0.020, 0, 6, 0, 0, 0, 1, 10] },
+  { id:'acid',      name:'Кислота',      mood:'кисло · дерзко',      fam:'energy',   v:[0.92,1.30,7.0,0.040, 6, 5, 0, 0, 0, 1, 10] },
+  { id:'galaxy',    name:'Галактика',    mood:'космос · даль',       fam:'deep',     v:[0.42,1.70,7.5,0.025, 2, 6, 0, 0, 0, 1, 10] },
+  { id:'hexcomb',   name:'Соты',         mood:'гекс · структура',    fam:'graphic',  v:[0.35,1.60,4.0,0.020, 3, 7, 0, 1, 0, 1, 10] },
+  { id:'kaleido',   name:'Калейдоскоп',  mood:'узор · цвет',         fam:'ornament', v:[0.36,1.50,5.5,0.030, 6, 0, 0, 0, 0, 1, 10] },
+  /* — волна 3 — */
+  { id:'haze',      name:'Дымка',        mood:'спокойно · светло',   fam:'calm',     v:[0.25,2.00,2.6,0.018, 1, 7, 0, 0, 0, 1, 10] },
+  { id:'discharge', name:'Разряд',       mood:'резко · неон',        fam:'energy',   v:[0.88,1.35,6.0,0.035, 5, 6, 0, 0, 0, 1, 10] },
+  { id:'deepwater', name:'Глубина',      mood:'тихо · бездонно',     fam:'deep',     v:[0.45,1.40,6.0,0.020, 1, 2, 0, 0, 0, 1, 10] },
+  { id:'terminal',  name:'Терминал',     mood:'код · техно',         fam:'graphic',  v:[0.35,1.70,3.5,0.020, 8, 5, 0, 2, 0, 1, 10] },
+  { id:'sunflower', name:'Подсолнух',    mood:'спираль · золото',    fam:'ornament', v:[0.30,1.40,5.0,0.025, 9, 1, 0, 0, 0, 1, 10] },
+  /* — волна 4 — */
+  { id:'milk',      name:'Молоко',       mood:'чисто · мягко',       fam:'calm',     v:[0.18,2.60,1.8,0.015, 0, 5, 0, 0, 0, 1, 10] },
+  { id:'pulse',     name:'Пульс',        mood:'ритм · ярко',         fam:'energy',   v:[0.80,1.40,5.5,0.030, 1, 1, 0, 0, 0, 1, 10] },
+  { id:'aurora',    name:'Аврора',       mood:'небо · перелив',      fam:'deep',     v:[0.40,1.60,6.5,0.025, 0, 0, 0, 0, 0, 1, 10] },
+  { id:'halftone',  name:'Полутон',      mood:'точки · печать',      fam:'graphic',  v:[0.35,1.50,4.0,0.025, 1, 4, 0, 0, 1, 4,  9] },
+  { id:'rosette',   name:'Розетка',      mood:'цветок · симметрия',  fam:'ornament', v:[0.34,1.50,5.5,0.030, 6, 5, 0, 0, 0, 1, 10] },
+  /* — волна 5 — */
+  { id:'pastel',    name:'Пастель',      mood:'тихо · тепло',        fam:'calm',     v:[0.24,2.10,2.2,0.020, 1, 3, 0, 0, 0, 1, 10] },
+  { id:'heat',      name:'Жар',          mood:'горячо · сочно',      fam:'energy',   v:[0.75,1.50,5.0,0.030, 0, 4, 0, 0, 0, 1, 10] },
+  { id:'ether',     name:'Эфир',         mood:'лёгкость · даль',     fam:'deep',     v:[0.38,1.60,7.0,0.020, 3, 6, 0, 0, 0, 1, 10] },
+  { id:'lattice',   name:'Решётка',      mood:'линии · строго',      fam:'graphic',  v:[0.30,1.80,3.0,0.020, 8, 7, 0, 0, 0, 1, 10] },
+  { id:'spiral',    name:'Спираль',      mood:'вихрь · гипноз',      fam:'ornament', v:[0.32,1.45,5.0,0.025, 9, 6, 0, 0, 0, 1, 10] },
+  /* — волна 6 — */
+  { id:'quiet',     name:'Затишье',      mood:'медленно · читаемо',  fam:'calm',     v:[0.16,2.60,1.5,0.015, 0, 7, 0, 0, 0, 1, 10] },
+  { id:'strobe',    name:'Стробоскоп',   mood:'клуб · мельтешит',    fam:'energy',   v:[0.95,1.25,7.5,0.040, 5, 1, 0, 0, 0, 1, 10] },
+  { id:'whirl',     name:'Омут',         mood:'темно · вязко',       fam:'deep',     v:[0.36,1.45,6.8,0.025, 3, 2, 0, 0, 0, 1, 10] },
+  { id:'contour',   name:'Контур',       mood:'штрих · карта',       fam:'graphic',  v:[0.30,2.00,4.0,0.020, 4, 7, 0, 0, 0, 1, 10] },
+  { id:'snowflake', name:'Снежинка',     mood:'кристалл · симметрия',fam:'ornament', v:[0.33,1.50,5.5,0.030, 6, 7, 0, 0, 0, 1, 10] },
+  /* — волна 7 — */
+  { id:'veil',      name:'Вуаль',        mood:'мягко · глубоко',     fam:'calm',     v:[0.22,1.90,2.8,0.018, 1, 2, 0, 0, 0, 1, 10] },
+  { id:'firework',  name:'Фейерверк',    mood:'взрыв · цвет',        fam:'energy',   v:[0.90,1.30,6.8,0.035, 6, 0, 0, 0, 0, 1, 10] },
+  { id:'mirage',    name:'Мираж',        mood:'марево · даль',       fam:'deep',     v:[0.42,1.55,6.2,0.020, 1, 3, 0, 0, 0, 1, 10] },
+  { id:'raster',    name:'Растр',        mood:'зерно · постер',      fam:'graphic',  v:[0.32,1.50,4.0,0.030, 2, 1, 0, 0, 1, 6,  9] },
+  { id:'vitrage',   name:'Витраж',       mood:'мозаика · свет',      fam:'ornament', v:[0.34,1.60,5.0,0.030, 6, 1, 0, 1, 0, 1, 10] },
+  /* — волна 8 — */
+  { id:'feather',   name:'Перо',         mood:'легко · воздушно',    fam:'calm',     v:[0.20,2.30,1.7,0.015, 0, 6, 0, 0, 0, 1, 10] },
+  { id:'turbo',     name:'Турбо',        mood:'гонка · энергия',     fam:'energy',   v:[0.95,1.30,8.0,0.040, 1, 4, 0, 0, 0, 1, 10] },
+  { id:'milkyway',  name:'Млечность',    mood:'звёзды · мягко',      fam:'deep',     v:[0.40,1.80,7.2,0.025, 2, 0, 0, 0, 0, 1, 10] },
+  { id:'circuit',   name:'Микросхема',   mood:'техно · сетка',       fam:'graphic',  v:[0.34,1.60,3.5,0.020, 8, 2, 0, 1, 0, 1, 10] },
+  { id:'ornament',  name:'Орнамент',     mood:'вязь · узор',         fam:'ornament', v:[0.30,1.50,4.8,0.025, 9, 3, 0, 0, 0, 1, 10] },
+  /* — хвост — */
+  { id:'weave',     name:'Ткань',        mood:'переплёт · узор',     fam:'graphic',  v:[0.32,1.60,4.5,0.020, 3, 3, 0, 0, 0, 1, 10] },
 ];
 const TEMPLATE_BY_ID = Object.fromEntries(TEMPLATES.map(t=>[t.id,t]));
+function templatesForCat(cat){ return TEMPLATES.filter(t=>cat.fams.includes(t.fam)); }
 
 /* ---------- Creator categories (для чего нужен фон) ---------- */
 const CREATOR_CATEGORIES = [
-  { id:'tiktok',  name:'TikTok / Reels', ratio:'9:16', exportHint:'Вертикальное видео — экспорт видео на первом месте.',  default:'neon-pulse',   templates:['neon-pulse','acid-clip','liquid-ocean','pulse-grid','digital-mandala'] },
-  { id:'stories', name:'Stories',        ratio:'9:16', exportHint:'Чистый фон под текст и стикеры.',                       default:'soft-gradient',templates:['soft-gradient','liquid-ocean','neon-pulse','chrome-light'] },
-  { id:'youtube', name:'YouTube',        ratio:'16:9', exportHint:'Интро, аутро и подложка под контент.',                 default:'dark-techno',  templates:['dark-techno','chrome-light','neon-pulse','liquid-ocean'] },
-  { id:'text',    name:'Фон под текст',  ratio:'16:9', exportHint:'Читаемый центр, мягкое медленное движение.',           default:'calm-text',    templates:['calm-text','soft-gradient','chrome-light'] },
-  { id:'cover',   name:'Обложка',        ratio:'4:5',  exportHint:'Сильная статичная картинка — скачивай PNG.',           default:'poster-noise', templates:['poster-noise','chrome-light','digital-mandala','dark-techno'] },
-  { id:'present', name:'Презентация',    ratio:'16:9', exportHint:'Спокойные палитры, ровное движение.',                  default:'soft-gradient',templates:['soft-gradient','calm-text','chrome-light','dark-techno'] },
-  { id:'pattern', name:'Паттерн',        ratio:'1:1',  exportHint:'Бесшовная плитка — повторяется без швов.',             default:'pulse-grid',   templates:['pulse-grid','poster-noise','digital-mandala'] },
-  { id:'loop',    name:'Абстрактный луп',ratio:'16:9', exportHint:'Движение и эксперименты.',                             default:'liquid-ocean', templates:['liquid-ocean','neon-pulse','acid-clip','digital-mandala','chrome-light'] },
+  { id:'tiktok',  name:'TikTok / Reels', ratio:'9:16', exportHint:'Вертикальное видео — экспорт видео на первом месте.', default:'flash',    fams:['energy','deep','ornament','graphic'] },
+  { id:'stories', name:'Stories',        ratio:'9:16', exportHint:'Чистый фон под текст и стикеры.',                      default:'silk',     fams:['calm','deep','graphic'] },
+  { id:'youtube', name:'YouTube',        ratio:'16:9', exportHint:'Интро, аутро и подложка под контент.',                default:'aurora',   fams:['deep','graphic','energy','calm'] },
+  { id:'text',    name:'Фон под текст',  ratio:'16:9', exportHint:'Читаемый центр, мягкое медленное движение.',          default:'quiet',    fams:['calm','deep'] },
+  { id:'cover',   name:'Обложка',        ratio:'4:5',  exportHint:'Сильная статичная картинка — скачивай PNG.',          default:'firework', fams:['energy','ornament','graphic','deep'] },
+  { id:'present', name:'Презентация',    ratio:'16:9', exportHint:'Спокойные палитры, ровное движение.',                 default:'mist',     fams:['calm','deep','graphic'] },
+  { id:'pattern', name:'Паттерн',        ratio:'1:1',  exportHint:'Бесшовная плитка — повторяется без швов.',            default:'hexcomb',  fams:['graphic','ornament'] },
+  { id:'loop',    name:'Абстрактный луп',ratio:'16:9', exportHint:'Движение и эксперименты.',                            default:'galaxy',   fams:['energy','deep','ornament'] },
 ];
 
 /* ---------- State ---------- */
@@ -1164,8 +1208,7 @@ function applyTemplate(t){
 
 function renderTemplates(cat){
   tmplCardsEl.innerHTML='';
-  cat.templates.forEach(id=>{
-    const t=TEMPLATE_BY_ID[id]; if(!t) return;
+  templatesForCat(cat).forEach(t=>{
     const stops=PALETTES[t.v[5]].stops;
     const card=document.createElement('button'); card.type='button'; card.className='tmplCard'; card.dataset.tid=t.id;
     card.setAttribute('aria-label','Шаблон: '+t.name);
@@ -1183,7 +1226,7 @@ function selectCategory(cat){
   // КАТЕГОРИЯ задаёт формат
   if(RATIOS[cat.ratio]!=null){ state.ratio=cat.ratio; aspectRatio=RATIOS[cat.ratio]; refreshRatioButtons(); resize(); }
   renderTemplates(cat);
-  const def=TEMPLATE_BY_ID[cat.default]||TEMPLATE_BY_ID[cat.templates[0]];
+  const def=TEMPLATE_BY_ID[cat.default]||templatesForCat(cat)[0];
   if(def) applyTemplate(def);
 }
 
