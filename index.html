@@ -1469,7 +1469,7 @@ function setPanelW(px){
   try{ localStorage.setItem('zhizha_panel_w',px); }catch(e){}
   resize();
 }
-(()=>{ const s=parseInt(localStorage.getItem('zhizha_panel_w'),10); if(s) setPanelW(s); })();
+try{ const s=parseInt(localStorage.getItem('zhizha_panel_w'),10); if(s) setPanelW(s); }catch(e){}
 const panelResize=document.getElementById('panelResize');
 let pwDrag=false;
 panelResize.addEventListener('pointerdown',e=>{ if(mq.matches) return; pwDrag=true;
