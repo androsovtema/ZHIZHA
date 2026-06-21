@@ -6,7 +6,7 @@
 <title>ЖИЖА — живые фоны для видео, сторис и обложек</title>
 <meta name="description" content="ЖИЖА — быстрый генератор живых фонов для TikTok, Reels, Stories, YouTube и обложек. Выбери формат, стиль и цвет, настрой движение и скачай видео или PNG. Бесплатно, без регистрации." />
 <meta name="keywords" content="фон для видео, фон для тикток, фон для сторис, живой фон, анимированный фон, background generator, reels, shorts, обложка, скачать видео фон" />
-<meta name="theme-color" content="#07080c" />
+<meta name="theme-color" content="#0A0912" />
 <meta name="author" content="androsovtema" />
 <link rel="canonical" href="https://androsovtema.github.io/ZHIZHA/" />
 
@@ -32,18 +32,39 @@
 
 <link rel="icon" type="image/png" href="assets/icon-180.png" />
 <link rel="apple-touch-icon" href="assets/icon-180.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #07080c;
-    --panel: rgba(18, 20, 30, 0.55);
+    /* база */
+    --ink-900:#0A0912; --ink-800:#12101D; --ink-700:#1A1726;
+    --panel: rgba(22,18,38,0.55);
     --panel-border: rgba(255,255,255,0.10);
     --panel-hi: rgba(255,255,255,0.06);
-    --text: #eef0f7;
-    --text-dim: #9aa0b4;
-    --accent: #6ea8ff;
-    --accent-2: #b07bff;
-    --radius: 16px;
-    --shadow: 0 20px 60px rgba(0,0,0,0.55);
+    /* текст */
+    --text:#F4F1FF; --text-dim:#A39FB8; --text-mute:#6E6A86;
+    /* фирменный градиент + акценты */
+    --zhizha-glow:linear-gradient(135deg,#FF5FA8 0%,#8A5CFF 55%,#2FE6C8 100%);
+    --zhizha-grad:linear-gradient(135deg,#8A5CFF 0%,#FF5FA8 100%);
+    --accent:#8A5CFF; --accent-pink:#FF5FA8; --accent-mint:#2FE6C8;
+    /* семантика */
+    --success:#2FE6C8; --warning:#FFB13D; --danger:#FF5C6E; --info:#8A5CFF;
+    /* радиусы */
+    --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:22px; --r-xl:28px; --r-pill:999px;
+    /* тени / свечение */
+    --shadow-panel:0 20px 60px rgba(0,0,0,.55);
+    --shadow-card:0 8px 24px rgba(0,0,0,.35);
+    --glow-accent:0 8px 28px rgba(138,92,255,.35);
+    --glow-mint:0 8px 28px rgba(47,230,200,.30);
+    /* движение */
+    --ease-goo:cubic-bezier(.34,1.56,.64,1);
+    --ease-soft:cubic-bezier(.4,0,.2,1);
+    --dur-1:120ms; --dur-2:200ms; --dur-3:320ms; --dur-4:600ms;
+    /* совместимость со старым кодом */
+    --bg:var(--ink-900); --radius:var(--r-md); --shadow:var(--shadow-panel);
+    --accent-2:var(--accent-pink);
   }
   *{ box-sizing: border-box; }
   html,body{ margin:0; height:100%; }
@@ -54,9 +75,9 @@
   [role=switch]:focus-visible,
   input:focus-visible,
   select:focus-visible{
-    outline: 2px solid #9cc2ff;
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
-    border-radius: 8px;
+    border-radius: 10px;
   }
   @media (prefers-reduced-motion: reduce){
     *{ transition: none !important; animation: none !important; }
@@ -64,7 +85,7 @@
   body{
     background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
     /* строгое разделение: панель слева | окно фона справа */
@@ -101,19 +122,19 @@
 
   .brand{ display:flex; align-items:center; gap:10px; margin-bottom: 6px; }
   .brand .logo{
-    width:34px;height:34px;border-radius:9px;
-    background: url("assets/icon-180.png") center / cover no-repeat, #15171f;
-    box-shadow: 0 4px 16px rgba(110,168,255,.35);
+    width:34px;height:34px;border-radius:12px;
+    background: url("assets/icon-180.png") center / cover no-repeat, var(--ink-700);
+    box-shadow: var(--glow-accent);
   }
-  .brand h1{ font-size: 18px; margin:0; letter-spacing:.5px; }
+  .brand h1{ font-family:'Comfortaa',cursive; font-size: 20px; font-weight:700; margin:0; letter-spacing:.5px; }
   .brand .sub{ font-size:11px; color:var(--text-dim); margin-top:1px; }
 
   .step{ border:1px solid var(--panel-border); background: var(--panel-hi);
-    border-radius: 12px; padding: 12px; margin-top: 12px; }
-  .step h2{ font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase;
+    border-radius: var(--r-md); padding: 12px; margin-top: 12px; }
+  .step h2{ font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; font-weight:700;
     color: var(--text-dim); margin: 0 0 10px; display:flex; align-items:center; gap:8px; }
   .step h2 .num{ font-size:10px; color: var(--accent);
-    border:1px solid rgba(110,168,255,.4); border-radius:6px; padding:1px 5px; }
+    border:1px solid rgba(138,92,255,.4); border-radius:6px; padding:1px 5px; }
 
   /* «Профи» — сворачиваемый блок с техническими секциями */
   .pro{ margin-top: 14px; }
@@ -135,12 +156,12 @@
   button.opt, .seg button{
     flex:1; cursor:pointer; border:1px solid var(--panel-border);
     background: rgba(255,255,255,.03); color: var(--text);
-    padding: 8px 6px; border-radius: 9px; font-size: 12px; transition: .15s; white-space: nowrap;
+    padding: 8px 6px; border-radius: var(--r-sm); font-size: 12px; transition: var(--dur-1) var(--ease-goo); white-space: nowrap;
   }
   button.opt:hover, .seg button:hover{ background: rgba(255,255,255,.09); }
   button.opt.active, .seg button.active{
-    background: linear-gradient(135deg, rgba(110,168,255,.30), rgba(176,123,255,.30));
-    border-color: rgba(150,180,255,.6); color:#fff;
+    background: linear-gradient(135deg, rgba(138,92,255,.30), rgba(255,95,168,.30));
+    border-color: rgba(138,92,255,.6); color:#fff;
   }
 
   .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
@@ -151,7 +172,7 @@
     display:flex; align-items:center; gap:8px; transition:.15s; background: rgba(255,255,255,.02);
   }
   .chip:hover{ background: rgba(255,255,255,.07); }
-  .chip.active{ border-color: rgba(150,180,255,.6); background: rgba(110,168,255,.12); }
+  .chip.active{ border-color: rgba(138,92,255,.6); background: rgba(138,92,255,.14); }
   .chip .sw{ width:18px;height:18px;border-radius:6px; flex:0 0 auto; }
 
   /* creator: category chips */
@@ -168,15 +189,15 @@
   }
   /* creator: template cards */
   .tmplCard{
-    cursor:pointer; border:1px solid var(--panel-border); border-radius:12px;
-    overflow:hidden; background: rgba(255,255,255,.02); transition:.15s; text-align:left;
+    cursor:pointer; border:1px solid var(--panel-border); border-radius:var(--r-md);
+    overflow:hidden; background: rgba(255,255,255,.02); transition:var(--dur-2) var(--ease-goo); text-align:left;
     display:flex; flex-direction:column;
   }
-  .tmplCard:hover{ background: rgba(255,255,255,.06); transform: translateY(-1px); }
-  .tmplCard.active{ border-color: rgba(150,180,255,.7); box-shadow: 0 0 0 1px rgba(110,168,255,.4) inset; }
+  .tmplCard:hover{ background: rgba(255,255,255,.06); transform: translateY(-2px); box-shadow: var(--shadow-card); }
+  .tmplCard.active{ border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset, var(--glow-accent); }
   .tmplCard .thumb{ height:46px; width:100%; }
   .tmplCard .meta{ padding:7px 9px; }
-  .tmplCard .tname{ display:block; font-size:12px; color:var(--text); font-weight:600; line-height:1.2; }
+  .tmplCard .tname{ display:block; font-family:'Comfortaa',cursive; font-size:13px; color:var(--text); font-weight:700; line-height:1.2; }
   .tmplCard .tmood{ display:block; font-size:10px; color:var(--text-dim); margin-top:3px; }
 
   /* quick controls */
@@ -233,15 +254,16 @@
   .toggle.on{ background: linear-gradient(135deg,var(--accent),var(--accent-2)); }
   .toggle.on::after{ transform: translateX(20px); }
 
-  .primary{ width:100%; cursor:pointer; border:none; border-radius:11px; padding:11px;
-    font-size:13px; font-weight:600; color:#fff; margin-top:8px;
-    background: linear-gradient(135deg,var(--accent),var(--accent-2));
-    box-shadow: 0 8px 24px rgba(110,168,255,.35); transition:.15s; }
+  .primary{ width:100%; cursor:pointer; border:none; border-radius:var(--r-md); padding:12px;
+    font-size:14px; font-weight:700; color:#fff; margin-top:8px;
+    background: var(--zhizha-grad);
+    box-shadow: var(--glow-accent); transition:var(--dur-2) var(--ease-goo); }
   .primary:hover{ filter:brightness(1.08); transform: translateY(-1px); }
-  .primary.rec{ background: linear-gradient(135deg,#ff5d6c,#ff3b30); box-shadow:0 8px 24px rgba(255,59,48,.4); }
-  .ghost{ width:100%; cursor:pointer; border:1px solid var(--panel-border); border-radius:11px;
+  .primary:active{ transform: scale(.97); }
+  .primary.rec{ background: linear-gradient(135deg,#FF5FA8,#FF5C6E); box-shadow:0 8px 24px rgba(255,92,110,.4); }
+  .ghost{ width:100%; cursor:pointer; border:1px solid var(--panel-border); border-radius:var(--r-sm);
     padding:9px; font-size:12px; color:var(--text); background: rgba(255,255,255,.03);
-    margin-top:8px; transition:.15s; }
+    margin-top:8px; transition:var(--dur-1) var(--ease-goo); }
   .ghost:hover{ background: rgba(255,255,255,.08); }
   .hint{ font-size:11px; color:var(--text-dim); margin-top:8px; line-height:1.4; }
   .hidden{ display:none !important; }
@@ -265,15 +287,15 @@
     border:1px solid var(--panel-border); backdrop-filter: blur(10px); }
 
   #toast{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(20px);
-    background: rgba(20,22,32,.92); border:1px solid var(--panel-border); color:var(--text);
+    background: rgba(18,16,29,.92); border:1px solid var(--panel-border); color:var(--text);
     padding:10px 16px; border-radius:12px; font-size:13px; z-index:40; opacity:0; pointer-events:none;
     transition:.25s; backdrop-filter: blur(12px); box-shadow: var(--shadow); }
   #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
   select, textarea{ width:100%; background: rgba(255,255,255,.05); color:var(--text);
-    border:1px solid var(--panel-border); border-radius:9px; padding:8px; font-size:12px; cursor:pointer; }
-  select option{ background:#15171f; }
-  textarea{ font-family: ui-monospace, Menlo, monospace; resize:vertical; min-height:54px; cursor:text; }
+    border:1px solid var(--panel-border); border-radius:var(--r-sm); padding:8px; font-size:12px; cursor:pointer; }
+  select option{ background:var(--ink-700); }
+  textarea{ font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; resize:vertical; min-height:54px; cursor:text; }
 
   #panelToggle{ display: none; position: fixed; top: 14px; left: 14px; z-index: 30;
     width: 46px; height: 46px; align-items: center; justify-content: center;
@@ -330,7 +352,7 @@
     <div class="logo"></div>
     <div>
       <h1>ЖИЖА</h1>
-      <div class="sub">генератор живых процедурных фонов</div>
+      <div class="sub">живые фоны за 20 секунд</div>
     </div>
   </div>
 
