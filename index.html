@@ -201,18 +201,21 @@
   .moodChips button:hover{ background:rgba(255,255,255,.08); color:var(--text); }
   .moodChips button.active{ color:#fff; border-color:transparent; background:var(--zhizha-grad); }
 
-  /* creator: template cards */
+  /* creator: template cards — квадрат, превью на всю плитку, текст оверлеем снизу */
   .tmplCard{
-    cursor:pointer; border:1px solid var(--panel-border); border-radius:var(--r-md);
-    overflow:hidden; background: rgba(255,255,255,.02); transition:var(--dur-2) var(--ease-goo); text-align:left;
-    display:flex; flex-direction:column;
+    position:relative; cursor:pointer; padding:0; width:100%; aspect-ratio:1/1;
+    border:1px solid var(--panel-border); border-radius:var(--r-md);
+    overflow:hidden; background: var(--ink-700); transition:var(--dur-2) var(--ease-goo); text-align:left;
   }
-  .tmplCard:hover{ background: rgba(255,255,255,.06); transform: translateY(-2px); box-shadow: var(--shadow-card); }
+  .tmplCard:hover{ transform: translateY(-2px); box-shadow: var(--shadow-card); }
   .tmplCard.active{ border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset, var(--glow-accent); }
-  .tmplCard .thumb{ height:46px; width:100%; display:block; }
-  .tmplCard .meta{ padding:7px 9px; }
-  .tmplCard .tname{ display:block; font-family:'Comfortaa',cursive; font-size:13px; color:var(--text); font-weight:700; line-height:1.2; }
-  .tmplCard .tmood{ display:block; font-size:10px; color:var(--text-dim); margin-top:3px; }
+  .tmplCard .thumb{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+  .tmplCard .meta{ position:absolute; left:0; right:0; bottom:0; padding:22px 11px 11px;
+    background: linear-gradient(to top, rgba(8,7,14,.94) 30%, rgba(8,7,14,.6) 65%, transparent); }
+  .tmplCard .tname{ display:block; font-family:'Comfortaa',cursive; font-size:14px; color:#fff; font-weight:700; line-height:1.15;
+    text-shadow:0 1px 6px rgba(0,0,0,.5); }
+  .tmplCard .tmood{ display:block; font-size:10.5px; color:rgba(255,255,255,.72); margin-top:2px;
+    text-shadow:0 1px 4px rgba(0,0,0,.5); }
 
   /* quick controls */
   .qlabel{ display:block; font-size:10px; color:var(--text-dim); margin:16px 0 8px;
@@ -1222,7 +1225,7 @@ function loadPreset(p){
    Один отдельный WebGL-рендерер рисует сцену каждого ВИДИМОГО стиля в мелком
    размере и копирует картинку в 2D-canvas карточки. Так один контекст обслуживает
    сотни карточек (обходим лимит WebGL-контекстов в браузере). */
-const PV_W=220, PV_H=68, PV_FPS=20;
+const PV_W=240, PV_H=240, PV_FPS=20;
 let pvOK=true, pvRenderer, pvScene, pvCamera, pvUniforms;
 try{
   pvRenderer=new THREE.WebGLRenderer({antialias:true, alpha:false, preserveDrawingBuffer:true, powerPreference:'low-power'});
