@@ -187,6 +187,14 @@
     color:#fff; border-color: transparent;
     background: linear-gradient(135deg,var(--accent),var(--accent-2));
   }
+  /* creator: mood filter chips */
+  .moodChips{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
+  .moodChips button{ cursor:pointer; border:1px solid var(--panel-border); border-radius:99px;
+    padding:5px 11px; font-size:11px; color:var(--text-dim); background:rgba(255,255,255,.03);
+    transition:var(--dur-1) var(--ease-goo); white-space:nowrap; }
+  .moodChips button:hover{ background:rgba(255,255,255,.08); color:var(--text); }
+  .moodChips button.active{ color:#fff; border-color:transparent; background:var(--zhizha-grad); }
+
   /* creator: template cards */
   .tmplCard{
     cursor:pointer; border:1px solid var(--panel-border); border-radius:var(--r-md);
@@ -195,7 +203,7 @@
   }
   .tmplCard:hover{ background: rgba(255,255,255,.06); transform: translateY(-2px); box-shadow: var(--shadow-card); }
   .tmplCard.active{ border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset, var(--glow-accent); }
-  .tmplCard .thumb{ height:46px; width:100%; }
+  .tmplCard .thumb{ height:46px; width:100%; display:block; }
   .tmplCard .meta{ padding:7px 9px; }
   .tmplCard .tname{ display:block; font-family:'Comfortaa',cursive; font-size:13px; color:var(--text); font-weight:700; line-height:1.2; }
   .tmplCard .tmood{ display:block; font-size:10px; color:var(--text-dim); margin-top:3px; }
@@ -368,6 +376,7 @@
     <h2>Для чего нужен фон?</h2>
     <div class="catChips" id="catChips" role="group" aria-label="Категория фона"></div>
     <h2 style="margin-top:16px;">Выбери стиль</h2>
+    <div class="moodChips" id="moodChips" role="group" aria-label="Фильтр по настроению"></div>
     <div class="grid2" id="tmplCards"></div>
     <div class="hint" id="catHint"></div>
   </div>
@@ -943,19 +952,33 @@ const TEMPLATES = [
   { id:'ornament',  name:'Орнамент',     mood:'вязь · узор',         fam:'ornament', v:[0.30,1.50,4.8,0.025, 9, 3, 0, 0, 0, 1, 10] },
   /* — хвост — */
   { id:'weave',     name:'Ткань',        mood:'переплёт · узор',     fam:'graphic',  v:[0.32,1.60,4.5,0.020, 3, 3, 0, 0, 0, 1, 10] },
+  /* — добавка: больше стилей по семьям — */
+  { id:'dew',       name:'Роса',         mood:'свежо · мягко',       fam:'calm',     v:[0.20,2.20,2.2,0.018, 1, 5, 0, 0, 0, 1, 10] },
+  { id:'rave',      name:'Рейв',         mood:'клуб · кисло',        fam:'energy',   v:[0.90,1.30,7.2,0.040, 6, 5, 0, 0, 0, 1, 10] },
+  { id:'lava',      name:'Лава',         mood:'огонь · жар',         fam:'energy',   v:[0.70,1.50,5.5,0.035, 0, 4, 0, 0, 0, 1, 10] },
+  { id:'cosmos',    name:'Космос',       mood:'звёзды · даль',       fam:'deep',     v:[0.40,1.80,7.0,0.025, 2, 3, 0, 0, 0, 1, 10] },
+  { id:'mosaic',    name:'Мозаика',      mood:'плитка · цвет',       fam:'graphic',  v:[0.32,1.50,3.5,0.025, 2, 1, 0, 0, 0,12, 10] },
+  { id:'lotus',     name:'Лотос',        mood:'цветок · покой',      fam:'ornament', v:[0.32,1.50,5.2,0.025, 6, 5, 0, 0, 0, 1, 10] },
+  /* — новая семья: Монохром (палитра Хром) — */
+  { id:'graphite',  name:'Графит',       mood:'строго · моно',       fam:'mono',     v:[0.28,1.70,3.2,0.020, 8, 7, 0, 0, 0, 1, 10] },
+  { id:'ink',       name:'Тушь',         mood:'чёрно · бело',        fam:'mono',     v:[0.30,1.60,4.0,0.020, 1, 7, 0, 0, 0, 1, 10] },
+  { id:'steel',     name:'Сталь',        mood:'металл · холод',      fam:'mono',     v:[0.32,1.60,4.5,0.020, 3, 7, 0, 0, 0, 1, 10] },
+  { id:'smoke',     name:'Дым',          mood:'мягко · моно',        fam:'mono',     v:[0.22,2.00,2.6,0.018, 0, 7, 0, 0, 0, 1, 10] },
+  { id:'noir',      name:'Нуар',         mood:'контраст · кино',     fam:'mono',     v:[0.30,1.90,4.0,0.020, 4, 7, 0, 0, 0, 1, 10] },
 ];
 const TEMPLATE_BY_ID = Object.fromEntries(TEMPLATES.map(t=>[t.id,t]));
-function templatesForCat(cat){ return TEMPLATES.filter(t=>cat.fams.includes(t.fam)); }
+function templatesForCat(cat, fam){ return TEMPLATES.filter(t=>cat.fams.includes(t.fam) && (!fam || t.fam===fam)); }
+const FAM_LABELS={ calm:'Спокойные', energy:'Яркие', deep:'Глубокие', graphic:'Графика', ornament:'Узоры', mono:'Монохром' };
 
 /* ---------- Creator categories (для чего нужен фон) ---------- */
 const CREATOR_CATEGORIES = [
   { id:'tiktok',  name:'TikTok / Reels', ratio:'9:16', exportHint:'Вертикальное видео — экспорт видео на первом месте.', default:'flash',    fams:['energy','deep','ornament','graphic'] },
-  { id:'stories', name:'Stories',        ratio:'9:16', exportHint:'Чистый фон под текст и стикеры.',                      default:'silk',     fams:['calm','deep','graphic'] },
-  { id:'youtube', name:'YouTube',        ratio:'16:9', exportHint:'Интро, аутро и подложка под контент.',                default:'aurora',   fams:['deep','graphic','energy','calm'] },
-  { id:'text',    name:'Фон под текст',  ratio:'16:9', exportHint:'Читаемый центр, мягкое медленное движение.',          default:'quiet',    fams:['calm','deep'] },
-  { id:'cover',   name:'Обложка',        ratio:'4:5',  exportHint:'Сильная статичная картинка — скачивай PNG.',          default:'firework', fams:['energy','ornament','graphic','deep'] },
-  { id:'present', name:'Презентация',    ratio:'16:9', exportHint:'Спокойные палитры, ровное движение.',                 default:'mist',     fams:['calm','deep','graphic'] },
-  { id:'pattern', name:'Паттерн',        ratio:'1:1',  exportHint:'Бесшовная плитка — повторяется без швов.',            default:'hexcomb',  fams:['graphic','ornament'] },
+  { id:'stories', name:'Stories',        ratio:'9:16', exportHint:'Чистый фон под текст и стикеры.',                      default:'silk',     fams:['calm','deep','graphic','mono'] },
+  { id:'youtube', name:'YouTube',        ratio:'16:9', exportHint:'Интро, аутро и подложка под контент.',                default:'aurora',   fams:['deep','graphic','energy','calm','mono'] },
+  { id:'text',    name:'Фон под текст',  ratio:'16:9', exportHint:'Читаемый центр, мягкое медленное движение.',          default:'quiet',    fams:['calm','deep','mono'] },
+  { id:'cover',   name:'Обложка',        ratio:'4:5',  exportHint:'Сильная статичная картинка — скачивай PNG.',          default:'firework', fams:['energy','ornament','graphic','deep','mono'] },
+  { id:'present', name:'Презентация',    ratio:'16:9', exportHint:'Спокойные палитры, ровное движение.',                 default:'mist',     fams:['calm','deep','graphic','mono'] },
+  { id:'pattern', name:'Паттерн',        ratio:'1:1',  exportHint:'Бесшовная плитка — повторяется без швов.',            default:'hexcomb',  fams:['graphic','ornament','mono'] },
   { id:'loop',    name:'Абстрактный луп',ratio:'16:9', exportHint:'Движение и эксперименты.',                            default:'galaxy',   fams:['energy','deep','ornament'] },
 ];
 
@@ -1189,11 +1212,85 @@ function loadPreset(p){
   if(typeof refreshQuick==='function') refreshQuick();
 }
 
+/* ---------- Живые превью карточек (общий мини-рендерер) ----------
+   Один отдельный WebGL-рендерер рисует сцену каждого ВИДИМОГО стиля в мелком
+   размере и копирует картинку в 2D-canvas карточки. Так один контекст обслуживает
+   сотни карточек (обходим лимит WebGL-контекстов в браузере). */
+const PV_W=220, PV_H=68, PV_FPS=20;
+let pvOK=true, pvRenderer, pvScene, pvCamera, pvUniforms;
+try{
+  pvRenderer=new THREE.WebGLRenderer({antialias:true, alpha:false, preserveDrawingBuffer:true, powerPreference:'low-power'});
+  pvRenderer.setPixelRatio(1); pvRenderer.setSize(PV_W,PV_H,false);
+  pvScene=new THREE.Scene(); pvCamera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+  pvUniforms={
+    u_res:{value:new THREE.Vector2(PV_W,PV_H)}, u_time:{value:0}, u_seed:{value:3.7},
+    u_scale:{value:1.6}, u_warp:{value:4}, u_grain:{value:0.02}, u_pixel:{value:1},
+    u_dots:{value:0}, u_dot:{value:10}, u_pal:{value:0},
+    u_c0:{value:new THREE.Color()}, u_c1:{value:new THREE.Color()},
+    u_c2:{value:new THREE.Color()}, u_c3:{value:new THREE.Color()},
+    u_field:{value:0}, u_screen:{value:0}, u_seamless:{value:0}, u_tile:{value:5},
+    u_glyph:{value:buildGlyphTexture()}, u_mouse:{value:new THREE.Vector2(0.5,0.5)}, u_mouseAmt:{value:0},
+  };
+  const pvMat=new THREE.ShaderMaterial({vertexShader:VERT, fragmentShader:FRAG, uniforms:pvUniforms});
+  pvScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), pvMat));
+}catch(e){ pvOK=false; }
+
+const pvVisible=new Set();
+const pvCards=[];
+function pvReset(){ pvCards.length=0; pvVisible.clear(); }
+function pvRegister(canvas,t){
+  if(!canvas) return;
+  canvas._tpl=t;
+  const dpr=Math.min(window.devicePixelRatio||1,1.5);
+  canvas.width=Math.round(canvas.clientWidth*dpr)||PV_W;
+  canvas.height=Math.round(canvas.clientHeight*dpr)||PV_H;
+  pvCards.push(canvas);
+}
+function pvVisCalc(){
+  pvVisible.clear();
+  const vh=window.innerHeight||800, m=220;
+  for(const cv of pvCards){
+    if(!cv.isConnected) continue;
+    const r=cv.getBoundingClientRect();
+    if(r.width>0 && r.bottom>-m && r.top<vh+m) pvVisible.add(cv);
+  }
+}
+let pvVisQueued=false;
+function pvVisSoon(){ if(pvVisQueued) return; pvVisQueued=true; requestAnimationFrame(()=>{ pvVisQueued=false; pvVisCalc(); }); }
+window.addEventListener('scroll', pvVisSoon, {passive:true, capture:true});
+window.addEventListener('resize', pvVisSoon);
+function pvSetUniforms(v,time){
+  const [speed,scale,warp,grain,field,pal,seamless,screen,dots,pixel=1,dot=10]=v;
+  const stops=PALETTES[pal].stops;
+  pvUniforms.u_c0.value.setRGB(...stops[0]); pvUniforms.u_c1.value.setRGB(...stops[1]);
+  pvUniforms.u_c2.value.setRGB(...stops[2]); pvUniforms.u_c3.value.setRGB(...stops[3]);
+  pvUniforms.u_pal.value=pal; pvUniforms.u_field.value=field; pvUniforms.u_screen.value=screen;
+  pvUniforms.u_scale.value=scale; pvUniforms.u_warp.value=warp; pvUniforms.u_grain.value=grain;
+  pvUniforms.u_pixel.value=pixel; pvUniforms.u_dots.value=dots; pvUniforms.u_dot.value=dot;
+  pvUniforms.u_seamless.value=0; pvUniforms.u_time.value=time*speed*1.6;
+}
+let pvT=0, pvLast=0;
+function pvTick(now){
+  requestAnimationFrame(pvTick);
+  if(!pvOK || document.hidden || pvVisible.size===0){ pvLast=now; return; }
+  if(now-pvLast < 1000/PV_FPS) return;
+  pvT += (now-pvLast)/1000; pvLast=now;
+  pvVisible.forEach(cv=>{
+    const t=cv._tpl; if(!t || !cv.isConnected) return;
+    pvSetUniforms(t.v, pvT);
+    pvRenderer.render(pvScene,pvCamera);
+    const ctx=cv.getContext('2d'); if(!ctx) return;
+    ctx.drawImage(pvRenderer.domElement,0,0,cv.width,cv.height);
+  });
+}
+if(pvOK) requestAnimationFrame(pvTick);
+
 /* ---------- Creator: categories + template cards ---------- */
 const catChipsEl=document.getElementById('catChips');
 const tmplCardsEl=document.getElementById('tmplCards');
 const catHintEl=document.getElementById('catHint');
-let activeCat=null;
+const moodChipsEl=document.getElementById('moodChips');
+let activeCat=null, activeFam=null;
 
 function applyTemplate(t){
   // ШАБЛОН задаёт только вид (поле/палитра/движение/поверхность). ФОРМАТ (ratio)
@@ -1206,17 +1303,31 @@ function applyTemplate(t){
   document.querySelectorAll('#tmplCards .tmplCard').forEach(x=>x.classList.toggle('active', x.dataset.tid===t.id));
 }
 
+function renderMoodChips(cat){
+  moodChipsEl.innerHTML='';
+  ['',...cat.fams].forEach(f=>{
+    const b=document.createElement('button'); b.type='button';
+    b.textContent=f?FAM_LABELS[f]:'Все';
+    if(activeFam===(f||null)) b.classList.add('active');
+    b.onclick=()=>{ activeFam=f||null; renderMoodChips(cat); renderTemplates(cat); };
+    moodChipsEl.appendChild(b);
+  });
+}
+
 function renderTemplates(cat){
+  pvReset();
   tmplCardsEl.innerHTML='';
-  templatesForCat(cat).forEach(t=>{
+  templatesForCat(cat, activeFam).forEach(t=>{
     const stops=PALETTES[t.v[5]].stops;
     const card=document.createElement('button'); card.type='button'; card.className='tmplCard'; card.dataset.tid=t.id;
     card.setAttribute('aria-label','Шаблон: '+t.name);
-    card.innerHTML=`<span class="thumb" style="background:${gradCss(stops)}"></span>`+
+    card.innerHTML=`<canvas class="thumb" aria-hidden="true" style="background:${gradCss(stops)}"></canvas>`+
       `<span class="meta"><span class="tname">${t.name}</span><span class="tmood">${t.mood}</span></span>`;
     card.onclick=()=>applyTemplate(t);
     tmplCardsEl.appendChild(card);
+    pvRegister(card.querySelector('canvas'), t);
   });
+  pvVisCalc();
 }
 
 function selectCategory(cat){
@@ -1225,6 +1336,8 @@ function selectCategory(cat){
   catHintEl.textContent=cat.exportHint;
   // КАТЕГОРИЯ задаёт формат
   if(RATIOS[cat.ratio]!=null){ state.ratio=cat.ratio; aspectRatio=RATIOS[cat.ratio]; refreshRatioButtons(); resize(); }
+  activeFam=null;
+  renderMoodChips(cat);
   renderTemplates(cat);
   const def=TEMPLATE_BY_ID[cat.default]||templatesForCat(cat)[0];
   if(def) applyTemplate(def);
