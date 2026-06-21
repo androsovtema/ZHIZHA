@@ -91,7 +91,7 @@
     /* строгое разделение: панель слева | окно фона справа */
     height: 100%;
     display: grid;
-    grid-template-columns: 360px 1fr;
+    grid-template-columns: var(--panel-w, 500px) 1fr;
   }
   body.embed{ grid-template-columns: 1fr; }
 
@@ -123,6 +123,13 @@
     scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.2) transparent;
   }
   body.embed #panel{ display: none; }
+  /* ручка изменения ширины панели — тянуть за правый край */
+  #panelResize{ position: fixed; top: 0; bottom: 0; left: var(--panel-w, 500px);
+    width: 12px; transform: translateX(-6px); z-index: 25; cursor: col-resize; }
+  #panelResize::after{ content:""; position:absolute; top:0; bottom:0; left:5px; width:2px;
+    background: transparent; transition: background .15s; }
+  #panelResize:hover::after, #panelResize.dragging::after{ background: var(--accent); }
+  body.embed #panelResize{ display:none; }
   #panel::-webkit-scrollbar{ width: 8px; }
   #panel::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.15); border-radius: 8px; }
 
@@ -332,6 +339,7 @@
   @media (max-width: 760px){
     html, body{ overflow: visible; height: auto; }
     body{ display: block; max-width: 100%; }
+    #panelResize{ display: none; }
     #stage{ position: sticky; top: 0; z-index: 5; grid-column: auto;
       height: 46vh; padding: 10px; background: var(--ink-900);
       border-bottom: 1px solid var(--panel-border); }
@@ -370,6 +378,7 @@
 </div>
 
 <button id="panelToggle" aria-label="Показать или скрыть панель управления" aria-expanded="true" aria-controls="panel">☰</button>
+<div id="panelResize" role="separator" aria-orientation="vertical" aria-label="Изменить ширину панели"></div>
 
 <div id="liveBar">
   <button id="reloadBtn" type="button" aria-label="Случайная вариация фона" title="Случайная вариация">⟳</button>
@@ -1449,6 +1458,25 @@ panelToggle.onclick=()=>setPanel(panelEl.classList.contains('collapsed'));
 const mq=window.matchMedia('(max-width: 760px)');
 const syncPanel=()=>setPanel(!mq.matches);
 mq.addEventListener('change',()=>{ syncPanel(); resize(); }); syncPanel();
+
+/* ---------- Resizable panel (тянуть за правый край) ---------- */
+const PANEL_MIN=340, PANEL_MAX=820;
+function setPanelW(px){
+  px=Math.max(PANEL_MIN,Math.min(PANEL_MAX,Math.round(px)));
+  document.documentElement.style.setProperty('--panel-w',px+'px');
+  try{ localStorage.setItem('zhizha_panel_w',px); }catch(e){}
+  resize();
+}
+(()=>{ const s=parseInt(localStorage.getItem('zhizha_panel_w'),10); if(s) setPanelW(s); })();
+const panelResize=document.getElementById('panelResize');
+let pwDrag=false;
+panelResize.addEventListener('pointerdown',e=>{ if(mq.matches) return; pwDrag=true;
+  panelResize.classList.add('dragging'); panelResize.setPointerCapture(e.pointerId);
+  document.body.style.userSelect='none'; e.preventDefault(); });
+panelResize.addEventListener('pointermove',e=>{ if(pwDrag) setPanelW(e.clientX); });
+const pwEnd=()=>{ if(!pwDrag) return; pwDrag=false; panelResize.classList.remove('dragging'); document.body.style.userSelect=''; };
+panelResize.addEventListener('pointerup',pwEnd);
+panelResize.addEventListener('pointercancel',pwEnd);
 
 /* ---------- Mouse ripple ---------- */
 const dom=renderer.domElement;
