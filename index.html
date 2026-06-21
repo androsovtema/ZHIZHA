@@ -284,9 +284,12 @@
   #liveBar{ position: fixed; top:18px; right:18px; z-index:10; display:flex; gap:8px;
     background: var(--panel); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
     border:1px solid var(--panel-border); border-radius:12px; padding:6px; box-shadow: var(--shadow); }
-  #liveBar button{ cursor:pointer; border:1px solid transparent; background:transparent; color:var(--text-dim);
-    font-size:12px; padding:7px 12px; border-radius:8px; transition:.15s; }
-  #liveBar button.active{ color:#fff; background: rgba(255,255,255,.10); border-color:var(--panel-border); }
+  #liveBar button{ cursor:pointer; border:1px solid transparent; background:transparent; color:var(--text);
+    width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+    font-size:21px; line-height:1; border-radius:10px; transition:.15s; }
+  #liveBar button:hover{ background: rgba(255,255,255,.10); border-color:var(--panel-border); color:#fff; }
+  #liveBar button.spin{ animation: reloadSpin .55s var(--ease-goo); }
+  @keyframes reloadSpin{ from{ transform: rotate(0); } to{ transform: rotate(360deg); } }
 
   #recDot{ position:fixed; top:64px; right:18px; z-index:11; display:none; align-items:center; gap:7px;
     background: rgba(255,59,48,.18); border:1px solid rgba(255,59,48,.5); color:#ffd2cf;
@@ -331,7 +334,7 @@
     #stageInner{ height: 100%; }
     #panelToggle{ display: none; }
     #liveBar{ top: 12px; right: 12px; padding: 5px; }
-    #liveBar button{ padding: 7px 9px; font-size: 11px; }
+    #liveBar button{ width: 36px; height: 36px; font-size: 20px; }
     #fps{ display: none; }
     #panel{ position: static; height: auto; max-height: none; width: 100%;
       grid-column: auto; overflow: visible; border-right: none;
@@ -343,13 +346,14 @@
     /* нейтрализуем JS-сворачивание оверлея — в stacked панель всегда видна */
     #panel.collapsed{ transform: none; box-shadow: 0 -16px 40px rgba(0,0,0,.5); }
   }
-  @media (max-width: 380px){
-    #liveBar button{ font-size: 0; padding: 8px; }
-    #liveBar button::first-letter{ font-size: 14px; }
-  }
+  /* mode toggle + per-mode visibility */
+  .modeSeg{ margin: 2px 0 2px; }
+  body.mode-pro #creatorStep{ display:none; }
+  body.mode-simple #proPanel{ display:none; }
+  body.mode-pro #proPanel > summary{ display:none; }
 </style>
 </head>
-<body>
+<body class="mode-simple">
 
 <div id="stage">
   <div id="stageInner">
@@ -359,9 +363,8 @@
 
 <button id="panelToggle" aria-label="Показать или скрыть панель управления" aria-expanded="true" aria-controls="panel">☰</button>
 
-<div id="liveBar" role="group" aria-label="Режим воспроизведения">
-  <button id="modeLive" class="active" aria-pressed="true">▶ Анимация</button>
-  <button id="modeStill" aria-pressed="false">❚❚ Статика</button>
+<div id="liveBar">
+  <button id="reloadBtn" type="button" aria-label="Случайная вариация фона" title="Случайная вариация">⟳</button>
 </div>
 <div id="recDot"><span class="blink"></span> <span id="recLabel">Идёт запись…</span> <span id="recTime"></span></div>
 <div id="fps">— FPS</div>
@@ -374,6 +377,11 @@
       <h1>ЖИЖА</h1>
       <div class="sub">живые фоны за 20 секунд</div>
     </div>
+  </div>
+
+  <div class="seg modeSeg" id="modeSeg" role="group" aria-label="Режим">
+    <button type="button" id="modeSimple" class="active" aria-pressed="true">✦ Простой</button>
+    <button type="button" id="modePro" aria-pressed="false">⚙ Профи</button>
   </div>
 
   <!-- Creator: для чего нужен фон -->
@@ -1407,7 +1415,7 @@ function refreshQuick(){
 }
 
 /* ---------- Random ---------- */
-document.getElementById('randomBtn').onclick=()=>{
+function randomize(){
   state.seed=Math.random()*100;
   state.field=Math.floor(Math.random()*FIELDS.length);
   state.speed=0.3+Math.random()*1.0;
@@ -1417,14 +1425,29 @@ document.getElementById('randomBtn').onclick=()=>{
   state.cols=PALETTES[state.pal].stops.map(s=>s.slice());
   set('speed',state.speed); set('scale',state.scale); set('warp',state.warp);
   document.querySelectorAll('#presets .chip').forEach(x=>x.classList.remove('active'));
-  refreshFieldButtons(); refreshPaletteButtons(); buildColorPickers(); updateLabels(); syncUniforms();
-};
+  document.querySelectorAll('#tmplCards .tmplCard').forEach(x=>x.classList.remove('active'));
+  refreshFieldButtons(); refreshPaletteButtons(); buildColorPickers(); updateLabels(); refreshQuick(); syncUniforms();
+}
+document.getElementById('randomBtn').onclick=randomize;
+const reloadBtn=document.getElementById('reloadBtn');
+reloadBtn.onclick=()=>{ randomize(); reloadBtn.classList.remove('spin'); void reloadBtn.offsetWidth; reloadBtn.classList.add('spin'); };
 
-/* ---------- Live / Still ---------- */
-const mLive=document.getElementById('modeLive'), mStill=document.getElementById('modeStill');
-function setMode(l){ live=l; mLive.classList.toggle('active',l); mStill.classList.toggle('active',!l);
-  mLive.setAttribute('aria-pressed',l); mStill.setAttribute('aria-pressed',!l); markDirty(); }
-mLive.onclick=()=>setMode(true); mStill.onclick=()=>setMode(false);
+/* ---------- Playback (анимация всегда; ручной тоггл убран) ---------- */
+function setMode(l){ live=l; markDirty(); }
+
+/* ---------- UI mode: Простой / Профи ---------- */
+const modeSimpleBtn=document.getElementById('modeSimple'), modeProBtn=document.getElementById('modePro');
+const proPanel=document.getElementById('proPanel');
+function setUiMode(pro){
+  document.body.classList.toggle('mode-pro',pro);
+  document.body.classList.toggle('mode-simple',!pro);
+  modeProBtn.classList.toggle('active',pro); modeProBtn.setAttribute('aria-pressed',pro);
+  modeSimpleBtn.classList.toggle('active',!pro); modeSimpleBtn.setAttribute('aria-pressed',!pro);
+  if(pro) proPanel.open=true;   // профи: секции сразу раскрыты, без лишнего клика
+}
+modeSimpleBtn.onclick=()=>setUiMode(false);
+modeProBtn.onclick=()=>setUiMode(true);
+setUiMode(false);
 
 /* ---------- Panel drawer (mobile) ---------- */
 const panelEl=document.getElementById('panel'), panelToggle=document.getElementById('panelToggle');
