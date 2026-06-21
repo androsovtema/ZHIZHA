@@ -115,6 +115,7 @@
   /* Control panel */
   #panel{
     grid-column: 1; grid-row: 1; height: 100vh; overflow-y: auto;
+    display: flex; flex-direction: column;
     background: var(--panel);
     backdrop-filter: blur(22px) saturate(140%); -webkit-backdrop-filter: blur(22px) saturate(140%);
     border-right: 1px solid var(--panel-border);
@@ -348,9 +349,13 @@
   }
   /* mode toggle + per-mode visibility */
   .modeSeg{ margin: 2px 0 2px; }
-  body.mode-pro #creatorStep{ display:none; }
-  body.mode-simple #proPanel{ display:none; }
-  body.mode-pro #proPanel > summary{ display:none; }
+  body.mode-simple .proOnly{ display:none; }
+  body.mode-pro .simpleOnly{ display:none; }
+  /* единый порядок секций для обоих режимов (flex order; скрытые не участвуют) */
+  .brand{ order:0; } .modeSeg{ order:1; }
+  #creatorStep{ order:5; } #quickStep{ order:6; }
+  #sizeStep{ order:10; } #fieldStep{ order:11; } #surfaceStep{ order:12; } #colorStep{ order:13; }
+  #exportStep{ order:20; } #forSite{ order:21; } .author{ order:30; }
 </style>
 </head>
 <body class="mode-simple">
@@ -385,7 +390,7 @@
   </div>
 
   <!-- Creator: для чего нужен фон -->
-  <div class="step" id="creatorStep">
+  <div class="step simpleOnly" id="creatorStep">
     <h2>Для чего нужен фон?</h2>
     <div class="catChips" id="catChips" role="group" aria-label="Категория фона"></div>
     <h2 style="margin-top:16px;">Выбери стиль</h2>
@@ -395,7 +400,7 @@
   </div>
 
   <!-- Быстрая настройка -->
-  <div class="step" id="quickStep">
+  <div class="step simpleOnly" id="quickStep">
     <h2>Быстрая настройка</h2>
 
     <div class="qlabel" style="margin-top:0;">Цвет</div>
@@ -447,11 +452,8 @@
     <div class="hint">Видео — MP4 (или WebM, если браузер не умеет MP4). Запись идёт с холста вживую: повторный клик — стоп и сохранение, таймер показан рядом. На 4K возможны пропуски кадров на слабом GPU.</div>
   </div>
 
-  <details class="pro" id="proPanel">
-  <summary>⚙ Профи · точная настройка</summary>
-
   <!-- 01 Размер -->
-  <div class="step">
+  <div class="step proOnly" id="sizeStep">
     <h2><span class="num">01</span> Размер</h2>
     <div class="seg" id="ratioSeg" role="group" aria-label="Соотношение сторон">
       <button data-ratio="9:16" aria-pressed="false">9:16</button>
@@ -472,16 +474,9 @@
     <div class="hint">Бесшовный режим строит плитку — повторяется без швов, хоть на всю страницу.</div>
   </div>
 
-  <!-- 02 Шаблоны -->
-  <div class="step">
-    <h2><span class="num">02</span> Шаблоны</h2>
-    <div class="grid2" id="presets"></div>
-    <button class="ghost" id="randomBtn">🎲 Случайная вариация</button>
-  </div>
-
-  <!-- 03 Поле -->
-  <div class="step">
-    <h2><span class="num">03</span> Поле</h2>
+  <!-- 02 Поле -->
+  <div class="step proOnly" id="fieldStep">
+    <h2><span class="num">02</span> Поле</h2>
     <div class="grid3" id="fields"></div>
     <div class="ctrl" style="margin-top:12px;">
       <label for="speed">Скорость <span class="val" id="vSpeed"></span></label>
@@ -501,9 +496,9 @@
     </div>
   </div>
 
-  <!-- 04 Поверхность -->
-  <div class="step">
-    <h2><span class="num">04</span> Фактура</h2>
+  <!-- 03 Фактура -->
+  <div class="step proOnly" id="surfaceStep">
+    <h2><span class="num">03</span> Фактура</h2>
     <div class="seg" id="screenSeg" role="group" aria-label="Фактура">
       <button data-screen="0" class="active" aria-pressed="true">Квадрат</button>
       <button data-screen="1" aria-pressed="false">Гекс</button>
@@ -523,18 +518,16 @@
     </div>
   </div>
 
-  <!-- 05 Цвета -->
-  <div class="step">
-    <h2><span class="num">05</span> Цвета</h2>
+  <!-- 04 Цвета -->
+  <div class="step proOnly" id="colorStep">
+    <h2><span class="num">04</span> Цвета</h2>
     <div class="grid2" id="palettes"></div>
     <div class="colors" id="colorPickers" style="margin-top:12px;"></div>
     <div class="hint">Выбери палитру или собери свою — клик по плашке меняет цвет градиента.</div>
   </div>
 
-  </details>
-
   <!-- Для сайта — ссылка, встраивание, импорт -->
-  <details class="pro" id="forSite">
+  <details class="pro proOnly" id="forSite">
   <summary>&lt;/&gt; Для сайта · ссылка и встраивание</summary>
   <div class="step">
     <button class="ghost" id="shareBtn" style="margin-top:0;">🔗 Ссылка на эту сцену</button>
@@ -1101,7 +1094,7 @@ function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg
 
 /* ---------- Build UI: presets ---------- */
 const presetsEl = document.getElementById('presets');
-PRESETS.forEach(p=>{
+if(presetsEl) PRESETS.forEach(p=>{
   const b=document.createElement('div'); b.className='chip'; b.setAttribute('role','button'); b.setAttribute('tabindex','0');
   b.setAttribute('aria-label','Шаблон: '+p.name);
   const sw=PALETTES[p.v[5]].stops;
@@ -1428,7 +1421,6 @@ function randomize(){
   document.querySelectorAll('#tmplCards .tmplCard').forEach(x=>x.classList.remove('active'));
   refreshFieldButtons(); refreshPaletteButtons(); buildColorPickers(); updateLabels(); refreshQuick(); syncUniforms();
 }
-document.getElementById('randomBtn').onclick=randomize;
 const reloadBtn=document.getElementById('reloadBtn');
 reloadBtn.onclick=()=>{ randomize(); reloadBtn.classList.remove('spin'); void reloadBtn.offsetWidth; reloadBtn.classList.add('spin'); };
 
@@ -1437,13 +1429,11 @@ function setMode(l){ live=l; markDirty(); }
 
 /* ---------- UI mode: Простой / Профи ---------- */
 const modeSimpleBtn=document.getElementById('modeSimple'), modeProBtn=document.getElementById('modePro');
-const proPanel=document.getElementById('proPanel');
 function setUiMode(pro){
   document.body.classList.toggle('mode-pro',pro);
   document.body.classList.toggle('mode-simple',!pro);
   modeProBtn.classList.toggle('active',pro); modeProBtn.setAttribute('aria-pressed',pro);
   modeSimpleBtn.classList.toggle('active',!pro); modeSimpleBtn.setAttribute('aria-pressed',!pro);
-  if(pro) proPanel.open=true;   // профи: секции сразу раскрыты, без лишнего клика
 }
 modeSimpleBtn.onclick=()=>setUiMode(false);
 modeProBtn.onclick=()=>setUiMode(true);
