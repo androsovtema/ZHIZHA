@@ -36,35 +36,98 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+<!-- тема: поднять сохранённый выбор до первой отрисовки (без мигания) -->
+<script>
+(function(){
+  try{
+    var s = localStorage.getItem('zhz-theme');
+    var ok = ['volt','karamel','magma','chrome'];
+    document.documentElement.dataset.theme = (s && ok.indexOf(s) >= 0) ? s : 'volt';
+  }catch(e){ document.documentElement.dataset.theme = 'volt'; }
+})();
+</script>
+
 <style>
+  /* =================================================================
+     ТЕМЫ ОФОРМЛЕНИЯ (бренд-кит v2)
+     :root        — общий слой: форма, движение, шкала. НЕ зависит от темы.
+     :root        — также палитра по умолчанию (Вольт).
+     [data-theme] — только цветовой слой. Имена переменных одни во всех темах,
+                    меняются лишь значения. Переключение: data-theme на <html>.
+     ================================================================= */
   :root{
-    /* база */
-    --ink-900:#0A0912; --ink-800:#12101D; --ink-700:#1A1726;
-    --panel: rgba(22,18,38,0.55);
+    /* нейтральные накладки панели (общие, не красятся темой) */
     --panel-border: rgba(255,255,255,0.10);
     --panel-hi: rgba(255,255,255,0.06);
-    /* текст */
-    --text:#F4F1FF; --text-dim:#A39FB8; --text-mute:#6E6A86;
-    /* фирменный градиент + акценты */
-    --zhizha-glow:linear-gradient(135deg,#FF5FA8 0%,#8A5CFF 55%,#2FE6C8 100%);
-    --zhizha-grad:linear-gradient(135deg,#8A5CFF 0%,#FF5FA8 100%);
-    --accent:#8A5CFF; --accent-pink:#FF5FA8; --accent-mint:#2FE6C8;
-    /* семантика */
-    --success:#2FE6C8; --warning:#FFB13D; --danger:#FF5C6E; --info:#8A5CFF;
     /* радиусы */
     --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:22px; --r-xl:28px; --r-pill:999px;
-    /* тени / свечение */
+    /* тени */
     --shadow-panel:0 20px 60px rgba(0,0,0,.55);
     --shadow-card:0 8px 24px rgba(0,0,0,.35);
-    --glow-accent:0 8px 28px rgba(138,92,255,.35);
-    --glow-mint:0 8px 28px rgba(47,230,200,.30);
     /* движение */
     --ease-goo:cubic-bezier(.34,1.56,.64,1);
     --ease-soft:cubic-bezier(.4,0,.2,1);
     --dur-1:120ms; --dur-2:200ms; --dur-3:320ms; --dur-4:600ms;
-    /* совместимость со старым кодом */
+    /* алиасы совместимости со старым кодом */
     --bg:var(--ink-900); --radius:var(--r-md); --shadow:var(--shadow-panel);
     --accent-2:var(--accent-pink);
+  }
+
+  /* ВОЛЬТ — тема по умолчанию (кибер-электрик) */
+  :root, :root[data-theme="volt"]{
+    --ink-900:#07090A; --ink-800:#0E1113; --ink-700:#161A1C;
+    --panel: rgba(14,17,19,0.55);
+    --text:#EAF7F2; --text-dim:#8FA39C; --text-mute:#586862;
+    --zhizha-glow:linear-gradient(135deg,#C6FF36 0%,#00E6C0 55%,#00B3FF 100%);
+    --zhizha-grad:linear-gradient(135deg,#C6FF36 0%,#00E6C0 100%);
+    --accent:#00E6C0; --accent-pink:#C6FF36; --accent-mint:#00B3FF;
+    --on-accent:#07090A;
+    --success:#00E6C0; --warning:#FFC53D; --danger:#FF5C6E; --info:#00B3FF;
+    --glow-accent:0 8px 28px rgba(0,230,192,.40);
+    --glow-mint:0 8px 28px rgba(0,179,255,.30);
+  }
+
+  /* КАРАМЕЛЬ — наследие (мягко и сладко) */
+  :root[data-theme="karamel"]{
+    --ink-900:#0A0912; --ink-800:#12101D; --ink-700:#1A1726;
+    --panel: rgba(18,16,29,0.55);
+    --text:#F4F1FF; --text-dim:#A39FB8; --text-mute:#6E6A86;
+    --zhizha-glow:linear-gradient(135deg,#FF5FA8 0%,#8A5CFF 55%,#2FE6C8 100%);
+    --zhizha-grad:linear-gradient(135deg,#8A5CFF 0%,#FF5FA8 100%);
+    --accent:#8A5CFF; --accent-pink:#FF5FA8; --accent-mint:#2FE6C8;
+    --on-accent:#FFFFFF;
+    --success:#2FE6C8; --warning:#FFB13D; --danger:#FF5C6E; --info:#8A5CFF;
+    --glow-accent:0 8px 28px rgba(138,92,255,.40);
+    --glow-mint:0 8px 28px rgba(47,230,200,.30);
+  }
+
+  /* МАГМА — тёплый огонь */
+  :root[data-theme="magma"]{
+    --ink-900:#0B0807; --ink-800:#140F0D; --ink-700:#1C1714;
+    --panel: rgba(20,15,13,0.55);
+    --text:#FFF1E8; --text-dim:#B79E92; --text-mute:#6E5A4F;
+    --zhizha-glow:linear-gradient(135deg,#FFB627 0%,#FF5E3A 52%,#E8156F 100%);
+    --zhizha-grad:linear-gradient(135deg,#FF5E3A 0%,#E8156F 100%);
+    --accent:#FF5E3A; --accent-pink:#FFB627; --accent-mint:#E8156F;
+    --on-accent:#FFFFFF;
+    --success:#3BD17A; --warning:#FFB627; --danger:#FF4757; --info:#FF5E3A;
+    --glow-accent:0 8px 28px rgba(255,94,58,.42);
+    --glow-mint:0 8px 28px rgba(232,21,111,.32);
+  }
+
+  /* ХРОМ — холодный графит и электрик-синий */
+  :root[data-theme="chrome"]{
+    --ink-900:#0B0D11; --ink-800:#131720; --ink-700:#1A1F2A;
+    --panel: rgba(19,23,32,0.55);
+    --text:#EEF1F6; --text-dim:#95A0AE; --text-mute:#586473;
+    --zhizha-glow:linear-gradient(135deg,#8FB4FF 0%,#3B82FF 50%,#1E5BFF 100%);
+    --zhizha-grad:linear-gradient(135deg,#3B82FF 0%,#1E5BFF 100%);
+    --accent:#3B82FF; --accent-pink:#8FB4FF; --accent-mint:#1E5BFF;
+    --on-accent:#FFFFFF;
+    --success:#22C55E; --warning:#F5A524; --danger:#FF4757; --info:#3B82FF;
+    --glow-accent:0 8px 28px rgba(59,130,255,.45);
+    --glow-mint:0 8px 28px rgba(30,91,255,.32);
   }
   *{ box-sizing: border-box; }
   html,body{ margin:0; height:100%; }
@@ -85,6 +148,7 @@
   body{
     background: var(--bg);
     color: var(--text);
+    transition: background-color .45s var(--ease-soft), color .45s var(--ease-soft);
     font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
@@ -147,7 +211,7 @@
   .step h2{ font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; font-weight:700;
     color: var(--text-dim); margin: 0 0 10px; display:flex; align-items:center; gap:8px; }
   .step h2 .num{ font-size:10px; color: var(--accent);
-    border:1px solid rgba(138,92,255,.4); border-radius:6px; padding:1px 5px; }
+    border:1px solid color-mix(in srgb, var(--accent) 40%, transparent); border-radius:6px; padding:1px 5px; }
 
   /* «Профи» — сворачиваемый блок с техническими секциями */
   .pro{ margin-top: 14px; }
@@ -173,8 +237,10 @@
   }
   button.opt:hover, .seg button:hover{ background: rgba(255,255,255,.09); }
   button.opt.active, .seg button.active{
-    background: linear-gradient(135deg, rgba(138,92,255,.30), rgba(255,95,168,.30));
-    border-color: rgba(138,92,255,.6); color:#fff;
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--accent) 30%, transparent),
+      color-mix(in srgb, var(--accent-pink) 30%, transparent));
+    border-color: color-mix(in srgb, var(--accent) 60%, transparent); color:#fff;
   }
 
   /* адаптивные сетки: при росте ширины панели в строку влезает больше элементов,
@@ -187,7 +253,7 @@
     display:flex; align-items:center; gap:8px; transition:.15s; background: rgba(255,255,255,.02);
   }
   .chip:hover{ background: rgba(255,255,255,.07); }
-  .chip.active{ border-color: rgba(138,92,255,.6); background: rgba(138,92,255,.14); }
+  .chip.active{ border-color: color-mix(in srgb, var(--accent) 60%, transparent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
   .chip .sw{ width:18px;height:18px;border-radius:6px; flex:0 0 auto; }
 
   /* creator: category chips */
@@ -199,7 +265,7 @@
   }
   .catChips button:hover{ background: rgba(255,255,255,.08); color:var(--text); }
   .catChips button.active{
-    color:#fff; border-color: transparent;
+    color:var(--on-accent); border-color: transparent;
     background: linear-gradient(135deg,var(--accent),var(--accent-2));
   }
   /* creator: mood filter chips */
@@ -208,7 +274,7 @@
     padding:5px 11px; font-size:11px; color:var(--text-dim); background:rgba(255,255,255,.03);
     transition:var(--dur-1) var(--ease-goo); white-space:nowrap; }
   .moodChips button:hover{ background:rgba(255,255,255,.08); color:var(--text); }
-  .moodChips button.active{ color:#fff; border-color:transparent; background:var(--zhizha-grad); }
+  .moodChips button.active{ color:var(--on-accent); border-color:transparent; background:var(--zhizha-grad); }
 
   /* creator: template cards — квадрат, превью на всю плитку, текст оверлеем снизу */
   .tmplCard{
@@ -242,6 +308,18 @@
     border:1px solid var(--panel-border); border-radius:99px; padding:7px 12px;
     background:rgba(255,255,255,.03); transition:.15s; white-space:nowrap; }
   .authorLinks a:hover{ background:rgba(255,255,255,.08); color:var(--text); }
+
+  /* theme picker — выбор оформления */
+  .themeChips{ display:flex; flex-wrap:wrap; gap:12px; }
+  .themeChip{ display:flex; flex-direction:column; align-items:center; gap:6px;
+    cursor:pointer; border:none; background:transparent; padding:0; }
+  .themeChip .sw{ width:38px; height:38px; border-radius:11px; display:block;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);
+    transition: transform .14s var(--ease-goo), box-shadow .25s var(--ease-soft); }
+  .themeChip:hover .sw{ transform: translateY(-2px); }
+  .themeChip.active .sw{ box-shadow: 0 0 0 2px var(--ink-900), 0 0 0 4px var(--accent); }
+  .themeChip .nm{ font-size:10px; font-weight:700; color:var(--text-dim); white-space:nowrap; }
+  .themeChip.active .nm{ color:var(--text); }
 
   .ctrl{ margin-bottom: 12px; }
   .ctrl:last-child{ margin-bottom:0; }
@@ -281,12 +359,12 @@
   .toggle.on::after{ transform: translateX(20px); }
 
   .primary{ width:100%; cursor:pointer; border:none; border-radius:var(--r-md); padding:12px;
-    font-size:14px; font-weight:700; color:#fff; margin-top:8px;
+    font-size:14px; font-weight:700; color:var(--on-accent); margin-top:8px;
     background: var(--zhizha-grad);
     box-shadow: var(--glow-accent); transition:var(--dur-2) var(--ease-goo); }
   .primary:hover{ filter:brightness(1.08); transform: translateY(-1px); }
   .primary:active{ transform: scale(.97); }
-  .primary.rec{ background: linear-gradient(135deg,#FF5FA8,#FF5C6E); box-shadow:0 8px 24px rgba(255,92,110,.4); }
+  .primary.rec{ color:#fff; background: linear-gradient(135deg,var(--danger),#FF5C6E); box-shadow:0 8px 24px rgba(255,92,110,.4); }
   .ghost{ width:100%; cursor:pointer; border:1px solid var(--panel-border); border-radius:var(--r-sm);
     padding:9px; font-size:12px; color:var(--text); background: rgba(255,255,255,.03);
     margin-top:8px; transition:var(--dur-1) var(--ease-goo); }
@@ -552,6 +630,30 @@
     <div class="hint">Ссылка кодирует всю сцену в URL (<code>#s=</code>) — вставь её обратно, чтобы повторить фон 1-в-1. «Код для встраивания» даёт готовый <code>&lt;iframe&gt;</code> для твоего сайта.</div>
   </div>
   </details>
+
+  <!-- Тема оформления -->
+  <div class="step" id="themeStep">
+    <h2>Тема оформления</h2>
+    <div class="themeChips" id="themeChips" role="group" aria-label="Тема оформления">
+      <button type="button" class="themeChip" data-theme-pick="volt" aria-pressed="true" title="Вольт · кибер-электрик">
+        <span class="sw" style="background:linear-gradient(135deg,#C6FF36,#00E6C0,#00B3FF)"></span>
+        <span class="nm">Вольт</span>
+      </button>
+      <button type="button" class="themeChip" data-theme-pick="karamel" aria-pressed="false" title="Карамель · наследие">
+        <span class="sw" style="background:linear-gradient(135deg,#FF5FA8,#8A5CFF,#2FE6C8)"></span>
+        <span class="nm">Карамель</span>
+      </button>
+      <button type="button" class="themeChip" data-theme-pick="magma" aria-pressed="false" title="Магма · тёплый огонь">
+        <span class="sw" style="background:linear-gradient(135deg,#FFB627,#FF5E3A,#E8156F)"></span>
+        <span class="nm">Магма</span>
+      </button>
+      <button type="button" class="themeChip" data-theme-pick="chrome" aria-pressed="false" title="Хром · холодный графит">
+        <span class="sw" style="background:linear-gradient(135deg,#8FB4FF,#3B82FF,#1E5BFF)"></span>
+        <span class="nm">Хром</span>
+      </button>
+    </div>
+    <div class="hint">Меняется только цвет — форма, шрифты и поведение те же. Выбор запоминается.</div>
+  </div>
 
   <!-- Автор -->
   <div class="author">
@@ -1702,6 +1804,37 @@ function init(){
   requestAnimationFrame(loop);
 }
 init();
+</script>
+
+<!-- Переключатель тем оформления (бренд-кит v2) -->
+<script>
+(function(){
+  var KEY = 'zhz-theme';
+  var THEMES = ['volt','karamel','magma','chrome'];
+  var THEME_BG = { volt:'#07090A', karamel:'#0A0912', magma:'#0B0807', chrome:'#0B0D11' };
+
+  function applyTheme(name){
+    if(THEMES.indexOf(name) < 0) name = 'volt';
+    document.documentElement.dataset.theme = name;
+    try{ localStorage.setItem(KEY, name); }catch(e){}
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.setAttribute('content', THEME_BG[name]);
+    var btns = document.querySelectorAll('[data-theme-pick]');
+    for(var i=0;i<btns.length;i++){
+      var on = btns[i].dataset.themePick === name;
+      btns[i].classList.toggle('active', on);
+      btns[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+  }
+
+  // синхронизировать активную тему (поднята ранним скриптом в <head>)
+  applyTheme(document.documentElement.dataset.theme || 'volt');
+
+  var btns = document.querySelectorAll('[data-theme-pick]');
+  for(var i=0;i<btns.length;i++){
+    btns[i].addEventListener('click', function(){ applyTheme(this.dataset.themePick); });
+  }
+})();
 </script>
 </body>
 </html>
