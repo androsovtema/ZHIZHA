@@ -435,9 +435,81 @@
     backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
 
   /* embed mode — hide all chrome, background fills the frame */
-  body.embed #panel, body.embed #liveBar, body.embed #fps, body.embed #panelToggle, body.embed #recDot{ display:none !important; }
+  body.embed #panel, body.embed #liveBar, body.embed #fps, body.embed #panelToggle, body.embed #recDot, body.embed #actionDock{ display:none !important; }
   body.embed #stage{ padding:0; }
   body.embed #canvasWrap{ border-radius:0; box-shadow:none; }
+
+  /* =========================================================
+     ACTION-ДОК — закреплён на превью, главное действие задачи
+     ========================================================= */
+  #actionDock{
+    position:absolute; left:24px; right:24px; bottom:18px; z-index:12;
+    display:flex; align-items:center; gap:10px;
+    padding:12px; border-radius:var(--r-lg);
+    background:rgba(10,14,13,.72); border:1px solid var(--panel-border);
+    backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%);
+    box-shadow:var(--shadow-card);
+  }
+  #dockMain{
+    flex:1 1 auto; min-width:0; display:flex; align-items:center; justify-content:center; gap:8px;
+    padding:13px 18px; border:none; border-radius:var(--r-sm); cursor:pointer;
+    font:700 13px 'Nunito',sans-serif; color:var(--on-accent);
+    background:var(--zhizha-grad); box-shadow:var(--glow-accent);
+    transition:transform var(--dur-1) var(--ease-goo), filter var(--dur-2) var(--ease-soft);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #dockMain:hover{ transform:translateY(-1px); }
+  #dockMain:active{ transform:scale(.97); }
+  #dockMain.rec{ background:var(--danger); color:#fff; box-shadow:0 8px 28px rgba(255,92,110,.4); }
+  .dockSecondary{ display:flex; gap:8px; flex:0 0 auto; }
+  .dockSecondary button{
+    display:flex; align-items:center; gap:6px; padding:13px 14px;
+    border:1px solid var(--panel-border); border-radius:var(--r-sm); cursor:pointer;
+    font:600 12px 'Nunito',sans-serif; color:var(--text); background:var(--ink-700);
+    transition:transform var(--dur-1) var(--ease-goo), background var(--dur-2);
+    white-space:nowrap;
+  }
+  .dockSecondary button:hover{ background:rgba(255,255,255,.08); }
+  .dockSecondary button:active{ transform:scale(.97); }
+  .dockFmtWrap{ position:relative; flex:0 0 auto; }
+  .dockFmt{
+    padding:13px 12px; border:1px solid var(--panel-border); border-radius:var(--r-sm);
+    background:transparent; color:var(--text-dim); cursor:pointer;
+    font:11px/1 'JetBrains Mono',ui-monospace,Menlo,monospace; white-space:nowrap;
+    transition:color var(--dur-2), border-color var(--dur-2);
+  }
+  .dockFmt:hover{ color:var(--text); border-color:var(--accent); }
+  .dockFmtPop{
+    position:absolute; right:0; bottom:calc(100% + 8px); width:240px; z-index:20;
+    display:flex; flex-direction:column; gap:6px; padding:14px;
+    background:var(--ink-800); border:1px solid var(--panel-border); border-radius:var(--r-md);
+    box-shadow:var(--shadow-panel);
+  }
+  .dockFmtPop[hidden]{ display:none; }
+  .dockFmtPop label{ font:700 10px 'Nunito',sans-serif; letter-spacing:1px; text-transform:uppercase; color:var(--text-mute); margin-top:4px; }
+  .dockFmtPop label:first-child{ margin-top:0; }
+  .dockFmtPx{ font:11px 'JetBrains Mono',ui-monospace,Menlo,monospace; color:var(--text-dim); margin-top:4px; }
+
+  /* карусель-заголовок «ШАБЛОНЫ · Все →» — только mobile */
+  #tmplHead{ display:none; align-items:baseline; justify-content:space-between; margin:4px 0 8px; }
+  #tmplHead .lbl{ font:700 9px 'Nunito',sans-serif; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-mute); }
+  #allTemplatesBtn{ background:none; border:none; cursor:pointer; padding:2px 0;
+    font:700 10px 'Nunito',sans-serif; letter-spacing:.5px; text-transform:uppercase; color:var(--accent); }
+
+  /* bottom-sheet «Все шаблоны» */
+  #tmplSheet{ position:fixed; inset:0; z-index:60; display:none; }
+  #tmplSheet.open{ display:block; }
+  #tmplSheet .sheetScrim{ position:absolute; inset:0; background:rgba(0,0,0,.55); }
+  #tmplSheet .sheetPanel{ position:absolute; left:0; right:0; bottom:0; max-height:82vh; overflow-y:auto;
+    background:var(--ink-800); border:1px solid var(--panel-border); border-bottom:none;
+    border-radius:var(--r-lg) var(--r-lg) 0 0; box-shadow:var(--shadow-panel);
+    padding:10px 14px calc(20px + env(safe-area-inset-bottom)); animation:sheetUp var(--dur-3) var(--ease-soft); }
+  @keyframes sheetUp{ from{ transform:translateY(100%); } to{ transform:translateY(0); } }
+  #tmplSheet .sheetGrab{ width:34px; height:4px; border-radius:99px; background:var(--ink-700); margin:2px auto 12px; }
+  #tmplSheet .sheetTitle{ font:700 14px 'Comfortaa',sans-serif; color:var(--text); margin-bottom:4px; }
+  #tmplSheet .sheetCount{ font:600 11px 'Nunito',sans-serif; color:var(--text-dim); margin-bottom:12px; }
+  #sheetMood{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
+  #sheetCards{ display:grid; grid-template-columns:1fr 1fr; gap:7px; }
 
   /* Mobile: stacked — превью закреплено сверху, контролы листаются снизу */
   @media (max-width: 760px){
@@ -461,6 +533,17 @@
       width: 44px; height: 5px; border-radius: 99px; background: rgba(255,255,255,.25); }
     /* нейтрализуем JS-сворачивание оверлея — в stacked панель всегда видна */
     #panel.collapsed{ transform: none; box-shadow: 0 -16px 40px rgba(0,0,0,.5); }
+    /* action-док: компактнее, прижат к низу закреплённого превью */
+    #actionDock{ left:10px; right:10px; bottom:10px; padding:8px; gap:6px; border-radius:var(--r-md); }
+    #dockMain{ padding:11px 12px; font-size:12px; }
+    .dockSecondary button{ padding:11px 10px; font-size:11px; }
+    .dockFmt{ padding:11px 8px; }
+    /* шаблоны → горизонтальная карусель (главная боль mobile: стена шаблонов) */
+    #tmplCards{ display:flex; grid-template-columns:none; gap:9px; overflow-x:auto; overflow-y:hidden;
+      scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+      margin:0 -14px; padding:2px 14px 6px; }
+    #tmplCards .tmplCard{ flex:0 0 130px; width:130px; scroll-snap-align:start; }
+    #tmplHead{ display:flex; }
   }
   /* mode toggle + per-mode visibility */
   .modeSeg{ margin: 2px 0 2px; }
@@ -478,6 +561,36 @@
 <div id="stage">
   <div id="stageInner">
     <div id="canvasWrap"><!-- canvas injected --></div>
+  </div>
+
+  <!-- Action-док: закреплён на превью, главное действие = действие задачи.
+       Самостоятельный компонент: набор/приоритет кнопок и формат-чип вычисляются
+       из активной задачи (ActionDock). При P1-перестройке переезжает в hero как есть. -->
+  <div id="actionDock" role="group" aria-label="Экспорт фона">
+    <button type="button" id="dockMain" class="dockMain"></button>
+    <div id="dockSecondary" class="dockSecondary"></div>
+    <div class="dockFmtWrap">
+      <button type="button" id="dockFmt" class="dockFmt" aria-haspopup="dialog" aria-expanded="false" aria-controls="dockFmtPop" title="Формат и разрешение"></button>
+      <div id="dockFmtPop" class="dockFmtPop" role="dialog" aria-label="Формат экспорта" hidden>
+        <label for="dockRes">Разрешение</label>
+        <select id="dockRes" aria-label="Разрешение экспорта">
+          <option value="thumb">Эскиз · 640px</option>
+          <option value="1080" selected>1080p · Full HD</option>
+          <option value="2048">2048×2048</option>
+          <option value="4k">4K · Ultra HD</option>
+        </select>
+        <label for="dockDur">Длительность видео</label>
+        <select id="dockDur" aria-label="Длительность видео">
+          <option value="0" selected>Без лимита</option>
+          <option value="5">5 секунд</option>
+          <option value="10">10 секунд</option>
+          <option value="15">15 секунд</option>
+          <option value="30">30 секунд</option>
+          <option value="60">60 секунд</option>
+        </select>
+        <div class="dockFmtPx" id="dockFmtPx"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -538,6 +651,10 @@
     <div class="catChips" id="catChips" role="group" aria-label="Категория фона"></div>
     <h2 style="margin-top:16px;">Выбери стиль</h2>
     <div class="moodChips" id="moodChips" role="group" aria-label="Фильтр по настроению"></div>
+    <div id="tmplHead">
+      <span class="lbl">Шаблоны</span>
+      <button type="button" id="allTemplatesBtn" aria-haspopup="dialog" aria-controls="tmplSheet">Все →</button>
+    </div>
     <div class="grid2" id="tmplCards"></div>
     <div class="hint" id="catHint"></div>
   </div>
@@ -571,29 +688,33 @@
     </div>
   </div>
 
-  <!-- Экспорт (главное действие) -->
-  <div class="step" id="exportStep">
-    <h2>Скачать</h2>
-    <label for="exportRes" style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:6px;">Разрешение (PNG и видео)</label>
-    <select id="exportRes" aria-label="Разрешение экспорта (PNG и видео)">
-      <option value="thumb">Эскиз (640px)</option>
-      <option value="1080" selected>1080p (Full HD)</option>
-      <option value="2048">2048×2048</option>
-      <option value="4k">4K (Ultra HD)</option>
-    </select>
-    <button class="primary" id="downloadPng">⬇ Скачать PNG</button>
-    <label for="recDur" style="display:block;font-size:11px;color:var(--text-dim);margin:10px 0 6px;">Длительность видео</label>
-    <select id="recDur" aria-label="Длительность записи видео">
-      <option value="0" selected>Без лимита (стоп вручную)</option>
-      <option value="5">5 секунд</option>
-      <option value="10">10 секунд</option>
-      <option value="15">15 секунд</option>
-      <option value="30">30 секунд</option>
-      <option value="60">60 секунд</option>
-    </select>
-    <button class="primary rec" id="recordBtn">⏺ Записать видео</button>
-    <div class="hint">Видео — MP4 (или WebM, если браузер не умеет MP4). Запись идёт с холста вживую: повторный клик — стоп и сохранение, таймер показан рядом. На 4K возможны пропуски кадров на слабом GPU.</div>
-  </div>
+  <!-- Экспорт: главное действие живёт в доке на превью. Здесь — тех-детали,
+       свёрнуты по умолчанию. Селекты #exportRes/#recDur — источник истины,
+       с ними двусторонне синхронятся селекты дока. -->
+  <details class="pro" id="exportStep">
+    <summary>⬇ Экспорт · детали и запасные кнопки</summary>
+    <div class="step" style="padding-top:4px;">
+      <label for="exportRes" style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:6px;">Разрешение (PNG и видео)</label>
+      <select id="exportRes" aria-label="Разрешение экспорта (PNG и видео)">
+        <option value="thumb">Эскиз (640px)</option>
+        <option value="1080" selected>1080p (Full HD)</option>
+        <option value="2048">2048×2048</option>
+        <option value="4k">4K (Ultra HD)</option>
+      </select>
+      <button class="primary" id="downloadPng">⬇ Скачать PNG</button>
+      <label for="recDur" style="display:block;font-size:11px;color:var(--text-dim);margin:10px 0 6px;">Длительность видео</label>
+      <select id="recDur" aria-label="Длительность записи видео">
+        <option value="0" selected>Без лимита (стоп вручную)</option>
+        <option value="5">5 секунд</option>
+        <option value="10">10 секунд</option>
+        <option value="15">15 секунд</option>
+        <option value="30">30 секунд</option>
+        <option value="60">60 секунд</option>
+      </select>
+      <button class="primary rec" id="recordBtn">⏺ Записать видео</button>
+      <div class="hint">Главные кнопки — в доке на превью. Видео — MP4 (или WebM, если браузер не умеет MP4). Запись идёт с холста вживую: повторный клик — стоп и сохранение, таймер показан рядом. На 4K возможны пропуски кадров на слабом GPU.</div>
+    </div>
+  </details>
 
   <!-- 01 Размер -->
   <div class="step proOnly" id="sizeStep">
@@ -693,6 +814,18 @@
     </div>
   </div>
 </aside>
+
+<!-- Mobile bottom-sheet «Все шаблоны» -->
+<div id="tmplSheet" role="dialog" aria-modal="true" aria-label="Все шаблоны">
+  <div class="sheetScrim" id="sheetScrim"></div>
+  <div class="sheetPanel">
+    <div class="sheetGrab" id="sheetGrab"></div>
+    <div class="sheetTitle" id="sheetTitle">Шаблоны</div>
+    <div class="sheetCount" id="sheetCount"></div>
+    <div class="moodChips" id="sheetMood" role="group" aria-label="Фильтр по настроению"></div>
+    <div id="sheetCards"></div>
+  </div>
+</div>
 
 <script type="importmap">
 { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
@@ -1119,16 +1252,19 @@ const TEMPLATE_BY_ID = Object.fromEntries(TEMPLATES.map(t=>[t.id,t]));
 function templatesForCat(cat, fam){ return TEMPLATES.filter(t=>cat.fams.includes(t.fam) && (!fam || t.fam===fam)); }
 const FAM_LABELS={ calm:'Спокойные', energy:'Яркие', deep:'Глубокие', graphic:'Графика', ornament:'Узоры', mono:'Монохром' };
 
-/* ---------- Creator categories (для чего нужен фон) ---------- */
+/* ---------- Creator categories (для чего нужен фон) ----------
+   Задача — это пресет: формат + фильтр шаблонов + РЕКОМЕНДОВАННЫЙ ЭКСПОРТ
+   (mainExport: video|png|embed) + поведенческие умолчания (seamless, readability).
+   Производные дока (формат-чип, набор кнопок) вычисляются из задачи, не дублируются. */
 const CREATOR_CATEGORIES = [
-  { id:'tiktok',  name:'TikTok / Reels', ratio:'9:16', exportHint:'Вертикальное видео — экспорт видео на первом месте.', default:'flash',    fams:['energy','deep','ornament','graphic'] },
-  { id:'stories', name:'Stories',        ratio:'9:16', exportHint:'Чистый фон под текст и стикеры.',                      default:'silk',     fams:['calm','deep','graphic','mono'] },
-  { id:'youtube', name:'YouTube',        ratio:'16:9', exportHint:'Интро, аутро и подложка под контент.',                default:'aurora',   fams:['deep','graphic','energy','calm','mono'] },
-  { id:'text',    name:'Фон под текст',  ratio:'16:9', exportHint:'Читаемый центр, мягкое медленное движение.',          default:'quiet',    fams:['calm','deep','mono'] },
-  { id:'cover',   name:'Обложка',        ratio:'4:5',  exportHint:'Сильная статичная картинка — скачивай PNG.',          default:'firework', fams:['energy','ornament','graphic','deep','mono'] },
-  { id:'present', name:'Презентация',    ratio:'16:9', exportHint:'Спокойные палитры, ровное движение.',                 default:'mist',     fams:['calm','deep','graphic','mono'] },
-  { id:'pattern', name:'Паттерн',        ratio:'1:1',  exportHint:'Бесшовная плитка — повторяется без швов.',            default:'hexcomb',  fams:['graphic','ornament','mono'] },
-  { id:'loop',    name:'Абстрактный луп',ratio:'16:9', exportHint:'Движение и эксперименты.',                            default:'galaxy',   fams:['energy','deep','ornament'] },
+  { id:'tiktok',  name:'TikTok / Reels', ratio:'9:16', mainExport:'video', exportHint:'Вертикальное видео — экспорт видео на первом месте.', default:'flash',    fams:['energy','deep','ornament','graphic'] },
+  { id:'stories', name:'Stories',        ratio:'9:16', mainExport:'video', exportHint:'Чистый фон под текст и стикеры.',                      default:'silk',     fams:['calm','deep','graphic','mono'] },
+  { id:'youtube', name:'YouTube',        ratio:'16:9', mainExport:'png',   exportHint:'Интро, аутро и подложка под контент.',                default:'aurora',   fams:['deep','graphic','energy','calm','mono'] },
+  { id:'text',    name:'Фон под текст',  ratio:'16:9', mainExport:'png',   readability:true, exportHint:'Читаемый центр, мягкое медленное движение.',          default:'quiet',    fams:['calm','deep','mono'] },
+  { id:'cover',   name:'Обложка',        ratio:'4:5',  mainExport:'png',   exportHint:'Сильная статичная картинка — скачивай PNG.',          default:'firework', fams:['energy','ornament','graphic','deep','mono'] },
+  { id:'present', name:'Презентация',    ratio:'16:9', mainExport:'png',   exportHint:'Спокойные палитры, ровное движение.',                 default:'mist',     fams:['calm','deep','graphic','mono'] },
+  { id:'pattern', name:'Паттерн',        ratio:'1:1',  mainExport:'png',   seamless:true, exportHint:'Бесшовная плитка — повторяется без швов.',            default:'hexcomb',  fams:['graphic','ornament','mono'] },
+  { id:'loop',    name:'Абстрактный луп',ratio:'16:9', mainExport:'video', exportHint:'Движение и эксперименты.',                            default:'galaxy',   fams:['energy','deep','ornament'] },
 ];
 
 /* ---------- State ---------- */
@@ -1443,10 +1579,13 @@ let activeCat=null, activeFam=null;
 
 function applyTemplate(t){
   // ШАБЛОН задаёт только вид (поле/палитра/движение/поверхность). ФОРМАТ (ratio)
-  // принадлежит категории и тут НЕ меняется — иначе выбор стиля сбивал бы формат.
+  // и БЕСШОВНОСТЬ принадлежат задаче и тут НЕ сбрасываются — иначе выбор стиля
+  // внутри «Паттерна» молча выключал бы seamless, а смена стиля — формат.
   const keepRatio=state.ratio;
+  const keepSeamless=(activeCat && activeCat.seamless) ? 1 : state.seamless;
   loadPreset({v:t.v});                 // applies field/palette/surface state + UI
   state.ratio=keepRatio; aspectRatio=RATIOS[keepRatio];
+  if(keepSeamless!==state.seamless){ state.seamless=keepSeamless; refreshSeamless(); }
   refreshRatioButtons(); resize();
   document.querySelectorAll('#presets .chip').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('#tmplCards .tmplCard').forEach(x=>x.classList.toggle('active', x.dataset.tid===t.id));
@@ -1490,6 +1629,12 @@ function selectCategory(cat){
   renderTemplates(cat);
   const def=TEMPLATE_BY_ID[cat.default]||templatesForCat(cat)[0];
   if(def) applyTemplate(def);
+  // поведенческие умолчания задачи: Паттерн авто-включает бесшовность
+  state.seamless = cat.seamless ? 1 : 0;
+  refreshSeamless(); syncUniforms();
+  state.readability = !!cat.readability; // флаг для P2-оверлея читаемости
+  // док: главное действие = рекомендованный экспорт задачи
+  ActionDock.render();
 }
 
 CREATOR_CATEGORIES.forEach(cat=>{
@@ -1497,6 +1642,53 @@ CREATOR_CATEGORIES.forEach(cat=>{
   b.onclick=()=>selectCategory(cat);
   catChipsEl.appendChild(b);
 });
+
+/* ---------- Mobile bottom-sheet «Все шаблоны» ----------
+   Переиспользует те же данные/действия, что и карусель (templatesForCat, applyTemplate).
+   Фильтр листа правит общий activeFam — карусель и лист остаются синхронны. */
+const sheetEl=document.getElementById('tmplSheet');
+const sheetCardsEl=document.getElementById('sheetCards');
+const sheetMoodEl=document.getElementById('sheetMood');
+function renderSheet(){
+  if(!activeCat) return;
+  const cat=activeCat;
+  const list=templatesForCat(cat, activeFam);
+  document.getElementById('sheetTitle').textContent='Шаблоны · '+cat.name;
+  document.getElementById('sheetCount').textContent=list.length+(list.length%10===1&&list.length%100!==11?' шаблон':(list.length%10>=2&&list.length%10<=4&&!(list.length%100>=12&&list.length%100<=14)?' шаблона':' шаблонов'));
+  // фильтр-чипы (зеркало moodChips)
+  sheetMoodEl.innerHTML='';
+  ['',...cat.fams].forEach(f=>{
+    const b=document.createElement('button'); b.type='button';
+    b.textContent=f?FAM_LABELS[f]:'Все';
+    if(activeFam===(f||null)) b.classList.add('active');
+    b.onclick=()=>{ activeFam=f||null; renderMoodChips(cat); renderTemplates(cat); renderSheet(); };
+    sheetMoodEl.appendChild(b);
+  });
+  // карточки
+  sheetCardsEl.innerHTML='';
+  list.forEach(t=>{
+    const stops=PALETTES[t.v[5]].stops;
+    const card=document.createElement('button'); card.type='button'; card.className='tmplCard'; card.dataset.tid=t.id;
+    card.setAttribute('aria-label','Шаблон: '+t.name);
+    card.innerHTML=`<canvas class="thumb" aria-hidden="true" style="background:${gradCss(stops)}"></canvas>`+
+      `<span class="meta"><span class="tname">${t.name}</span><span class="tmood">${t.mood}</span></span>`;
+    card.onclick=()=>{ applyTemplate(t); closeSheet(); };
+    sheetCardsEl.appendChild(card);
+  });
+}
+function openSheet(){ renderSheet(); sheetEl.classList.add('open'); document.body.style.overflow='hidden'; }
+function closeSheet(){ sheetEl.classList.remove('open'); document.body.style.overflow=''; }
+document.getElementById('allTemplatesBtn').onclick=openSheet;
+document.getElementById('sheetScrim').onclick=closeSheet;
+document.getElementById('sheetGrab').onclick=closeSheet;
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && sheetEl.classList.contains('open')) closeSheet(); });
+// свайп-вниз по панели листа — закрыть
+(function(){
+  const panel=sheetEl.querySelector('.sheetPanel'); let y0=null;
+  panel.addEventListener('touchstart',e=>{ y0=e.touches[0].clientY; },{passive:true});
+  panel.addEventListener('touchmove',e=>{ if(y0!=null && panel.scrollTop<=0 && e.touches[0].clientY-y0>70){ y0=null; closeSheet(); } },{passive:true});
+  panel.addEventListener('touchend',()=>{ y0=null; });
+})();
 
 /* ---------- Quick controls (человеческие, без терминов) ----------
    Зеркалят те же поля state, что и «Профи»; refreshQuick() держит их в синхроне. */
@@ -1685,7 +1877,7 @@ function targetDims(res){
 }
 
 /* ---------- PNG export ---------- */
-document.getElementById('downloadPng').onclick=()=>{
+function doDownloadPng(){
   const {w,h}=targetDims(document.getElementById('exportRes').value);
   const oldPR=renderer.getPixelRatio();
   renderer.setPixelRatio(1); renderer.setSize(w,h,false);
@@ -1694,7 +1886,8 @@ document.getElementById('downloadPng').onclick=()=>{
   const url=renderer.domElement.toDataURL('image/png');
   renderer.setPixelRatio(oldPR); resize();
   const a=document.createElement('a'); a.href=url; a.download=`zhizha_${Date.now()}.png`; a.click();
-};
+}
+document.getElementById('downloadPng').onclick=doDownloadPng;
 
 /* ---------- Video record ---------- */
 let recorder=null, chunks=[], recording=false, recOldPR=1, recStart=0, recLimit=0, recTimer=null;
@@ -1762,8 +1955,10 @@ function stopRec(){
   recorder.stop(); recording=false;
   recBtn.textContent='⏺ Записать видео ('+REC_EXT.toUpperCase()+')'; recDot.style.display='none';
   recDurSel.disabled=false;
+  ActionDock.syncRec();
 }
-recBtn.onclick=()=>{ if(!canRecord) return; recording ? stopRec() : startRec(); };
+function doToggleRecord(){ if(!canRecord){ toast('Запись видео недоступна — попробуй Chrome или Edge'); return; } recording ? stopRec() : startRec(); ActionDock.syncRec(); }
+recBtn.onclick=doToggleRecord;
 
 /* ---------- Share / Embed (state -> URL) ---------- */
 function encodeState(){
@@ -1791,11 +1986,12 @@ function loadFromLink(str){
   return ok;
 }
 function shareURL(){ return location.origin+location.pathname+'#s='+encodeState(); }
-document.getElementById('shareBtn').onclick=async()=>{
+async function doCopyLink(){
   const url=shareURL();
   try{ await navigator.clipboard.writeText(url); toast('Ссылка скопирована'); }
   catch(e){ history.replaceState(null,'','#s='+encodeState()); toast('Ссылка в адресной строке'); }
-};
+}
+document.getElementById('shareBtn').onclick=doCopyLink;
 const embedBox=document.getElementById('embedBox');
 document.getElementById('embedBtn').onclick=async()=>{
   const url=shareURL()+'&embed=1';
@@ -1819,6 +2015,76 @@ function refreshAllUI(){
   buildColorPickers(); updateLabels();
 }
 
+/* ---------- Action-док (самостоятельный компонент) ----------
+   Набор/приоритет кнопок и формат-чип ВЫЧИСЛЯЮТСЯ из активной задачи (activeCat.mainExport),
+   не дублируются в state. Экшены переиспользуют те же функции, что и панель.
+   Панельные селекты #exportRes/#recDur — единственный источник разрешения/длительности;
+   селекты дока двусторонне синхронятся с ними. */
+const ActionDock = (function(){
+  const mainBtn=document.getElementById('dockMain');
+  const secEl=document.getElementById('dockSecondary');
+  const fmtBtn=document.getElementById('dockFmt');
+  const fmtPop=document.getElementById('dockFmtPop');
+  const dockRes=document.getElementById('dockRes');
+  const dockDur=document.getElementById('dockDur');
+  const dockPx=document.getElementById('dockFmtPx');
+  const panelRes=document.getElementById('exportRes');
+  const panelDur=document.getElementById('recDur');
+  const RES_LABEL={ thumb:'640p', '1080':'1080p', '2048':'2048²', '4k':'4K' };
+
+  function curKind(){ return (activeCat&&activeCat.mainExport) || 'png'; }
+  function fmtLabel(){ return (state.ratio||'16:9')+' · '+(RES_LABEL[panelRes.value]||panelRes.value); }
+  function updateFmt(){
+    fmtBtn.textContent=fmtLabel();
+    try{ const {w,h}=targetDims(panelRes.value); dockPx.textContent=`Кадр: ${w}×${h}px`; }catch(e){}
+  }
+  // двусторонняя синхронизация селектов
+  dockRes.addEventListener('change',()=>{ panelRes.value=dockRes.value; updateFmt(); });
+  dockDur.addEventListener('change',()=>{ panelDur.value=dockDur.value; });
+  panelRes.addEventListener('change',()=>{ dockRes.value=panelRes.value; updateFmt(); });
+  panelDur.addEventListener('change',()=>{ dockDur.value=panelDur.value; });
+  // поповер формата
+  function setPop(open){ fmtPop.hidden=!open; fmtBtn.setAttribute('aria-expanded',String(open)); }
+  fmtBtn.onclick=e=>{ e.stopPropagation(); if(fmtPop.hidden) updateFmt(); setPop(fmtPop.hidden); };
+  fmtPop.addEventListener('click',e=>e.stopPropagation());
+  document.addEventListener('click',e=>{ if(!fmtPop.hidden && e.target!==fmtBtn) setPop(false); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') setPop(false); });
+
+  const MAIN={
+    video:{ run:doToggleRecord },
+    png:  { run:doDownloadPng, label:'⬇ Скачать PNG' },
+    embed:{ run:doCopyLink,    label:'</> Скопировать код' },
+  };
+  const SECONDARY={
+    video:[{label:'PNG',run:doDownloadPng,title:'Скачать PNG-кадр'},{label:'🔗',run:doCopyLink,title:'Скопировать ссылку на сцену'}],
+    png:  [{label:'Видео',run:doToggleRecord,title:'Записать видео'},{label:'🔗',run:doCopyLink,title:'Скопировать ссылку на сцену'}],
+    embed:[{label:'PNG',run:doDownloadPng,title:'Скачать PNG-кадр'},{label:'🔗',run:doCopyLink,title:'Скопировать ссылку на сцену'}],
+  };
+
+  function syncRec(){
+    const kind=curKind();
+    if(kind==='video'){
+      mainBtn.textContent=recording?'⏹ Стоп и сохранить':'⏺ Записать видео';
+      mainBtn.classList.toggle('rec',recording);
+    } else {
+      mainBtn.classList.remove('rec');
+      mainBtn.textContent=MAIN[kind].label;
+    }
+  }
+  function render(){
+    const kind=curKind();
+    mainBtn.onclick=MAIN[kind].run;
+    secEl.innerHTML='';
+    (SECONDARY[kind]||[]).forEach(s=>{
+      const b=document.createElement('button'); b.type='button';
+      b.textContent=s.label; if(s.title) b.title=s.title; b.setAttribute('aria-label',s.title||s.label);
+      b.onclick=s.run; secEl.appendChild(b);
+    });
+    syncRec(); updateFmt();
+  }
+  return { render, syncRec };
+})();
+
 /* ---------- Init ---------- */
 function init(){
   const hash=location.hash;
@@ -1828,6 +2094,7 @@ function init(){
   refreshAllUI(); syncUniforms(); resize();
   // нет сцены в URL — стартуем с creator-категории (применяет дефолтный шаблон)
   if(!sMatch) selectCategory(CREATOR_CATEGORIES[0]);
+  ActionDock.render(); // сцена из URL: задачи нет — док отрисуется в дефолте (PNG)
   requestAnimationFrame(loop);
 }
 init();
