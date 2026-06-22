@@ -2104,13 +2104,25 @@ const ActionDock = (function(){
   const dockPx=document.getElementById('dockFmtPx');
   const panelRes=document.getElementById('exportRes');
   const panelDur=document.getElementById('recDur');
-  const RES_LABEL={ thumb:'640p', '1080':'1080p', '2048':'2048²', '4k':'4K' };
+  const RES_LABEL={ thumb:'Эскиз', '1080':'1080p', '2048':'2048²', '4k':'4K' };
+  const RES_TIER={ thumb:'640p', '1080':'1080p', '2048':'2048²', '4k':'4K' };
+  // платформенная привязка пресета к задаче — показываем «подо что» целевые пиксели
+  const PLATFORM={ tiktok:'Reels/TikTok', stories:'Stories', youtube:'YouTube',
+    text:'обложка', cover:'обложка', present:'слайд', pattern:'плитка', loop:'видео' };
 
   function curKind(){ return (activeCat&&activeCat.mainExport) || 'png'; }
-  function fmtLabel(){ return (state.ratio||'16:9')+' · '+(RES_LABEL[panelRes.value]||panelRes.value); }
+  function fmtLabel(){ return (state.ratio||'16:9')+' · '+(RES_TIER[panelRes.value]||panelRes.value); }
   function updateFmt(){
     fmtBtn.textContent=fmtLabel();
-    try{ const {w,h}=targetDims(panelRes.value); dockPx.textContent=`Кадр: ${w}×${h}px`; }catch(e){}
+    // живые платформенные пиксели для текущего формата на каждом пресете
+    [...dockRes.options].forEach(o=>{
+      try{ const {w,h}=targetDims(o.value); o.textContent=`${RES_LABEL[o.value]||o.value} · ${w}×${h}`; }catch(e){}
+    });
+    try{
+      const {w,h}=targetDims(panelRes.value);
+      const plat=activeCat ? PLATFORM[activeCat.id] : '';
+      dockPx.textContent=(plat?`Под ${plat}: `:'Кадр: ')+`${w}×${h}px`;
+    }catch(e){}
   }
   // двусторонняя синхронизация селектов
   dockRes.addEventListener('change',()=>{ panelRes.value=dockRes.value; updateFmt(); });
