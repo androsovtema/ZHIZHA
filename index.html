@@ -170,6 +170,15 @@
   }
   #canvasWrap.seamless{ box-shadow: 0 0 0 1px rgba(255,255,255,.08); background-repeat: repeat; }
   canvas{ display:block; }
+  /* оверлей читаемости — превью-подсказка контраста под текст */
+  #readGuide{ position:absolute; inset:0; z-index:3; pointer-events:none; }
+  #readGuide[hidden]{ display:none; }
+  #readGuide .readScrim{ position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.55) 100%); }
+  #readGuide .readText{ position:absolute; left:8%; right:8%; bottom:9%;
+    display:flex; flex-direction:column; gap:6px; text-shadow:0 2px 14px rgba(0,0,0,.6); }
+  #readGuide .rt1{ font:700 clamp(18px,4vw,30px)/1.1 'Comfortaa',sans-serif; color:#fff; }
+  #readGuide .rt2{ font:600 clamp(12px,2.2vw,15px)/1.3 'Nunito',sans-serif; color:rgba(255,255,255,.82); }
   /* main canvas always fills its wrap: the drawing buffer can be larger than the
      on-screen box (retina DPR, or export/record res) — without this the oversized
      buffer renders at intrinsic size, pinned top-left, and overflow:hidden crops it,
@@ -569,7 +578,14 @@
 
 <div id="stage">
   <div id="stageInner">
-    <div id="canvasWrap"><!-- canvas injected --></div>
+    <div id="canvasWrap"><!-- canvas injected -->
+      <!-- оверлей читаемости (задача «Фон под текст»): проверка контраста текста.
+           Только превью-подсказка, в экспорт не попадает. -->
+      <div id="readGuide" aria-hidden="true" hidden>
+        <div class="readScrim"></div>
+        <div class="readText"><span class="rt1">Твой заголовок</span><span class="rt2">и строка поменьше под ним</span></div>
+      </div>
+    </div>
   </div>
 
   <!-- Action-док: закреплён на превью, главное действие = действие задачи.
@@ -624,22 +640,22 @@
       <button type="button" class="themeBtn" id="themeBtn" aria-haspopup="true" aria-expanded="false" aria-label="Тема UI" title="Тема UI">
         <span class="dot"></span>
       </button>
-      <div class="themePop" id="themePop" role="menu" aria-label="Тема UI" hidden>
-        <div class="themePopTitle">Тема UI</div>
-        <div class="themeChips" id="themeChips" role="group" aria-label="Тема UI">
-          <button type="button" class="themeChip" data-theme-pick="volt" aria-pressed="true" title="Вольт · кибер-электрик">
+      <div class="themePop" id="themePop" aria-label="Тема UI" hidden>
+        <div class="themePopTitle" id="themePopTitle">Тема UI</div>
+        <div class="themeChips" id="themeChips" role="radiogroup" aria-labelledby="themePopTitle">
+          <button type="button" class="themeChip" data-theme-pick="volt" role="radio" aria-checked="true" title="Вольт · кибер-электрик">
             <span class="sw" style="background:linear-gradient(135deg,#C6FF36,#00E6C0,#00B3FF)"></span>
             <span class="nm">Вольт</span>
           </button>
-          <button type="button" class="themeChip" data-theme-pick="karamel" aria-pressed="false" title="Карамель · наследие">
+          <button type="button" class="themeChip" data-theme-pick="karamel" role="radio" aria-checked="false" title="Карамель · наследие">
             <span class="sw" style="background:linear-gradient(135deg,#FF5FA8,#8A5CFF,#2FE6C8)"></span>
             <span class="nm">Карамель</span>
           </button>
-          <button type="button" class="themeChip" data-theme-pick="magma" aria-pressed="false" title="Магма · тёплый огонь">
+          <button type="button" class="themeChip" data-theme-pick="magma" role="radio" aria-checked="false" title="Магма · тёплый огонь">
             <span class="sw" style="background:linear-gradient(135deg,#FFB627,#FF5E3A,#E8156F)"></span>
             <span class="nm">Магма</span>
           </button>
-          <button type="button" class="themeChip" data-theme-pick="chrome" aria-pressed="false" title="Хром · холодный графит">
+          <button type="button" class="themeChip" data-theme-pick="chrome" role="radio" aria-checked="false" title="Хром · холодный графит">
             <span class="sw" style="background:linear-gradient(135deg,#8FB4FF,#3B82FF,#1E5BFF)"></span>
             <span class="nm">Хром</span>
           </button>
@@ -1614,6 +1630,12 @@ function applyTemplate(t){
   updateProCtx(t.name);
 }
 
+/* оверлей читаемости — превью-подсказка под текст (задача «Под текст») */
+function updateReadGuide(){
+  const g=document.getElementById('readGuide');
+  if(g) g.hidden = !state.readability;
+}
+
 /* мост: контекст задачи/шаблона в Профи (значения те же — общий state) */
 let activeTmplName='—';
 function updateProCtx(tmplName){
@@ -1664,7 +1686,8 @@ function selectCategory(cat){
   // поведенческие умолчания задачи: Паттерн авто-включает бесшовность
   state.seamless = cat.seamless ? 1 : 0;
   refreshSeamless(); syncUniforms();
-  state.readability = !!cat.readability; // флаг для P2-оверлея читаемости
+  state.readability = !!cat.readability; // оверлей читаемости (задача «Под текст»)
+  updateReadGuide();
   // док: главное действие = рекомендованный экспорт задачи
   ActionDock.render();
 }
@@ -2168,7 +2191,7 @@ init();
     for(var i=0;i<btns.length;i++){
       var on = btns[i].dataset.themePick === name;
       btns[i].classList.toggle('active', on);
-      btns[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+      btns[i].setAttribute('aria-checked', on ? 'true' : 'false');
     }
   }
 
