@@ -173,14 +173,17 @@
     background:var(--ink-900); border-bottom:1px solid var(--panel-border);
   }
   .topbarBrand{ display:flex; align-items:center; gap:9px; flex:0 0 auto; min-width:0; }
+  /* анимированный логотип-капля «жижа»: морфит форму + крутит градиент по теме */
   .topbarLogo{
-    width:28px; height:28px; border-radius:var(--r-sm);
-    background:var(--zhizha-glow); box-shadow:var(--glow-accent);
-    display:flex; align-items:center; justify-content:center;
+    width:28px; height:28px; flex:0 0 auto; display:block;
+    filter: drop-shadow(0 0 7px color-mix(in srgb, var(--accent) 55%, transparent));
   }
-  .topbarLogo::after{
-    content:"Ж"; font-family:'Comfortaa',cursive; font-weight:700; font-size:15px;
-    color:var(--on-accent); line-height:1;
+  .logoBlob{ display:block; width:28px; height:28px; overflow:visible; }
+  .logoBlob .s1{ stop-color: var(--accent-pink); }
+  .logoBlob .s2{ stop-color: var(--accent); }
+  .logoBlob .s3{ stop-color: var(--accent-mint); }
+  @media (prefers-reduced-motion: reduce){
+    .logoBlob animate, .logoBlob animateTransform{ animation:none; }
   }
   .topbarName{ font-family:'Comfortaa',cursive; font-weight:700; font-size:15px; letter-spacing:.5px; color:var(--text); }
   .topbarSub{ font-size:11px; color:var(--text-dim); white-space:nowrap; }
@@ -639,15 +642,41 @@
 
 <header id="topbar" aria-label="Верхняя панель приложения">
   <div class="topbarBrand" aria-label="ЖИЖА">
-    <span class="topbarLogo" aria-hidden="true"></span>
+    <span class="topbarLogo" aria-hidden="true">
+      <svg class="logoBlob" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" class="s1"/>
+            <stop offset="52%" class="s2"/>
+            <stop offset="100%" class="s3"/>
+            <animateTransform attributeName="gradientTransform" type="rotate"
+              values="0 0.5 0.5; 130 0.5 0.5; 245 0.5 0.5; 360 0.5 0.5"
+              keyTimes="0;0.38;0.72;1" dur="15s" calcMode="spline"
+              keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" repeatCount="indefinite"/>
+          </linearGradient>
+        </defs>
+        <path fill="url(#logoGrad)"
+          d="M50,11 C71,11 89,29 89,50 C89,71 71,89 50,89 C29,89 11,71 11,50 C11,29 29,11 50,11 Z">
+          <animate attributeName="d" dur="9.5s" repeatCount="indefinite" calcMode="spline"
+            keyTimes="0;0.33;0.66;1"
+            keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"
+            values="M50,11 C71,11 89,29 89,50 C89,71 71,89 50,89 C29,89 11,71 11,50 C11,29 29,11 50,11 Z;
+                    M53,14 C75,17 86,33 84,53 C82,73 65,87 46,84 C27,81 15,65 18,46 C21,29 33,12 53,14 Z;
+                    M47,13 C69,9 91,29 87,50 C84,69 73,91 50,87 C30,84 9,71 14,49 C18,30 29,16 47,13 Z;
+                    M50,11 C71,11 89,29 89,50 C89,71 71,89 50,89 C29,89 11,71 11,50 C11,29 29,11 50,11 Z"/>
+          <animateTransform attributeName="transform" type="rotate"
+            from="0 50 50" to="360 50 50" dur="32s" repeatCount="indefinite"/>
+        </path>
+      </svg>
+    </span>
     <span class="topbarName">ЖИЖА</span>
     <span class="topbarSub">живые фоны за 20 секунд</span>
   </div>
   <div class="catChips" id="catChips" role="group" aria-label="Категория фона"></div>
   <div class="topbarSystem" aria-label="Системные настройки">
-    <span class="topbarSystemLabel">Тема UI</span>
+    <span class="topbarSystemLabel">Оформление</span>
     <div class="themePicker" id="themePicker">
-      <div class="themeChips" id="themeChips" role="radiogroup" aria-label="Тема UI">
+      <div class="themeChips" id="themeChips" role="radiogroup" aria-label="Оформление">
         <button type="button" class="themeChip" data-theme-pick="volt" role="radio" aria-checked="true" title="Вольт · кибер-электрик">
           <span class="sw" style="background:linear-gradient(135deg,#C6FF36,#00E6C0,#00B3FF)"></span>
           <span class="nm">Вольт</span>
@@ -752,12 +781,12 @@
       <input type="range" id="qSpeed" aria-label="Скорость" min="0" max="3" step="0.01">
     </div>
     <div class="ctrl">
-      <label for="qWarp">Движение <span class="val" id="qWarpV"></span></label>
-      <input type="range" id="qWarp" aria-label="Движение" min="0" max="9" step="0.05">
+      <label for="qWarp">Искажение <span class="val" id="qWarpV"></span></label>
+      <input type="range" id="qWarp" aria-label="Искажение" min="0" max="9" step="0.05">
     </div>
     <div class="ctrl" style="margin-bottom:0;">
-      <label for="qScale">Детализация <span class="val" id="qScaleV"></span></label>
-      <input type="range" id="qScale" aria-label="Детализация" min="0.3" max="5" step="0.01">
+      <label for="qScale">Масштаб <span class="val" id="qScaleV"></span></label>
+      <input type="range" id="qScale" aria-label="Масштаб" min="0.3" max="5" step="0.01">
     </div>
 
     <div class="qlabel">Фактура</div>
@@ -796,19 +825,19 @@
 
   <!-- 02 Поле -->
   <div class="step lyr lyr-pro" id="fieldStep">
-    <h2><span class="num">02</span> Поле</h2>
+    <h2><span class="num">02</span> Стиль</h2>
     <div class="grid3" id="fields"></div>
     <div class="ctrl" style="margin-top:12px;">
       <label for="speed"><span>Скорость <span class="tech">speed</span></span> <span class="val" id="vSpeed"></span></label>
       <input type="range" id="speed" aria-label="Скорость (speed)" min="0" max="3" step="0.01" value="0.6">
     </div>
     <div class="ctrl">
-      <label for="scale"><span>Детализация <span class="tech">scale</span></span> <span class="val" id="vScale"></span></label>
-      <input type="range" id="scale" aria-label="Детализация (scale)" min="0.3" max="5" step="0.01" value="1.6">
+      <label for="scale"><span>Масштаб <span class="tech">scale</span></span> <span class="val" id="vScale"></span></label>
+      <input type="range" id="scale" aria-label="Масштаб (scale)" min="0.3" max="5" step="0.01" value="1.6">
     </div>
     <div class="ctrl">
-      <label for="warp"><span>Движение <span class="tech">warp</span></span> <span class="val" id="vWarp"></span></label>
-      <input type="range" id="warp" aria-label="Движение (warp)" min="0" max="9" step="0.05" value="4.5">
+      <label for="warp"><span>Искажение <span class="tech">warp</span></span> <span class="val" id="vWarp"></span></label>
+      <input type="range" id="warp" aria-label="Искажение (warp)" min="0" max="9" step="0.05" value="4.5">
     </div>
     <div class="ctrl" style="margin-bottom:0;">
       <label for="grain">Зерно <span class="val" id="vGrain"></span></label>
@@ -1539,10 +1568,26 @@ function refreshRatioButtons(){
 /* ---------- Seamless toggle ---------- */
 const seamlessToggle=document.getElementById('seamlessToggle');
 const tileCtrl=document.getElementById('tileCtrl');
+/* В бесшовном режиме шейдер использует периодические функции: различимый результат
+   дают только Поток (pfbm-дефолт), Клетки и Труше — остальные поля схлопываются в
+   тот же pfbm. Поэтому в бесшовном показываем лишь реально работающие варианты. */
+const SEAMLESS_FIELDS=[0,2,4];
+function refreshFieldAvail(){
+  const seam=!!state.seamless;
+  // активное поле вне набора → мягко переводим на Поток (в бесшовном выглядит так же)
+  if(seam && SEAMLESS_FIELDS.indexOf(state.field)<0){
+    state.field=0; refreshFieldButtons(); if(typeof syncUniforms==='function') syncUniforms();
+  }
+  document.querySelectorAll('#fields .opt').forEach(x=>{
+    const ok=!seam || SEAMLESS_FIELDS.indexOf(+x.dataset.field)>=0;
+    x.classList.toggle('hidden',!ok);
+  });
+}
 function refreshSeamless(){
   const on=!!state.seamless;
   seamlessToggle.classList.toggle('on',on); seamlessToggle.setAttribute('aria-checked',on);
   wrap.classList.toggle('seamless',on); tileCtrl.classList.toggle('hidden',!on);
+  refreshFieldAvail();
 }
 function toggleSeamless(){ state.seamless=state.seamless?0:1; refreshSeamless(); syncUniforms(); }
 seamlessToggle.onclick=toggleSeamless;
