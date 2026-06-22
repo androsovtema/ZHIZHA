@@ -158,16 +158,44 @@
     font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
-    /* строгое разделение: панель слева | окно фона справа */
+    /* app shell: top-bar | панель слева | окно фона справа */
     height: 100%;
     display: grid;
-    grid-template-columns: var(--panel-w, 500px) 1fr;
+    grid-template-columns: var(--panel-w, 340px) 1fr;
+    grid-template-rows: 52px 1fr;
   }
-  body.embed{ grid-template-columns: 1fr; }
+  body.embed{ grid-template-columns: 1fr; grid-template-rows: 1fr; }
+
+  #topbar{
+    grid-column: 1 / -1; grid-row: 1; height: 52px; min-width: 0;
+    display:flex; align-items:center; gap:16px;
+    padding:12px 18px; z-index:30;
+    background:var(--ink-900); border-bottom:1px solid var(--panel-border);
+  }
+  .topbarBrand{ display:flex; align-items:center; gap:9px; flex:0 0 auto; min-width:0; }
+  .topbarLogo{
+    width:28px; height:28px; border-radius:var(--r-sm);
+    background:var(--zhizha-glow); box-shadow:var(--glow-accent);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .topbarLogo::after{
+    content:"Ж"; font-family:'Comfortaa',cursive; font-weight:700; font-size:15px;
+    color:var(--on-accent); line-height:1;
+  }
+  .topbarName{ font-family:'Comfortaa',cursive; font-weight:700; font-size:15px; letter-spacing:.5px; color:var(--text); }
+  .topbarSub{ font-size:11px; color:var(--text-dim); white-space:nowrap; }
+  .topbarSystem{
+    margin-left:auto; padding-left:14px; border-left:1px solid var(--panel-border);
+    display:flex; align-items:center; gap:12px; flex:0 0 auto;
+  }
+  .topbarSystemLabel{
+    font:600 10px 'Nunito',sans-serif; letter-spacing:.5px; text-transform:uppercase;
+    color:var(--text-mute); white-space:nowrap;
+  }
 
   /* Stage / canvas (правая колонка — фон всегда виден целиком, не перекрыт) */
-  #stage{ position: relative; grid-column: 2; grid-row: 1; height: 100vh; display: grid; place-items: center; padding: 24px; }
-  body.embed #stage{ grid-column: 1; }
+  #stage{ position: relative; grid-column: 2; grid-row: 2; height: calc(100vh - 52px); display: grid; place-items: center; padding: 24px; }
+  body.embed #stage{ grid-column: 1; grid-row: 1; height: 100vh; }
   #stageInner{ position: relative; height: 100%; width: 100%; display: grid; place-items: center; }
   #canvasWrap{
     position: relative; border-radius: 18px; overflow: hidden;
@@ -193,7 +221,7 @@
 
   /* Control panel */
   #panel{
-    grid-column: 1; grid-row: 1; height: 100vh; overflow-y: auto;
+    grid-column: 1; grid-row: 2; height: calc(100vh - 52px); overflow-y: auto;
     display: flex; flex-direction: column;
     background: var(--panel);
     backdrop-filter: blur(22px) saturate(140%); -webkit-backdrop-filter: blur(22px) saturate(140%);
@@ -203,7 +231,7 @@
   }
   body.embed #panel{ display: none; }
   /* ручка изменения ширины панели — тянуть за правый край */
-  #panelResize{ position: fixed; top: 0; bottom: 0; left: var(--panel-w, 500px);
+  #panelResize{ position: fixed; top: 52px; bottom: 0; left: var(--panel-w, 340px);
     width: 12px; transform: translateX(-6px); z-index: 25; cursor: col-resize; }
   #panelResize::after{ content:""; position:absolute; top:0; bottom:0; left:5px; width:2px;
     background: transparent; transition: background .15s; }
@@ -212,7 +240,7 @@
   #panel::-webkit-scrollbar{ width: 8px; }
   #panel::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.15); border-radius: 8px; }
 
-  .brand{ display:flex; align-items:center; gap:10px; margin-bottom: 6px; }
+  .brand{ display:none; }
   .brand .logo{
     width:36px;height:36px;border-radius:12px;
     background: var(--zhizha-glow);
@@ -288,6 +316,21 @@
     color:var(--on-accent); border-color: transparent;
     background: linear-gradient(var(--accent-veil),var(--accent-veil)), linear-gradient(135deg,var(--accent),var(--accent-2));
   }
+  #topbar .catChips{
+    flex:1 1 auto; min-width:0; margin-left:6px;
+    flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; gap:6px;
+    scrollbar-width:none;
+  }
+  #topbar .catChips::-webkit-scrollbar{ display:none; }
+  #topbar .catChips button{
+    flex:0 0 auto; padding:7px 13px; border-radius:var(--r-pill);
+    font:600 12px 'Nunito',sans-serif;
+    background:var(--ink-700); color:var(--text-dim);
+  }
+  #topbar .catChips button.active{
+    background:linear-gradient(var(--accent-veil),var(--accent-veil)), var(--zhizha-grad);
+    color:var(--on-accent);
+  }
   /* creator: mood filter chips */
   .moodChips{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
   .moodChips button{ cursor:pointer; border:1px solid var(--panel-border); border-radius:99px;
@@ -359,6 +402,18 @@
   .themeChip.active .sw{ box-shadow: 0 0 0 2px var(--ink-900), 0 0 0 4px var(--accent); }
   .themeChip .nm{ font-size:10px; font-weight:700; color:var(--text-dim); white-space:nowrap; }
   .themeChip.active .nm{ color:var(--text); }
+  #topbar .themePicker{ position:static; }
+  #topbar .themeChips{ flex-wrap:nowrap; gap:5px; }
+  #topbar .themeChip .sw{
+    width:18px; height:18px; border-radius:var(--r-xs);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.10);
+  }
+  #topbar .themeChip:hover .sw{ transform:none; }
+  #topbar .themeChip.active .sw{
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.10);
+    outline:2px solid var(--accent); outline-offset:1px;
+  }
+  #topbar .themeChip .nm{ display:none; }
 
   .ctrl{ margin-bottom: 12px; }
   .ctrl:last-child{ margin-bottom:0; }
@@ -366,14 +421,6 @@
   .ctrl label .val{ color:var(--text); font-variant-numeric: tabular-nums; }
   /* единый язык параметров: человеческое имя — каноничное, техническое — подпись в Профи */
   .ctrl label .tech{ color:var(--text-mute); font:11px/1 'JetBrains Mono',ui-monospace,Menlo,monospace; margin-left:5px; font-weight:400; }
-  /* мост Simple↔Pro: контекст задачи/шаблона в Профи */
-  .proCtx{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; margin:2px 0 4px;
-    padding:9px 11px; background:var(--ink-700); border:1px solid var(--panel-border); border-radius:var(--r-sm); }
-  .proCtxLbl{ font:700 9px 'Nunito',sans-serif; letter-spacing:1px; text-transform:uppercase; color:var(--text-mute); }
-  .proCtxVal{ font:700 11px 'Nunito',sans-serif; color:var(--text); margin-right:6px; }
-  .proCtxVal::before{ content:""; display:inline-block; width:7px; height:7px; border-radius:2px;
-    background:var(--zhizha-grad); margin-right:5px; vertical-align:middle; }
-
   input[type=range]{
     -webkit-appearance:none; appearance:none; width:100%; height:5px;
     border-radius:5px; background: rgba(255,255,255,.12); outline:none;
@@ -420,7 +467,7 @@
   .hint{ font-size:11px; color:var(--text-dim); margin-top:8px; line-height:1.4; }
   .hidden{ display:none !important; }
 
-  #liveBar{ position: fixed; top:18px; right:18px; z-index:10; display:flex; gap:8px;
+  #liveBar{ position: fixed; top:70px; right:18px; z-index:10; display:flex; gap:8px;
     background: var(--panel); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
     border:1px solid var(--panel-border); border-radius:12px; padding:6px; box-shadow: var(--shadow); }
   #liveBar button{ cursor:pointer; border:1px solid transparent; background:transparent; color:var(--text);
@@ -459,7 +506,7 @@
     backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
 
   /* embed mode — hide all chrome, background fills the frame */
-  body.embed #panel, body.embed #liveBar, body.embed #fps, body.embed #panelToggle, body.embed #recDot, body.embed #actionDock{ display:none !important; }
+  body.embed #topbar, body.embed #panel, body.embed #liveBar, body.embed #fps, body.embed #panelToggle, body.embed #recDot, body.embed #actionDock{ display:none !important; }
   body.embed #stage{ padding:0; }
   body.embed #canvasWrap{ border-radius:0; box-shadow:none; }
 
@@ -539,6 +586,7 @@
   @media (max-width: 760px){
     html, body{ overflow: visible; height: auto; }
     body{ display: block; max-width: 100%; }
+    #topbar{ position: relative; height:52px; }
     #panelResize{ display: none; }
     #stage{ position: sticky; top: 0; z-index: 5; grid-column: auto;
       height: 46vh; padding: 10px; background: var(--ink-900);
@@ -581,6 +629,38 @@
 </style>
 </head>
 <body class="mode-simple">
+
+<header id="topbar" aria-label="Верхняя панель приложения">
+  <div class="topbarBrand" aria-label="ЖИЖА">
+    <span class="topbarLogo" aria-hidden="true"></span>
+    <span class="topbarName">ЖИЖА</span>
+    <span class="topbarSub">живые фоны за 20 секунд</span>
+  </div>
+  <div class="catChips" id="catChips" role="group" aria-label="Категория фона"></div>
+  <div class="topbarSystem" aria-label="Системные настройки">
+    <span class="topbarSystemLabel">Тема UI</span>
+    <div class="themePicker" id="themePicker">
+      <div class="themeChips" id="themeChips" role="radiogroup" aria-label="Тема UI">
+        <button type="button" class="themeChip" data-theme-pick="volt" role="radio" aria-checked="true" title="Вольт · кибер-электрик">
+          <span class="sw" style="background:linear-gradient(135deg,#C6FF36,#00E6C0,#00B3FF)"></span>
+          <span class="nm">Вольт</span>
+        </button>
+        <button type="button" class="themeChip" data-theme-pick="karamel" role="radio" aria-checked="false" title="Карамель · наследие">
+          <span class="sw" style="background:linear-gradient(135deg,#FF5FA8,#8A5CFF,#2FE6C8)"></span>
+          <span class="nm">Карамель</span>
+        </button>
+        <button type="button" class="themeChip" data-theme-pick="magma" role="radio" aria-checked="false" title="Магма · тёплый огонь">
+          <span class="sw" style="background:linear-gradient(135deg,#FFB627,#FF5E3A,#E8156F)"></span>
+          <span class="nm">Магма</span>
+        </button>
+        <button type="button" class="themeChip" data-theme-pick="chrome" role="radio" aria-checked="false" title="Хром · холодный графит">
+          <span class="sw" style="background:linear-gradient(135deg,#8FB4FF,#3B82FF,#1E5BFF)"></span>
+          <span class="nm">Хром</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
 
 <div id="stage">
   <div id="stageInner">
@@ -636,57 +716,14 @@
 <div id="toast" role="status" aria-live="polite"></div>
 
 <aside id="panel">
-  <div class="brand">
-    <div class="logo"></div>
-    <div style="margin-right:auto;">
-      <h1>ЖИЖА</h1>
-      <div class="sub">живые фоны за 20 секунд</div>
-    </div>
-    <div class="themePicker" id="themePicker">
-      <button type="button" class="themeBtn" id="themeBtn" aria-haspopup="true" aria-expanded="false" aria-label="Тема UI" title="Тема UI">
-        <span class="dot"></span>
-      </button>
-      <div class="themePop" id="themePop" aria-label="Тема UI" hidden>
-        <div class="themePopTitle" id="themePopTitle">Тема UI</div>
-        <div class="themeChips" id="themeChips" role="radiogroup" aria-labelledby="themePopTitle">
-          <button type="button" class="themeChip" data-theme-pick="volt" role="radio" aria-checked="true" title="Вольт · кибер-электрик">
-            <span class="sw" style="background:linear-gradient(135deg,#C6FF36,#00E6C0,#00B3FF)"></span>
-            <span class="nm">Вольт</span>
-          </button>
-          <button type="button" class="themeChip" data-theme-pick="karamel" role="radio" aria-checked="false" title="Карамель · наследие">
-            <span class="sw" style="background:linear-gradient(135deg,#FF5FA8,#8A5CFF,#2FE6C8)"></span>
-            <span class="nm">Карамель</span>
-          </button>
-          <button type="button" class="themeChip" data-theme-pick="magma" role="radio" aria-checked="false" title="Магма · тёплый огонь">
-            <span class="sw" style="background:linear-gradient(135deg,#FFB627,#FF5E3A,#E8156F)"></span>
-            <span class="nm">Магма</span>
-          </button>
-          <button type="button" class="themeChip" data-theme-pick="chrome" role="radio" aria-checked="false" title="Хром · холодный графит">
-            <span class="sw" style="background:linear-gradient(135deg,#8FB4FF,#3B82FF,#1E5BFF)"></span>
-            <span class="nm">Хром</span>
-          </button>
-        </div>
-        <div class="themePopHint">Меняется только цвет — форма и поведение те же. Выбор запоминается.</div>
-      </div>
-    </div>
-  </div>
-
   <div class="seg modeSeg" id="modeSeg" role="group" aria-label="Режим">
     <button type="button" id="modeSimple" class="active" aria-pressed="true">✦ Простой</button>
     <button type="button" id="modePro" aria-pressed="false">⚙ Профи</button>
   </div>
 
-  <!-- Мост Simple↔Pro: задача и шаблон видны и в Профи; ползунки те же, ничего не сбрасывается -->
-  <div class="proCtx proOnly" id="proCtx">
-    <span class="proCtxLbl">Задача</span><span class="proCtxVal" id="proCtxTask">—</span>
-    <span class="proCtxLbl">Шаблон</span><span class="proCtxVal" id="proCtxTmpl">—</span>
-  </div>
-
   <!-- Creator: для чего нужен фон -->
   <div class="step simpleOnly" id="creatorStep">
-    <h2>Для чего нужен фон?</h2>
-    <div class="catChips" id="catChips" role="group" aria-label="Категория фона"></div>
-    <h2 style="margin-top:16px;">Выбери стиль</h2>
+    <h2>Выбери стиль</h2>
     <div class="moodChips" id="moodChips" role="group" aria-label="Фильтр по настроению"></div>
     <div id="tmplHead">
       <span class="lbl">Шаблоны</span>
@@ -1642,13 +1679,9 @@ function updateReadGuide(){
   if(g) g.hidden = !state.readability;
 }
 
-/* мост: контекст задачи/шаблона в Профи (значения те же — общий state) */
 let activeTmplName='—';
 function updateProCtx(tmplName){
   if(tmplName) activeTmplName=tmplName;
-  const tEl=document.getElementById('proCtxTask'), mEl=document.getElementById('proCtxTmpl');
-  if(tEl) tEl.textContent=activeCat ? activeCat.name : '—';
-  if(mEl) mEl.textContent=activeTmplName;
 }
 
 function renderMoodChips(cat){
@@ -1844,14 +1877,18 @@ const syncPanel=()=>setPanel(!mq.matches);
 mq.addEventListener('change',()=>{ syncPanel(); resize(); }); syncPanel();
 
 /* ---------- Resizable panel (тянуть за правый край) ---------- */
-const PANEL_MIN=340, PANEL_MAX=820;
+const PANEL_DEFAULT=340, PANEL_MIN=340, PANEL_MAX=820;
 function setPanelW(px){
   px=Math.max(PANEL_MIN,Math.min(PANEL_MAX,Math.round(px)));
   document.documentElement.style.setProperty('--panel-w',px+'px');
   try{ localStorage.setItem('zhizha_panel_w',px); }catch(e){}
   resize();
 }
-try{ const s=parseInt(localStorage.getItem('zhizha_panel_w'),10); if(s) setPanelW(s); }catch(e){}
+try{
+  const s=parseInt(localStorage.getItem('zhizha_panel_w'),10);
+  const initialPanelW=Math.max(PANEL_MIN,Math.min(PANEL_MAX,Math.round(Number.isFinite(s) ? s : PANEL_DEFAULT)));
+  document.documentElement.style.setProperty('--panel-w',initialPanelW+'px');
+}catch(e){ document.documentElement.style.setProperty('--panel-w',PANEL_DEFAULT+'px'); }
 const panelResize=document.getElementById('panelResize');
 let pwDrag=false;
 panelResize.addEventListener('pointerdown',e=>{ if(mq.matches) return; pwDrag=true;
@@ -2221,9 +2258,9 @@ init();
   var pop = document.getElementById('themePop');
   var picker = document.getElementById('themePicker');
 
-  function openPop(){ pop.hidden = false; pickerBtn.setAttribute('aria-expanded','true'); }
-  function closePop(){ pop.hidden = true; pickerBtn.setAttribute('aria-expanded','false'); }
-  function togglePop(){ pop.hidden ? openPop() : closePop(); }
+  function openPop(){ if(!pop || !pickerBtn) return; pop.hidden = false; pickerBtn.setAttribute('aria-expanded','true'); }
+  function closePop(){ if(!pop || !pickerBtn) return; pop.hidden = true; pickerBtn.setAttribute('aria-expanded','false'); }
+  function togglePop(){ if(!pop) return; pop.hidden ? openPop() : closePop(); }
 
   if(pickerBtn){
     pickerBtn.addEventListener('click', function(e){ e.stopPropagation(); togglePop(); });
@@ -2241,7 +2278,7 @@ init();
   for(var i=0;i<btns.length;i++){
     btns[i].addEventListener('click', function(){
       applyTheme(this.dataset.themePick);
-      closePop();
+      if(pop) closePop();
     });
   }
 })();
