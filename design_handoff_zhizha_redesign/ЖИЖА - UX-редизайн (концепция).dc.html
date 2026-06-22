@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{ font-family:'Nunito',sans-serif; background:#07090A; }
+  .z{ --bg:#07090A; --s1:#0E1113; --s2:#161A1C; --bd:rgba(255,255,255,.08); --hi:rgba(255,255,255,.045);
+      --tx:#EAF7F2; --dim:#8FA39C; --mute:#586862;
+      --acc:#00E6C0; --lime:#C6FF36; --blue:#00B3FF;
+      --grad:linear-gradient(135deg,#C6FF36 0%,#00E6C0 100%);
+      --glow:linear-gradient(135deg,#C6FF36 0%,#00E6C0 55%,#00B3FF 100%);
+      --on:#07090A; --gw:0 8px 28px rgba(0,230,192,.4); }
+  @keyframes zfloat{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-3px);} }
+  @keyframes zpulse{ 0%,100%{ opacity:1;} 50%{ opacity:.35;} }
+</style>
+</helmet>
+
+<div class="z" style="min-height:100vh; background:var(--bg); color:var(--tx);">
+
+  <!-- sticky doc header -->
+  <div style="position:sticky; top:0; z-index:60; background:rgba(7,9,10,.82); backdrop-filter:blur(16px); border-bottom:1px solid var(--bd);">
+    <div style="max-width:1120px; margin:0 auto; padding:13px 32px; display:flex; align-items:center; gap:13px;">
+      <div style="width:32px; height:32px; border-radius:10px; background:var(--glow); display:flex; align-items:center; justify-content:center; box-shadow:var(--gw);"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:17px; color:var(--on);">Ж</span></div>
+      <span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:17px; letter-spacing:.5px;">ЖИЖА</span>
+      <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1.3px; text-transform:uppercase; color:var(--mute); padding-left:13px; border-left:1px solid var(--bd);">UX-редизайн · концепция</span>
+      <span style="margin-left:auto; font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; color:var(--dim);">creator-first инструмент, не лендинг</span>
+    </div>
+  </div>
+
+  <div style="max-width:1120px; margin:0 auto; padding:0 32px 110px;">
+
+    <!-- ===== HERO ===== -->
+    <section style="padding:60px 0 36px;">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--acc); margin-bottom:14px;">Продуктовая концепция · v2</div>
+      <h1 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:52px; line-height:1.05; margin:0 0 20px; max-width:900px; text-wrap:balance;">Живой фон за 20 секунд — на самом деле</h1>
+      <p style="font-family:'Nunito',sans-serif; font-size:17px; line-height:1.6; color:var(--dim); margin:0; max-width:720px;">Не косметика. Переосмысляем логику: пользователь приходит решить задачу, а не крутить шейдер. Каждый экран и контрол должен приближать к экспорту, уменьшать неопределённость и не мешать живому превью.</p>
+
+      <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:26px;">
+        <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:9px 16px; border-radius:999px; background:var(--grad); color:var(--on); box-shadow:var(--gw);">Превью — герой</span>
+        <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:13px; padding:9px 16px; border-radius:999px; background:var(--s1); color:var(--dim); border:1px solid var(--bd);">Экспорт всегда под рукой</span>
+        <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:13px; padding:9px 16px; border-radius:999px; background:var(--s1); color:var(--dim); border:1px solid var(--bd);">Задача задаёт формат и действие</span>
+        <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:13px; padding:9px 16px; border-radius:999px; background:var(--s1); color:var(--dim); border:1px solid var(--bd);">Pro не мешает новичку</span>
+      </div>
+
+      <!-- decision filter -->
+      <div style="margin-top:30px; display:grid; grid-template-columns:repeat(4,1fr); gap:12px;">
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:16px;"><div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--tx); margin-bottom:5px;">Быстрее к фону?</div><div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--mute);">Каждый шаг сокращает путь к результату.</div></div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:16px;"><div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--tx); margin-bottom:5px;">Меньше неясности?</div><div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--mute);">Понятно, что изменит каждое действие.</div></div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:16px;"><div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--tx); margin-bottom:5px;">Ближе к экспорту?</div><div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--mute);">Действие видно в момент решения.</div></div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:16px;"><div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--tx); margin-bottom:5px;">Не мешает превью?</div><div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--mute);">Живой результат всегда в центре.</div></div>
+      </div>
+    </section>
+
+    <!-- ===== 01 ПРОДУКТОВАЯ ЛОГИКА ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">01 · Новая продуктовая логика</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px;">От «панели шейдера» к creator-инструменту</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--dim); margin:0 0 26px; max-width:680px;">ЖИЖА ощущается как CapCut / Lightroom для живого фона: выбор по задаче, мгновенный результат, точная настройка по желанию. Мощь остаётся, но разложена по уровням сложности.</p>
+
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px;">
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:20px;">
+          <div style="width:34px; height:34px; border-radius:11px; background:var(--grad); display:flex; align-items:center; justify-content:center; font-family:'Comfortaa',cursive; font-weight:700; color:var(--on); margin-bottom:14px;">1</div>
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:15px; margin-bottom:6px;">Быстрый слой</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.55; color:var(--dim);">Для creator: задача → шаблон → пара ползунков → экспорт. 90% пользователей живут здесь.</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:20px;">
+          <div style="width:34px; height:34px; border-radius:11px; background:var(--s2); border:1px solid var(--bd); display:flex; align-items:center; justify-content:center; font-family:'Comfortaa',cursive; font-weight:700; color:var(--acc); margin-bottom:14px;">2</div>
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:15px; margin-bottom:6px;">Расширенный</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.55; color:var(--dim);">Точная настройка поля, фактуры, цвета, размера, бесшовности. Раскрывается по запросу.</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:20px;">
+          <div style="width:34px; height:34px; border-radius:11px; background:var(--s2); border:1px solid var(--bd); display:flex; align-items:center; justify-content:center; font-family:'Comfortaa',cursive; font-weight:700; color:var(--acc); margin-bottom:14px;">3</div>
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:15px; margin-bottom:6px;">Для сайта</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.55; color:var(--dim);">Developer-слой: ссылка, iframe, web-компонент <code style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--acc);">&lt;zhizha-bg&gt;</code>, импорт сцены.</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:20px;">
+          <div style="width:34px; height:34px; border-radius:11px; background:var(--s2); border:1px solid var(--bd); display:flex; align-items:center; justify-content:center; font-family:'Comfortaa',cursive; font-weight:700; color:var(--acc); margin-bottom:14px;">4</div>
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:15px; margin-bottom:6px;">Системный</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.55; color:var(--dim);">Тема UI, производительность, debug. Чётко отделён от настроек сцены.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 02 ОСНОВНОЙ FLOW ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">02 · Основной пользовательский flow</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px;">Четыре шага, превью между ними</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--dim); margin:0 0 26px; max-width:680px;">Шаги линейны, но не блокируют: превью обновляется на каждом, экспорт доступен с любого. Можно прыгнуть к экспорту сразу после выбора задачи.</p>
+
+      <div style="display:flex; align-items:stretch; gap:0; flex-wrap:wrap;">
+        <div style="flex:1; min-width:180px; background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:20px; position:relative;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--acc); margin-bottom:8px;">Шаг 1</div>
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:18px; margin-bottom:6px;">Задача</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.5; color:var(--dim);">Reels, Сторис, Обложка, Сайт… Задаёт формат + рекомендованный экспорт + поведение.</div>
+        </div>
+        <div style="display:flex; align-items:center; padding:0 6px; color:var(--mute); font-size:22px;">→</div>
+        <div style="flex:1; min-width:180px; background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:20px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--acc); margin-bottom:8px;">Шаг 2</div>
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:18px; margin-bottom:6px;">Шаблон</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.5; color:var(--dim);">Карусель уже отфильтрована под задачу. Тык — превью становится этим фоном.</div>
+        </div>
+        <div style="display:flex; align-items:center; padding:0 6px; color:var(--mute); font-size:22px;">→</div>
+        <div style="flex:1; min-width:180px; background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:20px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--acc); margin-bottom:8px;">Шаг 3</div>
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:18px; margin-bottom:6px;">Подстройка</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.5; color:var(--dim);">Цвет, движение, детализация — прямо под превью. Глубже — в Профи.</div>
+        </div>
+        <div style="display:flex; align-items:center; padding:0 6px; color:var(--mute); font-size:22px;">→</div>
+        <div style="flex:1; min-width:180px; background:linear-gradient(160deg,rgba(0,230,192,.12),var(--s1)); border:1px solid var(--acc); border-radius:18px; padding:20px; box-shadow:var(--gw);">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--acc); margin-bottom:8px;">Шаг 4</div>
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:18px; margin-bottom:6px;">Экспорт</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.5; color:var(--dim);">Рекомендованное действие задачи — видео / PNG / embed. Всегда виден в доке.</div>
+        </div>
+      </div>
+      <div style="margin-top:14px; padding:14px 18px; border-radius:14px; border:1px dashed var(--bd); background:var(--hi); font-family:'Nunito',sans-serif; font-size:13px; line-height:1.6; color:var(--dim);"><b style="color:var(--tx);">Превью живёт сквозь все шаги.</b> Оно не «следующий экран», а постоянный центр. Экспорт-док закреплён, поэтому шаг 4 доступен с шага 1.</div>
+    </section>
+
+    <!-- ===== 03 IA ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">03 · Информационная архитектура</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px;">Четыре слоя, ноль каши</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--dim); margin:0 0 26px; max-width:680px;">Сейчас подбор, техника, экспорт, embed, тема и палитра перемешаны. Разводим их по слоям с явной видимостью.</p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:22px;">
+          <div style="display:flex; align-items:center; gap:9px; margin-bottom:14px;"><div style="width:9px; height:9px; border-radius:999px; background:var(--lime);"></div><div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:16px;">Быстрый слой · видим всегда</div></div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:2; color:var(--dim);">Задача (контекст-чип) · Карусель шаблонов + фильтр · Быстрая настройка (5 контролов) · Action-док экспорта</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:22px;">
+          <div style="display:flex; align-items:center; gap:9px; margin-bottom:14px;"><div style="width:9px; height:9px; border-radius:999px; background:var(--acc);"></div><div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:16px;">Расширенный · по запросу</div></div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:2; color:var(--dim);">Формат · Бесшовность + плитки · Поле · Скорость/Масштаб/Движение/Зерно · Фактура · Палитра + кастомные стопы</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:22px;">
+          <div style="display:flex; align-items:center; gap:9px; margin-bottom:14px;"><div style="width:9px; height:9px; border-radius:999px; background:var(--blue);"></div><div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:16px;">Для сайта · по запросу</div></div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:2; color:var(--dim);">Web-компонент <code style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--acc);">&lt;zhizha-bg&gt;</code> (рекоменд.) · iframe · Ссылка на сцену · Импорт сцены · Статичный fallback</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:22px;">
+          <div style="display:flex; align-items:center; gap:9px; margin-bottom:14px;"><div style="width:9px; height:9px; border-radius:3px; background:var(--mute);"></div><div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:16px;">Системный · в углу</div></div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:2; color:var(--dim);">Тема интерфейса (4 темы) · Ширина панели · Производительность/FPS · Reduced motion · Debug</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 04-07 DESKTOP LAYOUT ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">04 · Desktop · структура экрана и панели</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px;">Превью-герой + закреплённый action-док</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--dim); margin:0 0 24px; max-width:680px;">Слева — контекст и слои, справа — большое превью. Главное новое: экспорт-док прижат к низу превью и виден независимо от скролла панели.</p>
+
+      <!-- DESKTOP MOCKUP -->
+      <div style="border-radius:22px; overflow:hidden; border:1px solid var(--bd); box-shadow:0 30px 80px rgba(0,0,0,.5); background:#05070A;">
+        <!-- window chrome -->
+        <div style="display:flex; align-items:center; gap:7px; padding:11px 16px; background:#0B0E11; border-bottom:1px solid var(--bd);">
+          <div style="width:11px; height:11px; border-radius:999px; background:#ff5f57;"></div><div style="width:11px; height:11px; border-radius:999px; background:#febc2e;"></div><div style="width:11px; height:11px; border-radius:999px; background:#28c840;"></div>
+          <div style="margin-left:14px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mute);">zhizha.app</div>
+        </div>
+        <!-- app top bar -->
+        <div style="display:flex; align-items:center; gap:16px; padding:12px 18px; background:var(--bg); border-bottom:1px solid var(--bd);">
+          <div style="display:flex; align-items:center; gap:9px;"><div style="width:28px; height:28px; border-radius:9px; background:var(--glow); display:flex; align-items:center; justify-content:center;"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:15px; color:var(--on);">Ж</span></div><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:15px;">ЖИЖА</span></div>
+          <!-- goal selector -->
+          <div style="display:flex; gap:6px; align-items:center; margin-left:6px;">
+            <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:11px; padding:7px 13px; border-radius:999px; background:var(--grad); color:var(--on);">Reels</span>
+            <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:11px; padding:7px 13px; border-radius:999px; background:var(--s2); color:var(--dim);">Сторис</span>
+            <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:11px; padding:7px 13px; border-radius:999px; background:var(--s2); color:var(--dim);">YouTube</span>
+            <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:11px; padding:7px 13px; border-radius:999px; background:var(--s2); color:var(--dim);">Под текст</span>
+            <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:11px; padding:7px 13px; border-radius:999px; background:var(--s2); color:var(--dim);">Обложка</span>
+            <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:11px; padding:7px 13px; border-radius:999px; background:var(--s2); color:var(--dim);">Паттерн</span>
+            <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:11px; padding:7px 13px; border-radius:999px; background:var(--s2); color:var(--dim);">Сайт</span>
+          </div>
+          <!-- system zone, clearly separated -->
+          <div style="margin-left:auto; display:flex; align-items:center; gap:12px; padding-left:14px; border-left:1px solid var(--bd);">
+            <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:10px; letter-spacing:.5px; text-transform:uppercase; color:var(--mute);">Тема UI</span>
+            <div style="display:flex; gap:5px;"><div style="width:18px; height:18px; border-radius:6px; background:linear-gradient(135deg,#C6FF36,#00E6C0,#00B3FF); outline:2px solid var(--acc); outline-offset:1px;"></div><div style="width:18px; height:18px; border-radius:6px; background:linear-gradient(135deg,#FF5FA8,#8A5CFF,#2FE6C8);"></div><div style="width:18px; height:18px; border-radius:6px; background:linear-gradient(135deg,#FFB627,#FF5E3A,#E8156F);"></div><div style="width:18px; height:18px; border-radius:6px; background:linear-gradient(135deg,#8FB4FF,#3B82FF,#1E5BFF);"></div></div>
+          </div>
+        </div>
+
+        <!-- body: panel + preview -->
+        <div style="display:grid; grid-template-columns:340px 1fr; min-height:480px;">
+          <!-- left panel -->
+          <div style="background:var(--bg); border-right:1px solid var(--bd); padding:16px; display:flex; flex-direction:column; gap:13px;">
+            <!-- layer tabs -->
+            <div style="display:flex; gap:6px; background:var(--s2); padding:4px; border-radius:12px;">
+              <span style="flex:1; text-align:center; font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; padding:7px; border-radius:9px; background:var(--s1); color:var(--tx); box-shadow:0 1px 0 var(--bd);">Шаблоны</span>
+              <span style="flex:1; text-align:center; font-family:'Nunito',sans-serif; font-weight:600; font-size:11px; padding:7px; color:var(--dim);">Быстро</span>
+              <span style="flex:1; text-align:center; font-family:'Nunito',sans-serif; font-weight:600; font-size:11px; padding:7px; color:var(--dim);">Профи</span>
+              <span style="flex:1; text-align:center; font-family:'Nunito',sans-serif; font-weight:600; font-size:11px; padding:7px; color:var(--dim);">Сайт</span>
+            </div>
+            <!-- filter row -->
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:10px; padding:6px 11px; border-radius:999px; background:var(--grad); color:var(--on);">Все</span>
+              <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:10px; padding:6px 11px; border-radius:999px; background:var(--s2); color:var(--dim); border:1px solid var(--bd);">Яркие</span>
+              <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:10px; padding:6px 11px; border-radius:999px; background:var(--s2); color:var(--dim); border:1px solid var(--bd);">Глубокие</span>
+              <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:10px; padding:6px 11px; border-radius:999px; background:var(--s2); color:var(--dim); border:1px solid var(--bd);">Узоры</span>
+            </div>
+            <!-- template grid 2col -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:9px;">
+              <div style="border-radius:12px; overflow:hidden; border:1px solid var(--acc); box-shadow:var(--gw);"><div style="height:64px; background:radial-gradient(50% 40% at 30% 25%,rgba(198,255,54,.5),transparent 60%),radial-gradient(55% 55% at 72% 70%,rgba(0,230,192,.55),transparent 60%),linear-gradient(135deg,#08110f,#0a1a16); display:flex; align-items:flex-end; padding:6px;"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:10px; color:#fff;">Вспышка</span></div></div>
+              <div style="border-radius:12px; overflow:hidden; border:1px solid var(--bd);"><div style="height:64px; background:radial-gradient(60% 50% at 40% 35%,rgba(0,179,255,.4),transparent 60%),linear-gradient(135deg,#0a1622,#0e2233); display:flex; align-items:flex-end; padding:6px;"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:10px; color:#fff;">Бездна</span></div></div>
+              <div style="border-radius:12px; overflow:hidden; border:1px solid var(--bd);"><div style="height:64px; background:repeating-linear-gradient(45deg,#0c2a24 0 7px,#103b31 7px 14px); display:flex; align-items:flex-end; padding:6px;"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:10px; color:#fff;">Пиксель</span></div></div>
+              <div style="border-radius:12px; overflow:hidden; border:1px solid var(--bd);"><div style="height:64px; background:radial-gradient(circle at 50% 50%,rgba(198,255,54,.4),transparent 55%),conic-gradient(from 0deg,#0c2118,#11392c,#0c2118); display:flex; align-items:flex-end; padding:6px;"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:10px; color:#fff;">Мандала</span></div></div>
+            </div>
+            <div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--mute); text-align:center;">+ 34 шаблона · скролл внутри ленты</div>
+          </div>
+
+          <!-- preview hero -->
+          <div style="position:relative; background:linear-gradient(180deg,#0b0f0d,#070a09); display:flex; align-items:center; justify-content:center; padding:24px;">
+            <!-- shuffle top-right -->
+            <div style="position:absolute; top:16px; right:16px; width:34px; height:34px; border-radius:11px; background:var(--s1); border:1px solid var(--bd); display:flex; align-items:center; justify-content:center; color:var(--dim); font-size:15px;">↻</div>
+            <!-- the canvas -->
+            <div style="width:230px; height:408px; border-radius:16px; background:radial-gradient(50% 38% at 30% 24%,rgba(198,255,54,.45),transparent 60%),radial-gradient(55% 50% at 72% 68%,rgba(0,230,192,.55),transparent 60%),radial-gradient(45% 45% at 58% 48%,rgba(0,179,255,.35),transparent 58%),linear-gradient(135deg,#08110f,#0a1a16); box-shadow:0 20px 50px rgba(0,0,0,.5);"></div>
+            <!-- PERSISTENT ACTION DOCK -->
+            <div style="position:absolute; left:24px; right:24px; bottom:18px; background:rgba(10,14,13,.72); backdrop-filter:blur(14px); border:1px solid var(--bd); border-radius:18px; padding:12px; display:flex; align-items:center; gap:10px;">
+              <button style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:11px 18px; border:none; border-radius:12px; background:var(--grad); color:var(--on); box-shadow:var(--gw); cursor:pointer; display:flex; align-items:center; gap:7px;">● Записать видео</button>
+              <button style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:11px 15px; border-radius:12px; background:var(--s2); color:var(--tx); border:1px solid var(--bd); cursor:pointer;">PNG</button>
+              <button style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:11px 15px; border-radius:12px; background:var(--s2); color:var(--tx); border:1px solid var(--bd); cursor:pointer;">Ссылка</button>
+              <span style="margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--dim);">9:16 · 1080p</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- legend -->
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:16px;">
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:14px; padding:15px;"><div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:13px; color:var(--acc); margin-bottom:5px;">Goal-бар вверху</div><div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--dim);">Задача = персистентный контекст. Меняет формат, фильтр и рекомендованное действие за один тык.</div></div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:14px; padding:15px;"><div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:13px; color:var(--acc); margin-bottom:5px;">Слои вкладками</div><div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--dim);">Шаблоны · Быстро · Профи · Сайт. Лента шаблонов скроллится внутри себя, не толкает экспорт.</div></div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:14px; padding:15px;"><div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:13px; color:var(--acc); margin-bottom:5px;">Action-док</div><div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--dim);">Закреплён на превью. Рекомендованное действие — крупно, остальное — рядом. Формат/разрешение тут же.</div></div>
+      </div>
+
+      <p style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.6; color:var(--mute); margin:16px 2px 0;"><b style="color:var(--dim);">Тема UI</b> вынесена в правый угол с подписью и разделителем — её больше не путают с палитрой сцены (палитра живёт во вкладке «Быстро»/«Профи» рядом с фоном).</p>
+    </section>
+
+    <!-- ===== 05 MOBILE ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">05 · Mobile · главный сценарий без бесконечного скролла</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px;">Превью сверху, экспорт сразу под ним</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--dim); margin:0 0 26px; max-width:680px;">Главная боль mobile — длинная стена шаблонов отодвигала настройку и экспорт. Решение: шаблоны в горизонтальной карусели + шит «Все шаблоны», а быстрая настройка и закреплённый action-док — сразу под превью.</p>
+
+      <div style="display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;">
+        <!-- phone 1: start -->
+        <div style="flex:none; width:248px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--dim); margin-bottom:10px;">Старт — всё близко</div>
+          <div style="border-radius:30px; border:8px solid #1c1f22; background:var(--bg); overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.5);">
+            <!-- sticky preview -->
+            <div style="height:200px; background:radial-gradient(50% 38% at 30% 24%,rgba(198,255,54,.45),transparent 60%),radial-gradient(55% 50% at 72% 68%,rgba(0,230,192,.55),transparent 60%),linear-gradient(135deg,#08110f,#0a1a16); position:relative;"><div style="position:absolute; top:10px; right:10px; width:26px; height:26px; border-radius:8px; background:rgba(10,14,13,.6); display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px;">↻</div></div>
+            <!-- action dock -->
+            <div style="padding:10px; display:flex; gap:7px; border-bottom:1px solid var(--bd);">
+              <button style="flex:1; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; padding:10px; border:none; border-radius:11px; background:var(--grad); color:var(--on);">● Видео</button>
+              <button style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; padding:10px 13px; border-radius:11px; background:var(--s2); color:var(--tx); border:1px solid var(--bd);">PNG</button>
+            </div>
+            <!-- goal chips -->
+            <div style="padding:11px 10px 0;">
+              <div style="display:flex; gap:6px; overflow:hidden;"><span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:10px; padding:6px 11px; border-radius:999px; background:var(--grad); color:var(--on); white-space:nowrap;">Reels</span><span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:10px; padding:6px 11px; border-radius:999px; background:var(--s2); color:var(--dim); white-space:nowrap;">Сторис</span><span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:10px; padding:6px 11px; border-radius:999px; background:var(--s2); color:var(--dim); white-space:nowrap;">Обложка</span></div>
+            </div>
+            <!-- template carousel -->
+            <div style="padding:11px 0 11px 10px;">
+              <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:9px; letter-spacing:1px; text-transform:uppercase; color:var(--mute); margin-bottom:7px;">Шаблоны <span style="color:var(--acc);">· Все →</span></div>
+              <div style="display:flex; gap:7px; overflow:hidden;">
+                <div style="flex:none; width:58px; height:58px; border-radius:10px; border:1px solid var(--acc); background:radial-gradient(circle at 40% 35%,rgba(198,255,54,.5),transparent 60%),linear-gradient(135deg,#08110f,#0a1a16);"></div>
+                <div style="flex:none; width:58px; height:58px; border-radius:10px; border:1px solid var(--bd); background:radial-gradient(circle at 60% 50%,rgba(0,179,255,.4),transparent 60%),linear-gradient(135deg,#0a1622,#0e2233);"></div>
+                <div style="flex:none; width:58px; height:58px; border-radius:10px; border:1px solid var(--bd); background:repeating-linear-gradient(45deg,#0c2a24 0 6px,#103b31 6px 12px);"></div>
+                <div style="flex:none; width:30px; height:58px; border-radius:10px; border:1px solid var(--bd); background:var(--s2);"></div>
+              </div>
+            </div>
+            <!-- quick tune -->
+            <div style="padding:4px 10px 14px;">
+              <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:9px; letter-spacing:1px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">Быстрая настройка</div>
+              <div style="display:flex; gap:5px; margin-bottom:10px;"><div style="width:22px; height:22px; border-radius:7px; background:var(--grad); outline:2px solid var(--acc); outline-offset:1px;"></div><div style="width:22px; height:22px; border-radius:7px; background:linear-gradient(135deg,#FF5E3A,#E8156F);"></div><div style="width:22px; height:22px; border-radius:7px; background:linear-gradient(135deg,#3B82FF,#1E5BFF);"></div><div style="width:22px; height:22px; border-radius:7px; background:linear-gradient(135deg,#8A5CFF,#FF5FA8);"></div></div>
+              <div style="height:5px; border-radius:999px; background:var(--s2); position:relative;"><div style="position:absolute; left:0; top:0; bottom:0; width:55%; border-radius:999px; background:var(--grad);"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- phone 2: browse sheet -->
+        <div style="flex:none; width:248px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--dim); margin-bottom:10px;">«Все шаблоны» — шит</div>
+          <div style="border-radius:30px; border:8px solid #1c1f22; background:var(--bg); overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.5);">
+            <div style="height:90px; background:radial-gradient(50% 60% at 50% 30%,rgba(0,230,192,.45),transparent 60%),linear-gradient(135deg,#08110f,#0a1a16);"></div>
+            <div style="background:var(--s1); border-top:1px solid var(--bd); border-radius:18px 18px 0 0; margin-top:-10px; padding:12px 10px 16px; position:relative;">
+              <div style="width:34px; height:4px; border-radius:999px; background:var(--s2); margin:0 auto 12px;"></div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:11px;"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:13px;">Шаблоны · Reels</span><span style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--mute);">37</span></div>
+              <div style="display:flex; gap:5px; margin-bottom:11px;"><span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:9px; padding:5px 9px; border-radius:999px; background:var(--grad); color:var(--on);">Все</span><span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:9px; padding:5px 9px; border-radius:999px; background:var(--s2); color:var(--dim);">Яркие</span><span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:9px; padding:5px 9px; border-radius:999px; background:var(--s2); color:var(--dim);">Глубокие</span></div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px;">
+                <div style="height:62px; border-radius:10px; border:1px solid var(--acc); background:radial-gradient(circle at 40% 35%,rgba(198,255,54,.5),transparent 60%),linear-gradient(135deg,#08110f,#0a1a16);"></div>
+                <div style="height:62px; border-radius:10px; border:1px solid var(--bd); background:radial-gradient(circle at 60% 50%,rgba(0,179,255,.4),transparent 60%),linear-gradient(135deg,#0a1622,#0e2233);"></div>
+                <div style="height:62px; border-radius:10px; border:1px solid var(--bd); background:conic-gradient(from 0deg,#0c2118,#11392c,#0c2118);"></div>
+                <div style="height:62px; border-radius:10px; border:1px solid var(--bd); background:repeating-linear-gradient(45deg,#0c2a24 0 6px,#103b31 6px 12px);"></div>
+                <div style="height:62px; border-radius:10px; border:1px solid var(--bd); background:radial-gradient(circle at 50% 50%,rgba(255,94,58,.4),transparent 55%),linear-gradient(135deg,#1a0f0c,#241410);"></div>
+                <div style="height:62px; border-radius:10px; border:1px solid var(--bd); background:radial-gradient(circle at 40% 60%,rgba(0,230,192,.4),transparent 55%),linear-gradient(135deg,#08110f,#0a1a16);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- phone 3: export states -->
+        <div style="flex:none; width:248px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--dim); margin-bottom:10px;">Запись — состояние</div>
+          <div style="border-radius:30px; border:8px solid #1c1f22; background:var(--bg); overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.5);">
+            <div style="height:200px; background:radial-gradient(50% 38% at 30% 24%,rgba(198,255,54,.45),transparent 60%),radial-gradient(55% 50% at 72% 68%,rgba(0,230,192,.55),transparent 60%),linear-gradient(135deg,#08110f,#0a1a16); position:relative;">
+              <div style="position:absolute; top:10px; left:10px; display:flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; background:rgba(10,14,13,.7); border:1px solid rgba(255,92,110,.5);"><div style="width:8px; height:8px; border-radius:999px; background:#FF5C6E; animation:zpulse 1s infinite;"></div><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#fff;">0:07</span></div>
+            </div>
+            <div style="padding:10px; border-bottom:1px solid var(--bd);">
+              <button style="width:100%; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; padding:11px; border:none; border-radius:11px; background:#FF5C6E; color:#fff;">■ Стоп и сохранить</button>
+            </div>
+            <div style="padding:14px 10px; display:flex; flex-direction:column; gap:9px;">
+              <div style="display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:11px; background:var(--hi); border:1px solid var(--bd);"><div style="width:20px; height:20px; border-radius:999px; background:var(--grad); display:flex; align-items:center; justify-content:center; color:var(--on); font-size:11px; font-weight:700;">✓</div><span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; color:var(--tx);">Готово. Лови файл</span></div>
+              <div style="font-family:'Nunito',sans-serif; font-size:11px; line-height:1.5; color:var(--mute);">Док остаётся прижат к превью — длинный список шаблонов больше не отделяет запись от результата.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 08 КАТЕГОРИИ/ЗАДАЧИ ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">08 · Как работают задачи (категории)</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px;">Задача настраивает всё за один тык</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--dim); margin:0 0 24px; max-width:700px;">Сейчас категория меняет только формат и подсказку. В новой модели задача — это пресет: формат + фильтр шаблонов + <b style="color:var(--tx);">рекомендованное действие экспорта</b> + поведенческие умолчания.</p>
+
+      <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; overflow:hidden;">
+        <div style="display:grid; grid-template-columns:1.3fr .7fr 1.4fr 1.6fr; padding:13px 18px; background:var(--s2); font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:var(--dim);">
+          <span>Задача</span><span>Формат</span><span>Рекоменд. экспорт</span><span>Поведение по умолчанию</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1.3fr .7fr 1.4fr 1.6fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; color:var(--dim); align-items:center;"><span style="color:var(--tx); font-weight:700;">Reels / TikTok</span><span style="font-family:'JetBrains Mono',monospace; font-size:12px;">9:16</span><span style="color:var(--acc); font-weight:700;">Видео MP4</span><span>Движение бодрее, видео-док первым</span></div>
+        <div style="display:grid; grid-template-columns:1.3fr .7fr 1.4fr 1.6fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; color:var(--dim); align-items:center;"><span style="color:var(--tx); font-weight:700;">Сторис</span><span style="font-family:'JetBrains Mono',monospace; font-size:12px;">9:16</span><span style="color:var(--acc); font-weight:700;">Видео MP4</span><span>Спокойнее, центр под текст свободен</span></div>
+        <div style="display:grid; grid-template-columns:1.3fr .7fr 1.4fr 1.6fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; color:var(--dim); align-items:center;"><span style="color:var(--tx); font-weight:700;">YouTube</span><span style="font-family:'JetBrains Mono',monospace; font-size:12px;">16:9</span><span style="color:var(--acc); font-weight:700;">PNG обложка</span><span>Текст слева, правый-низ свободен</span></div>
+        <div style="display:grid; grid-template-columns:1.3fr .7fr 1.4fr 1.6fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; color:var(--dim); align-items:center;"><span style="color:var(--tx); font-weight:700;">Фон под текст</span><span style="font-family:'JetBrains Mono',monospace; font-size:12px;">16:9</span><span style="color:var(--acc); font-weight:700;">PNG / Видео</span><span>Оверлей читаемости вкл., движение ↓</span></div>
+        <div style="display:grid; grid-template-columns:1.3fr .7fr 1.4fr 1.6fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; color:var(--dim); align-items:center;"><span style="color:var(--tx); font-weight:700;">Обложка</span><span style="font-family:'JetBrains Mono',monospace; font-size:12px;">4:5</span><span style="color:var(--acc); font-weight:700;">PNG</span><span>Кадр «заморожен», зерно умеренное</span></div>
+        <div style="display:grid; grid-template-columns:1.3fr .7fr 1.4fr 1.6fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; color:var(--dim); align-items:center;"><span style="color:var(--tx); font-weight:700;">Паттерн</span><span style="font-family:'JetBrains Mono',monospace; font-size:12px;">1:1</span><span style="color:var(--acc); font-weight:700;">PNG-плитка</span><span>Бесшовность <b style="color:var(--tx);">вкл. сразу</b>, поля-нетайлы скрыты</span></div>
+        <div style="display:grid; grid-template-columns:1.3fr .7fr 1.4fr 1.6fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; color:var(--dim); align-items:center;"><span style="color:var(--tx); font-weight:700;">Сайт</span><span style="font-family:'JetBrains Mono',monospace; font-size:12px;">авто</span><span style="color:var(--acc); font-weight:700;">&lt;zhizha-bg&gt;</span><span>Открывает слой «Для сайта», код наготове</span></div>
+      </div>
+      <p style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.6; color:var(--mute); margin:14px 2px 0;">Задачи масштабируемы: добавление новой задачи = одна строка пресета. «Абстрактный луп», «Презентация» и будущие — встают в тот же ряд без перестройки UI.</p>
+    </section>
+
+    <!-- ===== 09 ШАБЛОНЫ + ФИЛЬТРЫ ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">09 · Шаблоны и фильтры</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px;">Лента не толкает экспорт</h2>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px;">
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:22px;">
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:15px; margin-bottom:10px;">Что меняем</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.85; color:var(--dim);">· Desktop: лента шаблонов в своей вкладке со <b style="color:var(--tx);">внутренним скроллом</b> — quick-настройки и док не уезжают.<br>· Mobile: горизонтальная карусель топ-шаблонов + кнопка «Все» → шит на полэкрана.<br>· Фильтр-чипы остаются, но «Узоры/Графика» прячутся, если в задаче их нет.</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:22px;">
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:15px; margin-bottom:10px;">Что объясняем</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.85; color:var(--dim);">· Карточка показывает живое превью + 2 mood-тега — пользователь видит «что изменится» до клика.<br>· При выборе фильтра — короткий ярлык: «спокойные, под текст».<br>· Активный шаблон подсвечен и в ленте, и переносится в превью с лёгким пружинным переходом.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 10 БЫСТРЫЕ НАСТРОЙКИ + МОСТ ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">10 · Быстрые настройки · единый язык</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px;">Один параметр — одно имя</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--dim); margin:0 0 24px; max-width:680px;">Simple и Pro синхронят один state, но называют параметры по-разному. Делаем человеческое имя каноничным, техническое — подписью под ним в Pro.</p>
+
+      <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; overflow:hidden;">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; padding:13px 18px; background:var(--s2); font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:var(--dim);"><span>Было · Simple</span><span>Было · Pro</span><span>Стало · единое</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; color:var(--dim);"><span>Движение</span><span>Искажение</span><span style="color:var(--tx); font-weight:700;">Движение <span style="color:var(--mute); font-weight:400; font-size:12px;">(warp)</span></span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; color:var(--dim);"><span>Детализация</span><span>Масштаб</span><span style="color:var(--tx); font-weight:700;">Детализация <span style="color:var(--mute); font-weight:400; font-size:12px;">(scale)</span></span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; color:var(--dim);"><span>Эффект → Нет</span><span>Фактура → Квадрат</span><span style="color:var(--tx); font-weight:700;">Фактура → Гладкая</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; color:var(--dim);"><span>Скорость</span><span>Скорость</span><span style="color:var(--tx); font-weight:700;">Скорость <span style="color:var(--mute); font-weight:400; font-size:12px;">(speed)</span></span></div>
+      </div>
+
+      <div style="margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:18px;"><div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:14px; margin-bottom:6px;">5 контролов быстрого слоя</div><div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.6; color:var(--dim);">Цвет (палитра) · Скорость · Движение · Детализация · Фактура. Этого хватает 90% creator-задач.</div></div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:18px;"><div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:14px; margin-bottom:6px;">Мост Simple ↔ Pro</div><div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.6; color:var(--dim);">При переходе в Профи активная задача и шаблон остаются видны вверху, ползунки — с теми же значениями. Ничего не «теряется».</div></div>
+      </div>
+    </section>
+
+    <!-- ===== 11 ЭКСПОРТ ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">11 · Экспорт · адаптивный док</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px;">Главное действие = действие задачи</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--dim); margin:0 0 24px; max-width:680px;">Док переставляет приоритет под задачу. Reels → «Записать видео» крупно, PNG рядом. Обложка → наоборот. Сайт → «Скопировать код». Техническая мелочь (MP4/WebM, GPU) — в свёрнутом «?», не на свету.</p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;">
+        <!-- reels dock -->
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:16px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:var(--acc); margin-bottom:12px;">Reels</div>
+          <button style="width:100%; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:12px; border:none; border-radius:12px; background:var(--grad); color:var(--on); box-shadow:var(--gw); margin-bottom:8px;">● Записать видео</button>
+          <div style="display:flex; gap:8px;"><button style="flex:1; font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; padding:9px; border-radius:10px; background:var(--s2); color:var(--dim); border:1px solid var(--bd);">PNG</button><button style="flex:1; font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; padding:9px; border-radius:10px; background:var(--s2); color:var(--dim); border:1px solid var(--bd);">Ссылка</button></div>
+        </div>
+        <!-- cover dock -->
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:16px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:var(--acc); margin-bottom:12px;">Обложка</div>
+          <button style="width:100%; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:12px; border:none; border-radius:12px; background:var(--grad); color:var(--on); box-shadow:var(--gw); margin-bottom:8px;">↓ Скачать PNG</button>
+          <div style="display:flex; gap:8px;"><button style="flex:1; font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; padding:9px; border-radius:10px; background:var(--s2); color:var(--dim); border:1px solid var(--bd);">Видео</button><button style="flex:1; font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; padding:9px; border-radius:10px; background:var(--s2); color:var(--dim); border:1px solid var(--bd);">Ссылка</button></div>
+        </div>
+        <!-- site dock -->
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:16px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:var(--acc); margin-bottom:12px;">Сайт</div>
+          <button style="width:100%; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:12px; border:none; border-radius:12px; background:var(--grad); color:var(--on); box-shadow:var(--gw); margin-bottom:8px;">&lt;/&gt; Скопировать код</button>
+          <div style="display:flex; gap:8px;"><button style="flex:1; font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; padding:9px; border-radius:10px; background:var(--s2); color:var(--dim); border:1px solid var(--bd);">iframe</button><button style="flex:1; font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; padding:9px; border-radius:10px; background:var(--s2); color:var(--dim); border:1px solid var(--bd);">PNG</button></div>
+        </div>
+      </div>
+      <p style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.6; color:var(--mute); margin:14px 2px 0;">Разрешение и длительность — компактно в доке (чип «9:16 · 1080p», тык — поповер). Показываем реальные пиксели перед скачиванием. После — состояние «Готово».</p>
+    </section>
+
+    <!-- ===== 12 PRO ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">12 · Профи · постепенное раскрытие</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px;">Мощь без перегруза</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--dim); margin:0 0 24px; max-width:680px;">Профи — не отдельная вкладка-конкурент, а раскрываемая глубина быстрого слоя. Заголовки секций сворачиваются; открыто ровно то, что нужно.</p>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px;">
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:18px;"><div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; color:var(--acc); margin-bottom:8px;">ОТКРЫТО</div><div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.7; color:var(--dim);">Поле (тип) · Цвет · те же 5 контролов, что и в быстром слое — продолжение, не сброс.</div></div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:18px;"><div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; color:var(--dim); margin-bottom:8px;">СВЁРНУТО</div><div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.7; color:var(--dim);">Зерно · Бесшовность + плитки · Кастомные стопы · Размер ячейки/точки.</div></div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:18px;"><div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; color:var(--dim); margin-bottom:8px;">КОНТЕКСТНО</div><div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.7; color:var(--dim);">«Размер точки» — только при полутоне. Нетайлящиеся поля — серые/скрыты при бесшовном режиме.</div></div>
+      </div>
+    </section>
+
+    <!-- ===== 13 ДЛЯ САЙТА ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">13 · Блок «Для сайта»</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px;">Лучший способ — первым</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--dim); margin:0 0 22px; max-width:680px;">Сейчас UI даёт только iframe, хотя рекомендованный способ — web-компонент. Меняем порядок: <code style="font-family:'JetBrains Mono',monospace; color:var(--acc);">&lt;zhizha-bg&gt;</code> — основной, iframe и ссылка — альтернативы.</p>
+      <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:20px;">
+        <div style="display:flex; gap:8px; margin-bottom:14px;"><span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; padding:8px 14px; border-radius:10px; background:var(--grad); color:var(--on);">Web-компонент</span><span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; padding:8px 14px; border-radius:10px; background:var(--s2); color:var(--dim); border:1px solid var(--bd);">iframe</span><span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; padding:8px 14px; border-radius:10px; background:var(--s2); color:var(--dim); border:1px solid var(--bd);">Ссылка на сцену</span></div>
+        <pre style="margin:0; background:#05070A; border:1px solid var(--bd); border-radius:12px; padding:16px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.7; color:#9FB3AD;"><span style="color:#586862;">&lt;!-- подключи один раз --&gt;</span>
+&lt;script src=<span style="color:#C6FF36;">"https://zhizha.app/zhizha-bg.js"</span>&gt;&lt;/script&gt;
+
+<span style="color:#586862;">&lt;!-- фон-слой за контентом --&gt;</span>
+&lt;<span style="color:#00E6C0;">zhizha-bg</span> src=<span style="color:#C6FF36;">"https://zhizha.app/#s=…&amp;embed=1"</span>
+          fallback=<span style="color:#C6FF36;">"/bg.jpg"</span> z=<span style="color:#C6FF36;">"-1"</span>&gt;&lt;/<span style="color:#00E6C0;">zhizha-bg</span>&gt;</pre>
+        <div style="display:flex; gap:8px; margin-top:14px;"><button style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:11px 18px; border:none; border-radius:12px; background:var(--grad); color:var(--on); box-shadow:var(--gw);">&lt;/&gt; Скопировать</button><span style="font-family:'Nunito',sans-serif; font-size:12px; color:var(--mute); align-self:center;">pointer-events: none · loading: lazy · aria-hidden — встроено</span></div>
+      </div>
+    </section>
+
+    <!-- ===== 14 УРОВНИ НАСТРОЕК ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">14 · Что на первом уровне, что спрятано</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px;">Приоритет видимости</h2>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px;">
+        <div style="background:linear-gradient(160deg,rgba(0,230,192,.08),var(--s1)); border:1px solid var(--acc); border-radius:18px; padding:22px;">
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:16px; margin-bottom:12px; color:var(--acc);">Первый уровень</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:14px; line-height:1.9; color:var(--dim);">Задача · Шаблоны · Цвет · Скорость · Движение · Детализация · Фактура · Рекомендованный экспорт</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:22px;">
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:16px; margin-bottom:12px; color:var(--dim);">Спрятано (по запросу)</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:14px; line-height:1.9; color:var(--dim);">Тип поля · Зерно · Бесшовность + плитки · Кастомные стопы · Размер ячейки/точки · iframe/ссылка · Разрешение деталей · Тема UI · FPS/debug</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 15 СОСТОЯНИЯ ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">15 · Состояния UI</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 24px;">Понятная обратная связь на каждый шаг</h2>
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px;">
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:16px; min-height:118px;">
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:13px; margin-bottom:10px;">Пусто</div>
+          <div style="width:30px; height:30px; border-radius:9px; background:var(--glow); margin-bottom:10px; animation:zfloat 3s ease-in-out infinite;"></div>
+          <div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--mute);">«Выбери задачу — и поехали». Сразу живое превью дефолта.</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:16px; min-height:118px;">
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:13px; margin-bottom:10px;">Активно</div>
+          <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:999px; background:var(--grad); color:var(--on); font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; margin-bottom:10px;">Вспышка</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--mute);">Шаблон/чип подсвечен, превью пружинит к новому фону.</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:16px; min-height:118px;">
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:13px; margin-bottom:10px;">Запись</div>
+          <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:999px; background:rgba(255,92,110,.15); border:1px solid #FF5C6E; margin-bottom:10px;"><div style="width:7px; height:7px; border-radius:999px; background:#FF5C6E; animation:zpulse 1s infinite;"></div><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#fff;">0:07</span></div>
+          <div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--mute);">Красная точка + таймер, кнопка → «Стоп».</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:16px; min-height:118px;">
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:13px; margin-bottom:10px;">Экспорт</div>
+          <div style="height:6px; border-radius:999px; background:var(--s2); margin-bottom:10px; position:relative; overflow:hidden;"><div style="position:absolute; left:0; top:0; bottom:0; width:62%; background:var(--grad); border-radius:999px;"></div></div>
+          <div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--mute);">Рендер кадра/видео: прогресс + блокировка повторного клика.</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:16px; min-height:118px;">
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:13px; margin-bottom:10px;">Скопировано</div>
+          <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:999px; background:var(--hi); border:1px solid var(--bd); margin-bottom:10px;"><span style="color:var(--acc); font-weight:700;">✓</span><span style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--tx);">В буфере</span></div>
+          <div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--mute);">Тост + смена иконки кнопки на 2 сек.</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:16px; min-height:118px;">
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:13px; margin-bottom:10px;">Готово</div>
+          <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:999px; background:var(--grad); color:var(--on); margin-bottom:10px;"><span style="font-weight:700;">✓</span><span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px;">Лови файл</span></div>
+          <div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--mute);">Явное состояние успеха после скачивания.</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:16px; min-height:118px;">
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:13px; margin-bottom:10px;">Ошибка</div>
+          <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:999px; background:rgba(255,92,110,.12); border:1px solid #FF5C6E; margin-bottom:10px;"><span style="color:#FF5C6E; font-weight:700;">!</span><span style="font-family:'Nunito',sans-serif; font-size:11px; color:#fff;">Не вышло</span></div>
+          <div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--mute);">«Видео не записалось. Chrome или Edge справятся лучше».</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:16px; min-height:118px;">
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:13px; margin-bottom:10px;">Не поддержано</div>
+          <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:999px; background:var(--s2); border:1px solid var(--bd); margin-bottom:10px;"><span style="color:var(--warning,#FFC53D); font-weight:700;">⚠</span><span style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--dim);">WebGL off</span></div>
+          <div style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--mute);">Фоллбэк-картинка + подсказка, без белого экрана.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 16 A11Y ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">16 · Accessibility</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 22px;">Доступно для всех</h2>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:20px;"><div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:14px; margin-bottom:10px;">Структура и фокус</div><div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.8; color:var(--dim);">· Все «кнопки-divы» → нативные <code style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--acc);">&lt;button&gt;</code>.<br>· Тема — radio-group, не fake-menu.<br>· Карусель шаблонов — стрелки + roving tabindex, короткая дистанция до экспорта.</div></div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:20px;"><div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:14px; margin-bottom:10px;">Контраст и подписи</div><div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.8; color:var(--dim);">· Палитры с видимыми текст-подписями, не только title.<br>· Проверка контраста всех тем ≥ 4.5:1 для текста, ≥ 3:1 для UI.<br>· Mood-теги карточек доступны скринридеру.</div></div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:20px;"><div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:14px; margin-bottom:10px;">Движение</div><div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.8; color:var(--dim);">· prefers-reduced-motion → превью стартует статичным, есть явная «Оживить».<br>· Запись/экспорт работают и в статике.</div></div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:16px; padding:20px;"><div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:14px; margin-bottom:10px;">Статусы для AT</div><div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.8; color:var(--dim);">· Состояния запись/экспорт/готово/ошибка через <code style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--acc);">aria-live</code>.<br>· Таймер записи озвучивается дискретно, не каждую секунду.</div></div>
+      </div>
+    </section>
+
+    <!-- ===== 17 BEFORE→AFTER ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">17 · Конкретные изменения vs текущая версия</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 22px;">Что именно меняется</h2>
+      <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; overflow:hidden;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; padding:13px 18px; background:var(--s2); font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:var(--dim);"><span>Было</span><span style="color:var(--acc);">Стало</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; line-height:1.5;"><span style="color:var(--dim);">Экспорт после стены шаблонов</span><span style="color:var(--tx);">Action-док закреплён на превью</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; line-height:1.5;"><span style="color:var(--dim);">PNG всегда первой кнопкой</span><span style="color:var(--tx);">Главное действие = действие задачи</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; line-height:1.5;"><span style="color:var(--dim);">Паттерн обещает бесшовность, но не включает</span><span style="color:var(--tx);">Паттерн вкл. seamless + прячет нетайлы</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; line-height:1.5;"><span style="color:var(--dim);">Движение/Искажение — разные имена</span><span style="color:var(--tx);">Единый язык параметров + мост</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; line-height:1.5;"><span style="color:var(--dim);">Только iframe в UI</span><span style="color:var(--tx);">&lt;zhizha-bg&gt; первым, iframe/ссылка — рядом</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; line-height:1.5;"><span style="color:var(--dim);">Тема UI ≈ палитра сцены визуально</span><span style="color:var(--tx);">Тема — в углу с подписью, палитра — у фона</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; line-height:1.5;"><span style="color:var(--dim);">Mobile: длинный скролл до настроек</span><span style="color:var(--tx);">Карусель + шит, настройки сразу под превью</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; line-height:1.5;"><span style="color:var(--dim);">Нет проверки читаемости под текст</span><span style="color:var(--tx);">Оверлей читаемости в задаче «Под текст»</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; padding:14px 18px; border-top:1px solid var(--bd); font-family:'Nunito',sans-serif; font-size:13px; line-height:1.5;"><span style="color:var(--dim);">Нет явного «готово» после скачивания</span><span style="color:var(--tx);">Состояния exporting/готово/ошибка</span></div>
+      </div>
+    </section>
+
+    <!-- ===== 18 PRIORITIES ===== -->
+    <section style="padding:42px 0 24px; border-top:1px solid var(--bd);">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--mute); margin-bottom:8px;">18 · Приоритеты внедрения</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 22px;">Что сделать сначала</h2>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px;">
+        <div style="background:linear-gradient(160deg,rgba(0,230,192,.1),var(--s1)); border:1px solid var(--acc); border-radius:18px; padding:20px;">
+          <div style="display:inline-block; font-family:'Comfortaa',cursive; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px; background:var(--grad); color:var(--on); margin-bottom:14px;">P0 · сразу</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.85; color:var(--dim);">· Закреплённый action-док<br>· Рекомендованный экспорт под задачу<br>· Паттерн → авто-seamless<br>· Mobile: карусель + шит шаблонов</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:20px;">
+          <div style="display:inline-block; font-family:'Comfortaa',cursive; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px; background:var(--s2); color:var(--acc); border:1px solid var(--bd); margin-bottom:14px;">P1 · потом</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.85; color:var(--dim);">· Единый язык параметров + мост<br>· &lt;zhizha-bg&gt; в блоке «Для сайта»<br>· Тема UI вынесена и подписана<br>· Состояния exporting/готово/ошибка</div>
+        </div>
+        <div style="background:var(--s1); border:1px solid var(--bd); border-radius:18px; padding:20px;">
+          <div style="display:inline-block; font-family:'Comfortaa',cursive; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px; background:var(--s2); color:var(--mute); border:1px solid var(--bd); margin-bottom:14px;">P2 · развитие</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.85; color:var(--dim);">· Оверлей читаемости «Под текст»<br>· Недавние/избранные сцены, undo<br>· A11y-аудит всех тем<br>· Платформенные пресеты разрешений</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- footer -->
+    <div style="border-top:1px solid var(--bd); padding-top:24px; margin-top:24px; display:flex; align-items:center; gap:11px;">
+      <div style="width:28px; height:28px; border-radius:9px; background:var(--glow); display:flex; align-items:center; justify-content:center;"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:15px; color:var(--on);">Ж</span></div>
+      <span style="font-family:'Nunito',sans-serif; font-size:12px; color:var(--mute);">ЖИЖА · UX-редизайн · цель → шаблон → подстройка → экспорт · превью всегда в центре</span>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

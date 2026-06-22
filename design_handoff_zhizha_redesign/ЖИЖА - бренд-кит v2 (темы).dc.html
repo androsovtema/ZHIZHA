@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{ font-family:'Nunito',sans-serif; }
+  /* ----- определения тем: ТОЛЬКО цветовой слой. форма/шрифт/движение общие ----- */
+  .zhz-root{
+    /* Вольт — тема по умолчанию */
+    --zhz-bg:#07090A; --zhz-surface:#0E1113; --zhz-surface-2:#161A1C;
+    --zhz-border:rgba(255,255,255,.08); --zhz-hi:rgba(255,255,255,.045);
+    --zhz-text:#EAF7F2; --zhz-dim:#8FA39C; --zhz-mute:#586862;
+    --zhz-grad:linear-gradient(135deg,#C6FF36 0%,#00E6C0 100%);
+    --zhz-glow-grad:linear-gradient(135deg,#C6FF36 0%,#00E6C0 55%,#00B3FF 100%);
+    --zhz-accent:#00E6C0; --zhz-accent-2:#C6FF36; --zhz-accent-3:#00B3FF;
+    --zhz-on-accent:#07090A;
+    --zhz-glow:0 8px 28px rgba(0,230,192,.40);
+    --zhz-success:#00E6C0; --zhz-warning:#FFC53D; --zhz-danger:#FF5C6E;
+  }
+  .zhz-root[data-theme="karamel"]{
+    --zhz-bg:#0A0912; --zhz-surface:#12101D; --zhz-surface-2:#1A1726;
+    --zhz-border:rgba(255,255,255,.10); --zhz-hi:rgba(255,255,255,.06);
+    --zhz-text:#F4F1FF; --zhz-dim:#A39FB8; --zhz-mute:#6E6A86;
+    --zhz-grad:linear-gradient(135deg,#8A5CFF 0%,#FF5FA8 100%);
+    --zhz-glow-grad:linear-gradient(135deg,#FF5FA8 0%,#8A5CFF 55%,#2FE6C8 100%);
+    --zhz-accent:#8A5CFF; --zhz-accent-2:#FF5FA8; --zhz-accent-3:#2FE6C8;
+    --zhz-on-accent:#FFFFFF;
+    --zhz-glow:0 8px 28px rgba(138,92,255,.40);
+    --zhz-success:#2FE6C8; --zhz-warning:#FFB13D; --zhz-danger:#FF5C6E;
+  }
+  .zhz-root[data-theme="magma"]{
+    --zhz-bg:#0B0807; --zhz-surface:#140F0D; --zhz-surface-2:#1C1714;
+    --zhz-border:rgba(255,255,255,.09); --zhz-hi:rgba(255,255,255,.05);
+    --zhz-text:#FFF1E8; --zhz-dim:#B79E92; --zhz-mute:#6E5A4F;
+    --zhz-grad:linear-gradient(135deg,#FF5E3A 0%,#E8156F 100%);
+    --zhz-glow-grad:linear-gradient(135deg,#FFB627 0%,#FF5E3A 52%,#E8156F 100%);
+    --zhz-accent:#FF5E3A; --zhz-accent-2:#FFB627; --zhz-accent-3:#E8156F;
+    --zhz-on-accent:#FFFFFF;
+    --zhz-glow:0 8px 28px rgba(255,94,58,.42);
+    --zhz-success:#3BD17A; --zhz-warning:#FFB627; --zhz-danger:#FF4757;
+  }
+  .zhz-root[data-theme="chrome"]{
+    --zhz-bg:#0B0D11; --zhz-surface:#131720; --zhz-surface-2:#1A1F2A;
+    --zhz-border:rgba(255,255,255,.09); --zhz-hi:rgba(255,255,255,.05);
+    --zhz-text:#EEF1F6; --zhz-dim:#95A0AE; --zhz-mute:#586473;
+    --zhz-grad:linear-gradient(135deg,#3B82FF 0%,#1E5BFF 100%);
+    --zhz-glow-grad:linear-gradient(135deg,#8FB4FF 0%,#3B82FF 50%,#1E5BFF 100%);
+    --zhz-accent:#3B82FF; --zhz-accent-2:#8FB4FF; --zhz-accent-3:#1E5BFF;
+    --zhz-on-accent:#FFFFFF;
+    --zhz-glow:0 8px 28px rgba(59,130,255,.45);
+    --zhz-success:#22C55E; --zhz-warning:#F5A524; --zhz-danger:#FF4757;
+  }
+  .zhz-root, .zhz-root *{ transition: background-color .45s ease, color .45s ease, border-color .45s ease, box-shadow .45s ease; }
+  .zhz-tbtn{ transition: transform .14s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease !important; }
+  .zhz-tbtn:hover{ transform: translateY(-2px); }
+  .zhz-tbtn[data-active="true"]{ box-shadow:0 0 0 2px var(--zhz-bg), 0 0 0 4px var(--zhz-accent); }
+  @keyframes zhzFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
+</style>
+</helmet>
+
+<div class="zhz-root" data-theme="{{ theme }}" style="background:var(--zhz-bg); min-height:100vh; color:var(--zhz-text);">
+
+  <!-- ===== STICKY TOPBAR + THEME SWITCHER ===== -->
+  <div style="position:sticky; top:0; z-index:50; background:color-mix(in srgb, var(--zhz-bg) 82%, transparent); backdrop-filter:blur(18px); border-bottom:1px solid var(--zhz-border);">
+    <div style="max-width:1080px; margin:0 auto; padding:14px 32px; display:flex; align-items:center; gap:18px;">
+      <div style="display:flex; align-items:center; gap:11px; margin-right:auto;">
+        <div style="width:36px; height:36px; border-radius:12px; background:var(--zhz-glow-grad); display:flex; align-items:center; justify-content:center; box-shadow:var(--zhz-glow);"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:19px; color:var(--zhz-on-accent);">Ж</span></div>
+        <div style="display:flex; flex-direction:column; line-height:1;">
+          <span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:19px; letter-spacing:.5px; color:var(--zhz-text);">ЖИЖА</span>
+          <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:10px; letter-spacing:1.4px; text-transform:uppercase; color:var(--zhz-mute); margin-top:3px;">бренд-кит · v2</span>
+        </div>
+      </div>
+
+      <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; color:var(--zhz-dim); display:flex; align-items:center; gap:7px;">Тема:&nbsp;<b style="font-family:'Comfortaa',cursive; font-weight:700; color:var(--zhz-text);">{{ themeName }}</b></span>
+
+      <div style="display:flex; gap:12px; align-items:flex-start;">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer;" onClick="{{ pickVolt }}">
+          <div class="zhz-tbtn" data-active="{{ actVolt }}" style="width:34px; height:34px; border-radius:11px; background:linear-gradient(135deg,#C6FF36,#00E6C0,#00B3FF);"></div>
+          <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:10px; color:var(--zhz-dim);">Вольт</span>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer;" onClick="{{ pickKaramel }}">
+          <div class="zhz-tbtn" data-active="{{ actKaramel }}" style="width:34px; height:34px; border-radius:11px; background:linear-gradient(135deg,#FF5FA8,#8A5CFF,#2FE6C8);"></div>
+          <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:10px; color:var(--zhz-dim);">Карамель</span>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer;" onClick="{{ pickMagma }}">
+          <div class="zhz-tbtn" data-active="{{ actMagma }}" style="width:34px; height:34px; border-radius:11px; background:linear-gradient(135deg,#FFB627,#FF5E3A,#E8156F);"></div>
+          <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:10px; color:var(--zhz-dim);">Магма</span>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer;" onClick="{{ pickChrome }}">
+          <div class="zhz-tbtn" data-active="{{ actChrome }}" style="width:34px; height:34px; border-radius:11px; background:linear-gradient(135deg,#8FB4FF,#3B82FF,#1E5BFF);"></div>
+          <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:10px; color:var(--zhz-dim);">Хром</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:1080px; margin:0 auto; padding:0 32px 96px;">
+
+    <!-- ===== HERO ===== -->
+    <section style="padding:64px 0 40px;">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--zhz-accent); margin-bottom:14px;">Источник правды · версия 2.0</div>
+      <h1 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:54px; line-height:1.04; margin:0 0 20px; color:var(--zhz-text); max-width:880px; text-wrap:balance;">Один бренд, четыре характера</h1>
+      <p style="font-family:'Nunito',sans-serif; font-size:17px; line-height:1.6; color:var(--zhz-dim); margin:0; max-width:680px;">ЖИЖА осталась той же — округлой, тёплой, чуть дерзкой. Поменяли только цвет: вместо одной сладкой палитры теперь <b style="color:var(--zhz-text);">система из четырёх тем</b>. Жмякай свотчи вверху — весь документ переоденется на лету. То же самое увидит пользователь в меню тем.</p>
+
+      <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:28px;">
+        <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:9px 16px; border-radius:999px; background:var(--zhz-grad); color:var(--zhz-on-accent); box-shadow:var(--zhz-glow);">Вольт — по умолчанию</span>
+        <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:13px; padding:9px 16px; border-radius:999px; background:var(--zhz-surface); color:var(--zhz-dim); border:1px solid var(--zhz-border);">Карамель — наследие</span>
+        <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:13px; padding:9px 16px; border-radius:999px; background:var(--zhz-surface); color:var(--zhz-dim); border:1px solid var(--zhz-border);">Магма</span>
+        <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:13px; padding:9px 16px; border-radius:999px; background:var(--zhz-surface); color:var(--zhz-dim); border:1px solid var(--zhz-border);">Хром</span>
+      </div>
+    </section>
+
+    <!-- ===== ПРИНЦИП: ЧТО МЕНЯЕТСЯ / ЧТО НЕТ ===== -->
+    <section style="padding:32px 0;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px;">
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:22px; padding:26px;">
+          <div style="display:flex; align-items:center; gap:9px; margin-bottom:14px;"><div style="width:10px; height:10px; border-radius:999px; background:var(--zhz-accent); box-shadow:var(--zhz-glow);"></div><h3 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:17px; margin:0; color:var(--zhz-text);">Меняет тема</h3></div>
+          <ul style="margin:0; padding-left:18px; font-family:'Nunito',sans-serif; font-size:14px; line-height:1.85; color:var(--zhz-dim);">
+            <li>Фирменный градиент и акцентные цвета</li>
+            <li>Тон тёмной базы и поверхностей</li>
+            <li>Цвет текста и свечения (glow)</li>
+            <li>Цвет текста поверх акцента (тёмный/белый)</li>
+          </ul>
+        </div>
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:22px; padding:26px;">
+          <div style="display:flex; align-items:center; gap:9px; margin-bottom:14px;"><div style="width:10px; height:10px; border-radius:3px; background:var(--zhz-mute);"></div><h3 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:17px; margin:0; color:var(--zhz-text);">Не трогает никогда</h3></div>
+          <ul style="margin:0; padding-left:18px; font-family:'Nunito',sans-serif; font-size:14px; line-height:1.85; color:var(--zhz-dim);">
+            <li>Шрифты — Comfortaa + Nunito + JetBrains Mono</li>
+            <li>Tone of voice — на «ты», глагол вперёд, коротко</li>
+            <li>Радиусы, отступы, тени, пружинистое движение</li>
+            <li>Структуру и поведение компонентов</li>
+          </ul>
+        </div>
+      </div>
+      <p style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.6; color:var(--zhz-mute); margin:16px 2px 0;">Правило простое: тема — это <b style="color:var(--zhz-dim);">только цветовой слой</b>. Если правка трогает форму, шрифт или текст — это не тема, это изменение всей системы.</p>
+    </section>
+
+    <!-- ===== ГАЛЕРЕЯ ТЕМ ===== -->
+    <section style="padding:48px 0 24px;">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:8px;">01 · Темы</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px; color:var(--zhz-text);">Четыре настроения</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--zhz-dim); margin:0 0 28px; max-width:620px;">Каждая тема — своя сигнатура из 3 цветов на тёмной базе. Карточки показывают палитру независимо от активной темы.</p>
+
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px;">
+        <!-- Вольт -->
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:20px; overflow:hidden;">
+          <div style="height:96px; background:linear-gradient(135deg,#C6FF36,#00E6C0 55%,#00B3FF);"></div>
+          <div style="padding:16px;">
+            <div style="display:flex; align-items:center; gap:7px; margin-bottom:4px;"><h3 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:16px; margin:0; color:var(--zhz-text);">Вольт</h3><span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:9px; letter-spacing:.5px; text-transform:uppercase; padding:3px 7px; border-radius:999px; background:var(--zhz-grad); color:var(--zhz-on-accent);">дефолт</span></div>
+            <p style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--zhz-dim); margin:0 0 12px;">Кибер-электрик. Дерзко, технологично, заметно.</p>
+            <div style="display:flex; gap:5px;"><div style="flex:1; height:22px; border-radius:6px; background:#C6FF36;"></div><div style="flex:1; height:22px; border-radius:6px; background:#00E6C0;"></div><div style="flex:1; height:22px; border-radius:6px; background:#00B3FF;"></div></div>
+          </div>
+        </div>
+        <!-- Карамель -->
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:20px; overflow:hidden;">
+          <div style="height:96px; background:linear-gradient(135deg,#FF5FA8,#8A5CFF 55%,#2FE6C8);"></div>
+          <div style="padding:16px;">
+            <div style="display:flex; align-items:center; gap:7px; margin-bottom:4px;"><h3 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:16px; margin:0; color:var(--zhz-text);">Карамель</h3><span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:9px; letter-spacing:.5px; text-transform:uppercase; padding:3px 7px; border-radius:999px; background:var(--zhz-surface-2); color:var(--zhz-mute); border:1px solid var(--zhz-border);">наследие</span></div>
+            <p style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--zhz-dim); margin:0 0 12px;">Та самая первая. Мягко, сладко, по-домашнему.</p>
+            <div style="display:flex; gap:5px;"><div style="flex:1; height:22px; border-radius:6px; background:#FF5FA8;"></div><div style="flex:1; height:22px; border-radius:6px; background:#8A5CFF;"></div><div style="flex:1; height:22px; border-radius:6px; background:#2FE6C8;"></div></div>
+          </div>
+        </div>
+        <!-- Магма -->
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:20px; overflow:hidden;">
+          <div style="height:96px; background:linear-gradient(135deg,#FFB627,#FF5E3A 52%,#E8156F);"></div>
+          <div style="padding:16px;">
+            <h3 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:16px; margin:0 0 4px; color:var(--zhz-text);">Магма</h3>
+            <p style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--zhz-dim); margin:0 0 12px;">Тёплый огонь. Жарко, энергично, но не приторно.</p>
+            <div style="display:flex; gap:5px;"><div style="flex:1; height:22px; border-radius:6px; background:#FFB627;"></div><div style="flex:1; height:22px; border-radius:6px; background:#FF5E3A;"></div><div style="flex:1; height:22px; border-radius:6px; background:#E8156F;"></div></div>
+          </div>
+        </div>
+        <!-- Хром -->
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:20px; overflow:hidden;">
+          <div style="height:96px; background:linear-gradient(135deg,#8FB4FF,#3B82FF 50%,#1E5BFF);"></div>
+          <div style="padding:16px;">
+            <h3 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:16px; margin:0 0 4px; color:var(--zhz-text);">Хром</h3>
+            <p style="font-family:'Nunito',sans-serif; font-size:12px; line-height:1.5; color:var(--zhz-dim); margin:0 0 12px;">Холодный графит и один электрик-синий. Чётко, строго.</p>
+            <div style="display:flex; gap:5px;"><div style="flex:1; height:22px; border-radius:6px; background:#8FB4FF;"></div><div style="flex:1; height:22px; border-radius:6px; background:#3B82FF;"></div><div style="flex:1; height:22px; border-radius:6px; background:#1E5BFF;"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ЦВЕТ / ТОКЕНЫ ===== -->
+    <section style="padding:48px 0 24px;">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:8px;">02 · Цвет</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px; color:var(--zhz-text);">Токены активной темы</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--zhz-dim); margin:0 0 28px; max-width:620px;">Одни и те же имена переменных во всех темах — меняются только значения. Свотчи ниже живые: переключи тему вверху и смотри, как едут хексы.</p>
+
+      <!-- gradient hero -->
+      <div style="border-radius:22px; overflow:hidden; border:1px solid var(--zhz-border); margin-bottom:24px;">
+        <div style="height:120px; background:var(--zhz-glow-grad); display:flex; align-items:flex-end; padding:18px;"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:18px; color:var(--zhz-on-accent);">--zhz-glow-grad</span></div>
+        <div style="background:var(--zhz-surface); padding:16px 18px; display:flex; gap:24px; flex-wrap:wrap;">
+          <div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-mute);">--zhz-accent</div><div style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--zhz-text);">{{ tok.accent }}</div></div>
+          <div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-mute);">--zhz-accent-2</div><div style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--zhz-text);">{{ tok.accent2 }}</div></div>
+          <div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-mute);">--zhz-accent-3</div><div style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--zhz-text);">{{ tok.accent3 }}</div></div>
+          <div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-mute);">--zhz-on-accent</div><div style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--zhz-text);">{{ tok.onAccent }}</div></div>
+        </div>
+      </div>
+
+      <!-- token grid -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <!-- base -->
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:18px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:14px;">База и поверхности</div>
+          <div style="display:flex; flex-direction:column; gap:11px;">
+            <div style="display:flex; align-items:center; gap:12px;"><div style="width:40px; height:40px; border-radius:9px; background:var(--zhz-bg); border:1px solid var(--zhz-border); flex:none;"></div><div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-text);">--zhz-bg</div><div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">Фон приложения</div></div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-dim);">{{ tok.bg }}</div></div>
+            <div style="display:flex; align-items:center; gap:12px;"><div style="width:40px; height:40px; border-radius:9px; background:var(--zhz-surface-2); border:1px solid var(--zhz-border); flex:none;"></div><div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-text);">--zhz-surface</div><div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">Карточки, секции</div></div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-dim);">{{ tok.surface }}</div></div>
+            <div style="display:flex; align-items:center; gap:12px;"><div style="width:40px; height:40px; border-radius:9px; background:var(--zhz-surface-2); border:1px solid var(--zhz-border); flex:none; opacity:.7;"></div><div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-text);">--zhz-surface-2</div><div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">Ховер-поверхности</div></div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-dim);">{{ tok.surface2 }}</div></div>
+          </div>
+        </div>
+        <!-- text -->
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:18px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:14px;">Текст</div>
+          <div style="display:flex; flex-direction:column; gap:11px;">
+            <div style="display:flex; align-items:center; gap:12px;"><div style="width:40px; height:40px; border-radius:9px; background:var(--zhz-text); flex:none;"></div><div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-text);">--zhz-text</div><div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">Основной</div></div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-dim);">{{ tok.text }}</div></div>
+            <div style="display:flex; align-items:center; gap:12px;"><div style="width:40px; height:40px; border-radius:9px; background:var(--zhz-dim); flex:none;"></div><div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-text);">--zhz-dim</div><div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">Вторичный</div></div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-dim);">{{ tok.dim }}</div></div>
+            <div style="display:flex; align-items:center; gap:12px;"><div style="width:40px; height:40px; border-radius:9px; background:var(--zhz-mute); flex:none;"></div><div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-text);">--zhz-mute</div><div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">Подсказки</div></div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-dim);">{{ tok.mute }}</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- semantic -->
+      <div style="display:flex; gap:14px; margin-top:14px;">
+        <div style="flex:1; background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:16px; padding:16px; display:flex; align-items:center; gap:12px;"><div style="width:36px; height:36px; border-radius:9px; background:var(--zhz-success);"></div><div><div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-text);">--zhz-success</div><div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">Готово</div></div></div>
+        <div style="flex:1; background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:16px; padding:16px; display:flex; align-items:center; gap:12px;"><div style="width:36px; height:36px; border-radius:9px; background:var(--zhz-warning);"></div><div><div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-text);">--zhz-warning</div><div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">Внимание</div></div></div>
+        <div style="flex:1; background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:16px; padding:16px; display:flex; align-items:center; gap:12px;"><div style="width:36px; height:36px; border-radius:9px; background:var(--zhz-danger);"></div><div><div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-text);">--zhz-danger</div><div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">Ошибка</div></div></div>
+      </div>
+
+      <div style="margin-top:18px; padding:16px 18px; border-radius:16px; border:1px dashed var(--zhz-border); background:var(--zhz-hi);">
+        <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--zhz-text); margin-bottom:6px;">Правила цвета — общие для всех тем</div>
+        <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.7; color:var(--zhz-dim);">Один градиент в кадре среди соседних UI-элементов · градиент — только для действия и активности, не для фонов секций · текст на акценте — <code style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-text);">--zhz-on-accent</code>, контраст ≥ 4.5:1 · палитры самого холста — это контент, а не UI-токены.</div>
+      </div>
+    </section>
+
+    <!-- ===== ТИПОГРАФИКА ===== -->
+    <section style="padding:48px 0 24px;">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:8px;">03 · Типографика — общая для всех тем</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px; color:var(--zhz-text);">Те же округлые шрифты</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--zhz-dim); margin:0 0 28px; max-width:620px;">Шрифты не зависят от темы. Comfortaa — крупные акценты и лого, Nunito — весь интерфейс, JetBrains Mono — код.</p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:24px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px;"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:14px; color:var(--zhz-accent);">Comfortaa</span><span style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">500 / 700 · ≥18px</span></div>
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:44px; line-height:1.05; color:var(--zhz-text);">Живые фоны</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:12px; color:var(--zhz-mute); margin-top:10px;">Лого, заголовки, ярлыки шаблонов, числа-герои.</div>
+        </div>
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:24px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px;"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:14px; color:var(--zhz-accent);">Nunito</span><span style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">400 / 600 / 700 · 11–14px</span></div>
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:21px; color:var(--zhz-text);">Покрути, выбери, скачай</div>
+          <div style="font-family:'Nunito',sans-serif; font-weight:400; font-size:14px; color:var(--zhz-dim); margin-top:6px; line-height:1.5;">Весь интерфейс панели: подписи, кнопки, значения, подсказки и бодикопи.</div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-mute); margin-top:12px;">#s=a3f9 · JetBrains Mono для кода</div>
+        </div>
+      </div>
+
+      <!-- type scale -->
+      <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:8px 22px; margin-top:14px;">
+        <div style="display:flex; align-items:center; gap:16px; padding:14px 0; border-bottom:1px solid var(--zhz-border);"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:40px; color:var(--zhz-text); flex:1;">Display 40</span><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-mute);">Comfortaa 700 · 40/1.05</span></div>
+        <div style="display:flex; align-items:center; gap:16px; padding:14px 0; border-bottom:1px solid var(--zhz-border);"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:22px; color:var(--zhz-text); flex:1;">H1 — экраны и лого</span><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-mute);">Comfortaa 700 · 22/1.15</span></div>
+        <div style="display:flex; align-items:center; gap:16px; padding:14px 0; border-bottom:1px solid var(--zhz-border);"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:16px; color:var(--zhz-text); flex:1;">H2 — названия шаблонов</span><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-mute);">Comfortaa 700 · 16/1.2</span></div>
+        <div style="display:flex; align-items:center; gap:16px; padding:14px 0; border-bottom:1px solid var(--zhz-border);"><span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--zhz-dim); flex:1;">LABEL — заголовок секции</span><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-mute);">Nunito 700 · 11 · +1.2px</span></div>
+        <div style="display:flex; align-items:center; gap:16px; padding:14px 0;"><span style="font-family:'Nunito',sans-serif; font-weight:400; font-size:13px; color:var(--zhz-text); flex:1;">Body — основной текст панели</span><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-mute);">Nunito 400 · 13/1.5</span></div>
+      </div>
+    </section>
+
+    <!-- ===== ФОРМА: РАДИУСЫ / ТЕНИ / ДВИЖЕНИЕ ===== -->
+    <section style="padding:48px 0 24px;">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:8px;">04 · Форма — общая для всех тем</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px; color:var(--zhz-text);">Округлость и пружина</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--zhz-dim); margin:0 0 28px; max-width:620px;">Никаких острых углов: всё интерактивное — радиус ≥ 12px. Чем крупнее элемент, тем больше скругление.</p>
+
+      <div style="display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap; margin-bottom:24px;">
+        <div style="text-align:center;"><div style="width:64px; height:64px; border-radius:8px; background:var(--zhz-grad);"></div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-dim); margin-top:8px;">xs · 8</div></div>
+        <div style="text-align:center;"><div style="width:64px; height:64px; border-radius:12px; background:var(--zhz-grad);"></div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-dim); margin-top:8px;">sm · 12</div></div>
+        <div style="text-align:center;"><div style="width:64px; height:64px; border-radius:16px; background:var(--zhz-grad);"></div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-dim); margin-top:8px;">md · 16</div></div>
+        <div style="text-align:center;"><div style="width:64px; height:64px; border-radius:22px; background:var(--zhz-grad);"></div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-dim); margin-top:8px;">lg · 22</div></div>
+        <div style="text-align:center;"><div style="width:64px; height:64px; border-radius:28px; background:var(--zhz-grad);"></div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-dim); margin-top:8px;">xl · 28</div></div>
+        <div style="text-align:center;"><div style="width:64px; height:64px; border-radius:999px; background:var(--zhz-grad);"></div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhz-dim); margin-top:8px;">pill · 999</div></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:22px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:16px;">Тени и свечение</div>
+          <div style="display:flex; gap:18px; align-items:center;">
+            <div style="width:80px; height:56px; border-radius:14px; background:var(--zhz-surface-2); box-shadow:0 8px 24px rgba(0,0,0,.35);"></div>
+            <div style="width:80px; height:56px; border-radius:14px; background:var(--zhz-grad); box-shadow:var(--zhz-glow);"></div>
+          </div>
+          <div style="font-family:'Nunito',sans-serif; font-size:12px; color:var(--zhz-mute); margin-top:14px; line-height:1.6;">Glow — фирменный приём: action будто светится изнутри. Цвет свечения едет за темой через <code style="font-family:'JetBrains Mono',monospace; color:var(--zhz-dim);">--zhz-glow</code>.</div>
+        </div>
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:22px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:16px;">Движение</div>
+          <div style="display:flex; flex-direction:column; gap:9px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-dim); line-height:1.5;">
+            <div><span style="color:var(--zhz-accent);">--ease-goo</span> cubic-bezier(.34,1.56,.64,1)</div>
+            <div><span style="color:var(--zhz-accent);">--ease-soft</span> cubic-bezier(.4,0,.2,1)</div>
+            <div style="color:var(--zhz-mute);">dur 120 · 200 · 320 · 600ms</div>
+          </div>
+          <div style="font-family:'Nunito',sans-serif; font-size:12px; color:var(--zhz-mute); margin-top:14px; line-height:1.6;">Ховеры пружинят (goo), нажатие — scale(.97). Появления — soft.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== КОМПОНЕНТЫ ===== -->
+    <section style="padding:48px 0 24px;">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:8px;">05 · Компоненты</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px; color:var(--zhz-text);">Живые, под активной темой</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--zhz-dim); margin:0 0 28px; max-width:620px;">Структура компонентов одна на все темы. Переключай свотчи — меняется только цвет.</p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+
+        <!-- buttons -->
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:22px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:16px;">Кнопки</div>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <button style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:11px 20px; border:none; border-radius:999px; background:var(--zhz-grad); color:var(--zhz-on-accent); box-shadow:var(--zhz-glow); cursor:pointer;" style-hover="transform:translateY(-1px);">Скачать видео</button>
+            <button style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:11px 18px; border-radius:12px; background:var(--zhz-hi); color:var(--zhz-text); border:1px solid var(--zhz-border); cursor:pointer;">Профи</button>
+            <button style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:11px 18px; border-radius:999px; background:var(--zhz-surface-2); color:var(--zhz-mute); border:none; cursor:not-allowed;">Disabled</button>
+          </div>
+        </div>
+
+        <!-- chips -->
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:22px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:16px;">Чипсы-категории</div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; padding:8px 15px; border-radius:999px; background:var(--zhz-grad); color:var(--zhz-on-accent);">Клиповые</span>
+            <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; padding:8px 15px; border-radius:999px; background:var(--zhz-hi); color:var(--zhz-dim); border:1px solid var(--zhz-border);">Спокойные</span>
+            <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; padding:8px 15px; border-radius:999px; background:var(--zhz-hi); color:var(--zhz-dim); border:1px solid var(--zhz-border);">Глубокие</span>
+            <span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; padding:8px 15px; border-radius:999px; background:var(--zhz-hi); color:var(--zhz-dim); border:1px solid var(--zhz-border);">Графика</span>
+          </div>
+        </div>
+
+        <!-- slider + toggle -->
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:22px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:16px;">Слайдер и тогл</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:9px;"><span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--zhz-dim);">Движение</span><span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--zhz-text);">0.74</span></div>
+          <div style="position:relative; height:6px; border-radius:999px; background:var(--zhz-surface-2);"><div style="position:absolute; left:0; top:0; bottom:0; width:74%; border-radius:999px; background:var(--zhz-grad);"></div><div style="position:absolute; left:74%; top:50%; transform:translate(-50%,-50%); width:16px; height:16px; border-radius:999px; background:#fff; border:2px solid var(--zhz-accent); box-shadow:var(--zhz-glow);"></div></div>
+          <div style="display:flex; align-items:center; gap:10px; margin-top:18px;"><span style="font-family:'Nunito',sans-serif; font-weight:600; font-size:13px; color:var(--zhz-dim);">Бесшовный</span><div style="width:44px; height:25px; border-radius:999px; background:var(--zhz-grad); position:relative;"><div style="position:absolute; right:3px; top:3px; width:19px; height:19px; border-radius:999px; background:#fff;"></div></div></div>
+        </div>
+
+        <!-- template card -->
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:22px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:16px;">Карточка шаблона · активная</div>
+          <div style="border-radius:16px; border:1px solid var(--zhz-accent); padding:10px; background:var(--zhz-hi); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--zhz-accent) 30%, transparent), var(--zhz-glow);">
+            <div style="height:78px; border-radius:11px; background:var(--zhz-glow-grad);"></div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:10px;"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:13px; color:var(--zhz-text);">Кислотный клип</span><span style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-dim);">быстро · ярко</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- empty state -->
+      <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:34px; margin-top:14px; text-align:center;">
+        <div style="width:54px; height:54px; border-radius:16px; background:var(--zhz-glow-grad); margin:0 auto 16px; box-shadow:var(--zhz-glow); animation:zhzFloat 3s ease-in-out infinite;"></div>
+        <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:18px; color:var(--zhz-text); margin-bottom:6px;">Тут пока пусто</div>
+        <div style="font-family:'Nunito',sans-serif; font-size:14px; color:var(--zhz-dim);">Тыкни в шаблон выше — и ЖИЖА оживёт 👇</div>
+      </div>
+    </section>
+
+    <!-- ===== СМЕНА ТЕМЫ ===== -->
+    <section style="padding:48px 0 24px;">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:8px;">06 · Смена темы</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px; color:var(--zhz-text);">Как пользователь меняет оформление</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--zhz-dim); margin:0 0 28px; max-width:620px;">Меню тем живёт в настройках. По умолчанию у каждого новенького стоит <b style="color:var(--zhz-text);">Вольт</b> — выбор остаётся за пользователем и запоминается.</p>
+
+      <div style="display:grid; grid-template-columns:1.1fr .9fr; gap:18px; align-items:start;">
+        <!-- mock theme menu -->
+        <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:22px; padding:20px;">
+          <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:15px; color:var(--zhz-text); margin-bottom:4px;">Тема оформления</div>
+          <div style="font-family:'Nunito',sans-serif; font-size:12px; color:var(--zhz-mute); margin-bottom:16px;">Выбери под настроение — применится сразу.</div>
+          <div style="display:flex; flex-direction:column; gap:9px;">
+            <div onClick="{{ pickVolt }}" data-active="{{ actVolt }}" class="zhz-menurow" style="display:flex; align-items:center; gap:13px; padding:12px; border-radius:14px; cursor:pointer; background:var(--zhz-hi); border:1px solid var(--zhz-border);">
+              <div style="width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,#C6FF36,#00E6C0,#00B3FF); flex:none;"></div>
+              <div style="flex:1;"><div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--zhz-text);">Вольт</div><div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">Кибер-электрик · по умолчанию</div></div>
+              <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--zhz-accent);">{{ markVolt }}</span>
+            </div>
+            <div onClick="{{ pickKaramel }}" style="display:flex; align-items:center; gap:13px; padding:12px; border-radius:14px; cursor:pointer; background:transparent; border:1px solid transparent;">
+              <div style="width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,#FF5FA8,#8A5CFF,#2FE6C8); flex:none;"></div>
+              <div style="flex:1;"><div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--zhz-text);">Карамель</div><div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">Наследие · мягко и сладко</div></div>
+              <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--zhz-accent);">{{ markKaramel }}</span>
+            </div>
+            <div onClick="{{ pickMagma }}" style="display:flex; align-items:center; gap:13px; padding:12px; border-radius:14px; cursor:pointer; background:transparent; border:1px solid transparent;">
+              <div style="width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,#FFB627,#FF5E3A,#E8156F); flex:none;"></div>
+              <div style="flex:1;"><div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--zhz-text);">Магма</div><div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">Тёплый огонь</div></div>
+              <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--zhz-accent);">{{ markMagma }}</span>
+            </div>
+            <div onClick="{{ pickChrome }}" style="display:flex; align-items:center; gap:13px; padding:12px; border-radius:14px; cursor:pointer; background:transparent; border:1px solid transparent;">
+              <div style="width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,#8FB4FF,#3B82FF,#1E5BFF); flex:none;"></div>
+              <div style="flex:1;"><div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--zhz-text);">Хром</div><div style="font-family:'Nunito',sans-serif; font-size:11px; color:var(--zhz-mute);">Холодный графит</div></div>
+              <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--zhz-accent);">{{ markChrome }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- rules -->
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:18px;">
+            <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:14px; color:var(--zhz-text); margin-bottom:6px;">Вольт — приоритет</div>
+            <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.6; color:var(--zhz-dim);">Дефолт для всех новых пользователей и для маркетинга, скриншотов сторов, OG-картинок. Лицо бренда — Вольт.</div>
+          </div>
+          <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:18px;">
+            <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:14px; color:var(--zhz-text); margin-bottom:6px;">Запоминаем выбор</div>
+            <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.6; color:var(--zhz-dim);">Тема пишется в <code style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-text);">localStorage['zhz-theme']</code> и поднимается на старте. Нет значения → Вольт.</div>
+          </div>
+          <div style="background:var(--zhz-surface); border:1px solid var(--zhz-border); border-radius:18px; padding:18px;">
+            <div style="font-family:'Comfortaa',cursive; font-weight:700; font-size:14px; color:var(--zhz-text); margin-bottom:6px;">Применяется мгновенно</div>
+            <div style="font-family:'Nunito',sans-serif; font-size:13px; line-height:1.6; color:var(--zhz-dim);">Переключение — это смена одного атрибута <code style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--zhz-text);">data-theme</code> на корне. Мягкий кросс-фейд 0.45s, без перезагрузки.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ПРИЛОЖЕНИЕ: КОД ===== -->
+    <section style="padding:48px 0 24px;">
+      <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--zhz-mute); margin-bottom:8px;">07 · Приложение</div>
+      <h2 style="font-family:'Comfortaa',cursive; font-weight:700; font-size:30px; margin:0 0 8px; color:var(--zhz-text);">Код тем — готов к вставке</h2>
+      <p style="font-family:'Nunito',sans-serif; font-size:15px; line-height:1.6; color:var(--zhz-dim); margin:0 0 24px; max-width:620px;">Общие токены (форма, движение) в <code style="font-family:'JetBrains Mono',monospace; color:var(--zhz-text);">:root</code>, цветовой слой — в блоках <code style="font-family:'JetBrains Mono',monospace; color:var(--zhz-text);">[data-theme]</code>. По умолчанию активна Вольт.</p>
+
+      <pre style="background:#05070A; border:1px solid var(--zhz-border); border-radius:18px; padding:22px; overflow-x:auto; margin:0 0 16px; font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.7; color:#9FB3AD;"><span style="color:#586862;">/* ОБЩЕЕ для всех тем — форма, движение, шкала */</span>
+<span style="color:#C6FF36;">:root</span>{
+  --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:22px; --r-xl:28px; --r-pill:999px;
+  --shadow-panel:0 20px 60px rgba(0,0,0,.55);
+  --shadow-card:0 8px 24px rgba(0,0,0,.35);
+  --ease-goo:cubic-bezier(.34,1.56,.64,1);
+  --ease-soft:cubic-bezier(.4,0,.2,1);
+  --dur-1:120ms; --dur-2:200ms; --dur-3:320ms; --dur-4:600ms;
+}
+
+<span style="color:#586862;">/* ВОЛЬТ — тема по умолчанию */</span>
+<span style="color:#C6FF36;">:root</span>, <span style="color:#C6FF36;">[data-theme="volt"]</span>{
+  --bg:#07090A; --surface:#0E1113; --surface-2:#161A1C;
+  --text:#EAF7F2; --text-dim:#8FA39C; --text-mute:#586862;
+  --grad:linear-gradient(135deg,#C6FF36 0%,#00E6C0 100%);
+  --glow-grad:linear-gradient(135deg,#C6FF36 0%,#00E6C0 55%,#00B3FF 100%);
+  --accent:#00E6C0; --accent-2:#C6FF36; --accent-3:#00B3FF;
+  --on-accent:#07090A; --glow:0 8px 28px rgba(0,230,192,.40);
+  --success:#00E6C0; --warning:#FFC53D; --danger:#FF5C6E;
+}
+
+<span style="color:#586862;">/* КАРАМЕЛЬ — наследие */</span>
+<span style="color:#FF5FA8;">[data-theme="karamel"]</span>{
+  --bg:#0A0912; --surface:#12101D; --surface-2:#1A1726;
+  --text:#F4F1FF; --text-dim:#A39FB8; --text-mute:#6E6A86;
+  --grad:linear-gradient(135deg,#8A5CFF 0%,#FF5FA8 100%);
+  --glow-grad:linear-gradient(135deg,#FF5FA8 0%,#8A5CFF 55%,#2FE6C8 100%);
+  --accent:#8A5CFF; --accent-2:#FF5FA8; --accent-3:#2FE6C8;
+  --on-accent:#FFFFFF; --glow:0 8px 28px rgba(138,92,255,.40);
+  --success:#2FE6C8; --warning:#FFB13D; --danger:#FF5C6E;
+}
+
+<span style="color:#586862;">/* МАГМА */</span>
+<span style="color:#FF5E3A;">[data-theme="magma"]</span>{
+  --bg:#0B0807; --surface:#140F0D; --surface-2:#1C1714;
+  --text:#FFF1E8; --text-dim:#B79E92; --text-mute:#6E5A4F;
+  --grad:linear-gradient(135deg,#FF5E3A 0%,#E8156F 100%);
+  --glow-grad:linear-gradient(135deg,#FFB627 0%,#FF5E3A 52%,#E8156F 100%);
+  --accent:#FF5E3A; --accent-2:#FFB627; --accent-3:#E8156F;
+  --on-accent:#FFFFFF; --glow:0 8px 28px rgba(255,94,58,.42);
+  --success:#3BD17A; --warning:#FFB627; --danger:#FF4757;
+}
+
+<span style="color:#586862;">/* ХРОМ */</span>
+<span style="color:#3B82FF;">[data-theme="chrome"]</span>{
+  --bg:#0B0D11; --surface:#131720; --surface-2:#1A1F2A;
+  --text:#EEF1F6; --text-dim:#95A0AE; --text-mute:#586473;
+  --grad:linear-gradient(135deg,#3B82FF 0%,#1E5BFF 100%);
+  --glow-grad:linear-gradient(135deg,#8FB4FF 0%,#3B82FF 50%,#1E5BFF 100%);
+  --accent:#3B82FF; --accent-2:#8FB4FF; --accent-3:#1E5BFF;
+  --on-accent:#FFFFFF; --glow:0 8px 28px rgba(59,130,255,.45);
+  --success:#22C55E; --warning:#F5A524; --danger:#FF4757;
+}</pre>
+
+      <pre style="background:#05070A; border:1px solid var(--zhz-border); border-radius:18px; padding:22px; overflow-x:auto; margin:0; font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.7; color:#9FB3AD;"><span style="color:#586862;">// применение и сохранение темы</span>
+<span style="color:#C6FF36;">function</span> setTheme(name){
+  document.documentElement.dataset.theme = name;   <span style="color:#586862;">// 'volt' | 'karamel' | 'magma' | 'chrome'</span>
+  localStorage.setItem(<span style="color:#FFC53D;">'zhz-theme'</span>, name);
+}
+<span style="color:#586862;">// на старте: сохранённая тема или Вольт по умолчанию</span>
+setTheme(localStorage.getItem(<span style="color:#FFC53D;">'zhz-theme'</span>) || <span style="color:#FFC53D;">'volt'</span>);</pre>
+    </section>
+
+    <!-- footer -->
+    <div style="border-top:1px solid var(--zhz-border); padding-top:24px; margin-top:24px; display:flex; align-items:center; gap:11px;">
+      <div style="width:28px; height:28px; border-radius:9px; background:var(--zhz-glow-grad); display:flex; align-items:center; justify-content:center;"><span style="font-family:'Comfortaa',cursive; font-weight:700; font-size:15px; color:var(--zhz-on-accent);">Ж</span></div>
+      <span style="font-family:'Nunito',sans-serif; font-size:12px; color:var(--zhz-mute);">ЖИЖА · бренд-кит v2 · система из 4 тем · шрифты и голос — без изменений</span>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { theme: 'volt' };
+
+  componentDidMount(){
+    try {
+      const saved = localStorage.getItem('zhz-theme');
+      if (saved && ['volt','karamel','magma','chrome'].includes(saved)) {
+        this.setState({ theme: saved });
+      }
+    } catch(e){}
+  }
+
+  pick(name){
+    this.setState({ theme: name });
+    try { localStorage.setItem('zhz-theme', name); } catch(e){}
+  }
+
+  renderVals(){
+    const t = this.state.theme;
+    const META = {
+      volt:    { name:'Вольт',    bg:'#07090A', surface:'#0E1113', surface2:'#161A1C', text:'#EAF7F2', dim:'#8FA39C', mute:'#586862', accent:'#00E6C0', accent2:'#C6FF36', accent3:'#00B3FF', onAccent:'#07090A' },
+      karamel: { name:'Карамель', bg:'#0A0912', surface:'#12101D', surface2:'#1A1726', text:'#F4F1FF', dim:'#A39FB8', mute:'#6E6A86', accent:'#8A5CFF', accent2:'#FF5FA8', accent3:'#2FE6C8', onAccent:'#FFFFFF' },
+      magma:   { name:'Магма',    bg:'#0B0807', surface:'#140F0D', surface2:'#1C1714', text:'#FFF1E8', dim:'#B79E92', mute:'#6E5A4F', accent:'#FF5E3A', accent2:'#FFB627', accent3:'#E8156F', onAccent:'#FFFFFF' },
+      chrome:  { name:'Хром',     bg:'#0B0D11', surface:'#131720', surface2:'#1A1F2A', text:'#EEF1F6', dim:'#95A0AE', mute:'#586473', accent:'#3B82FF', accent2:'#8FB4FF', accent3:'#1E5BFF', onAccent:'#FFFFFF' },
+    };
+    const m = META[t];
+    return {
+      theme: t,
+      themeName: m.name,
+      tok: m,
+      actVolt: t === 'volt',
+      actKaramel: t === 'karamel',
+      actMagma: t === 'magma',
+      actChrome: t === 'chrome',
+      markVolt: t === 'volt' ? '✓' : '',
+      markKaramel: t === 'karamel' ? '✓' : '',
+      markMagma: t === 'magma' ? '✓' : '',
+      markChrome: t === 'chrome' ? '✓' : '',
+      pickVolt: () => this.pick('volt'),
+      pickKaramel: () => this.pick('karamel'),
+      pickMagma: () => this.pick('magma'),
+      pickChrome: () => this.pick('chrome'),
+    };
+  }
+}
+</script>
+</body>
+</html>

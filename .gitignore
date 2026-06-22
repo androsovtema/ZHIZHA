@@ -1,2 +1,6 @@
 .DS_Store
 .claude/
+
+# архивы и временные экспорты дизайна (перекрыты design_handoff_zhizha_redesign/)
+*.zip
+Редизайн бренд кита платформы/
