@@ -196,7 +196,9 @@
   /* Stage / canvas (правая колонка — фон всегда виден целиком, не перекрыт) */
   #stage{ position: relative; grid-column: 2; grid-row: 2; height: calc(100vh - 52px); display: grid; place-items: center; padding: 24px; }
   body.embed #stage{ grid-column: 1; grid-row: 1; height: 100vh; }
-  #stageInner{ position: relative; height: 100%; width: 100%; display: grid; place-items: center; }
+  /* нижний резерв = высота дока + зазор, чтобы превью не уезжало под док-меню */
+  #stageInner{ position: relative; height: 100%; width: 100%; display: grid; place-items: center;
+    box-sizing: border-box; padding-bottom: var(--dock-reserve, 0px); }
   #canvasWrap{
     position: relative; border-radius: 18px; overflow: hidden;
     box-shadow: var(--shadow); background: #000; line-height: 0;
@@ -630,7 +632,7 @@
   .brand{ order:0; } .layerSeg{ order:1; }
   #creatorStep{ order:5; } #quickStep{ order:6; }
   #sizeStep{ order:10; } #fieldStep{ order:11; } #surfaceStep{ order:12; } #colorStep{ order:13; }
-  #exportStep{ order:20; } #forSite{ order:21; } .author{ order:30; }
+  #forSite{ order:21; } .author{ order:30; }
 </style>
 </head>
 <body class="layer-templates">
@@ -767,33 +769,8 @@
     </div>
   </div>
 
-  <!-- Экспорт: главное действие живёт в доке на превью. Здесь — тех-детали,
-       свёрнуты по умолчанию. Селекты #exportRes/#recDur — источник истины,
-       с ними двусторонне синхронятся селекты дока. -->
-  <details class="pro lyr lyr-pro" id="exportStep">
-    <summary>⬇ Экспорт · детали и запасные кнопки</summary>
-    <div class="step" style="padding-top:4px;">
-      <label for="exportRes" style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:6px;">Разрешение (PNG и видео)</label>
-      <select id="exportRes" aria-label="Разрешение экспорта (PNG и видео)">
-        <option value="thumb">Эскиз (640px)</option>
-        <option value="1080" selected>1080p (Full HD)</option>
-        <option value="2048">2048×2048</option>
-        <option value="4k">4K (Ultra HD)</option>
-      </select>
-      <button class="primary" id="downloadPng">⬇ Скачать PNG</button>
-      <label for="recDur" style="display:block;font-size:11px;color:var(--text-dim);margin:10px 0 6px;">Длительность видео</label>
-      <select id="recDur" aria-label="Длительность записи видео">
-        <option value="0" selected>Без лимита (стоп вручную)</option>
-        <option value="5">5 секунд</option>
-        <option value="10">10 секунд</option>
-        <option value="15">15 секунд</option>
-        <option value="30">30 секунд</option>
-        <option value="60">60 секунд</option>
-      </select>
-      <button class="primary rec" id="recordBtn">⏺ Записать видео</button>
-      <div class="hint">Главные кнопки — в доке на превью. Видео — MP4 (или WebM, если браузер не умеет MP4). Запись идёт с холста вживую: повторный клик — стоп и сохранение, таймер показан рядом. На 4K возможны пропуски кадров на слабом GPU.</div>
-    </div>
-  </details>
+  <!-- Экспорт целиком живёт в доке под превью (#actionDock + #dockFmtPop):
+       главное действие задачи, разрешение и длительность. Дубля в панели больше нет. -->
 
   <!-- 01 Размер -->
   <div class="step lyr lyr-pro" id="sizeStep">
@@ -1534,8 +1511,22 @@ document.querySelectorAll('#ratioSeg button').forEach(b=>{
     document.querySelectorAll('#ratioSeg button').forEach(x=>{ x.classList.remove('active'); x.setAttribute('aria-pressed','false'); });
     b.classList.add('active'); b.setAttribute('aria-pressed','true');
     state.ratio=b.dataset.ratio; aspectRatio=RATIOS[state.ratio]; resize();
+    syncGoalToRatio(); // мост: формат в Профи перенацеливает задачу в верхней панели + док
   };
 });
+/* Синхронизация формата → задачи: при ручной смене соотношения в Профи мягко
+   перенацеливаем активную задачу на ту, у кого тот же ratio (TikTok→YouTube для 16:9
+   и т.п.), НЕ пересоздавая сцену. Если задачи с таким ratio нет (5:4, 3:2) — задача
+   остаётся, но формат-чип дока всё равно показывает реальное соотношение. */
+function syncGoalToRatio(){
+  const match=CREATOR_CATEGORIES.find(c=>c.ratio===state.ratio);
+  if(match && match!==activeCat){
+    activeCat=match;
+    document.querySelectorAll('#catChips button').forEach(x=>x.classList.toggle('active', x.dataset.cid===match.id));
+    catHintEl.textContent=match.exportHint;
+  }
+  ActionDock.render();
+}
 function refreshRatioButtons(){
   document.querySelectorAll('#ratioSeg button').forEach(x=>{ const on=x.dataset.ratio===state.ratio; x.classList.toggle('active',on); x.setAttribute('aria-pressed',on); });
 }
@@ -1923,9 +1914,24 @@ dom.addEventListener('touchmove',pointer,{passive:true});
 /* ---------- Resize ---------- */
 function resize(){
   const stage=document.getElementById('stageInner');
-  const availW=stage.clientWidth, availH=stage.clientHeight;
+  const embed=document.body.classList.contains('embed');
+  // резерв под action-док: превью центрируется в области НАД доком + фикс. зазор 18px,
+  // чтобы не залезать под док-меню и не прилипать к нему (геометрия из реальных позиций)
+  if(embed){
+    stage.style.setProperty('--dock-reserve','0px');
+  } else {
+    const dock=document.getElementById('actionDock');
+    let reserve=0;
+    if(dock && dock.offsetParent!==null){
+      const sr=stage.getBoundingClientRect(), dr=dock.getBoundingClientRect();
+      reserve=Math.max(0, Math.round(sr.bottom - dr.top + 18));
+    }
+    stage.style.setProperty('--dock-reserve',reserve+'px');
+  }
+  const padB=parseFloat(getComputedStyle(stage).paddingBottom)||0;
+  const availW=stage.clientWidth, availH=Math.max(80, stage.clientHeight-padB);
   let w,h;
-  if(document.body.classList.contains('embed')){
+  if(embed){
     // full-bleed background: fill the frame (shader is isotropic, so no distortion)
     w=availW; h=availH;
   } else {
@@ -1984,7 +1990,7 @@ function targetDims(res){
 /* ---------- PNG export ---------- */
 function doDownloadPng(){
   try{
-    const {w,h}=targetDims(document.getElementById('exportRes').value);
+    const {w,h}=targetDims(document.getElementById('dockRes').value);
     const oldPR=renderer.getPixelRatio();
     renderer.setPixelRatio(1); renderer.setSize(w,h,false);
     uniforms.u_res.value.set(w,h); uniforms.u_time.value=tClock;
@@ -1995,12 +2001,11 @@ function doDownloadPng(){
     toast('Готово. Лови файл');
   }catch(e){ resize(); toast('PNG не сохранился — попробуй меньшее разрешение'); }
 }
-document.getElementById('downloadPng').onclick=doDownloadPng;
 
 /* ---------- Video record ---------- */
 let recorder=null, chunks=[], recording=false, recOldPR=1, recStart=0, recLimit=0, recTimer=null;
-const recBtn=document.getElementById('recordBtn'), recDot=document.getElementById('recDot');
-const recTimeEl=document.getElementById('recTime'), recDurSel=document.getElementById('recDur');
+const recDot=document.getElementById('recDot');
+const recTimeEl=document.getElementById('recTime'), recDurSel=document.getElementById('dockDur');
 const fmtTime=s=>{ s=Math.max(0,Math.floor(s)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
 function tickRec(){
   const el=(Date.now()-recStart)/1000;
@@ -2023,18 +2028,10 @@ const REC_MIME=pickMime();
 const canRecord=!!(REC_MIME && dom.captureStream);
 const REC_EXT=REC_MIME.indexOf('mp4')>=0 ? 'mp4' : 'webm';
 
-if(!canRecord){
-  recBtn.disabled=true; recBtn.style.opacity='.5'; recBtn.style.cursor='not-allowed';
-  recBtn.textContent='⏺ Видео недоступно в этом браузере';
-  recBtn.title='Запись видео не поддерживается. Используйте Chrome или Edge, либо экспорт PNG.';
-} else {
-  recBtn.textContent='⏺ Записать видео ('+REC_EXT.toUpperCase()+')';
-}
-
 function startRec(){
   // size the drawing buffer to the chosen resolution; CSS size stays (setSize false),
   // so the on-screen view is unchanged but captureStream yields target-res frames
-  const {w,h}=targetDims(document.getElementById('exportRes').value);
+  const {w,h}=targetDims(document.getElementById('dockRes').value);
   recOldPR=renderer.getPixelRatio();
   renderer.setPixelRatio(1); renderer.setSize(w,h,false); uniforms.u_res.value.set(w,h);
   if(!live) setMode(true); // motion must run while recording
@@ -2057,19 +2054,18 @@ function startRec(){
   recorder.start(); recording=true; recStart=Date.now();
   recTimeEl.textContent = recLimit>0 ? '0:00 / '+fmtTime(recLimit) : '0:00';
   recTimer=setInterval(tickRec,200);
-  recBtn.textContent='⏹ Остановить и сохранить'; recDot.style.display='flex';
+  recDot.style.display='flex';
   recDurSel.disabled=true;
 }
 function stopRec(){
   if(!recording) return;
   clearInterval(recTimer); recTimer=null;
   recorder.stop(); recording=false;
-  recBtn.textContent='⏺ Записать видео ('+REC_EXT.toUpperCase()+')'; recDot.style.display='none';
+  recDot.style.display='none';
   recDurSel.disabled=false;
   ActionDock.syncRec();
 }
 function doToggleRecord(){ if(!canRecord){ toast('Запись видео недоступна — попробуй Chrome или Edge'); return; } recording ? stopRec() : startRec(); ActionDock.syncRec(); }
-recBtn.onclick=doToggleRecord;
 
 /* ---------- Share / Embed (state -> URL) ---------- */
 function encodeState(){
@@ -2141,9 +2137,8 @@ function refreshAllUI(){
 
 /* ---------- Action-док (самостоятельный компонент) ----------
    Набор/приоритет кнопок и формат-чип ВЫЧИСЛЯЮТСЯ из активной задачи (activeCat.mainExport),
-   не дублируются в state. Экшены переиспользуют те же функции, что и панель.
-   Панельные селекты #exportRes/#recDur — единственный источник разрешения/длительности;
-   селекты дока двусторонне синхронятся с ними. */
+   не дублируются в state. Селекты дока #dockRes/#dockDur — единственный источник
+   разрешения/длительности (панельный дубль удалён). */
 const ActionDock = (function(){
   const mainBtn=document.getElementById('dockMain');
   const secEl=document.getElementById('dockSecondary');
@@ -2152,8 +2147,8 @@ const ActionDock = (function(){
   const dockRes=document.getElementById('dockRes');
   const dockDur=document.getElementById('dockDur');
   const dockPx=document.getElementById('dockFmtPx');
-  const panelRes=document.getElementById('exportRes');
-  const panelDur=document.getElementById('recDur');
+  const panelRes=dockRes;
+  const panelDur=dockDur;
   const RES_LABEL={ thumb:'Эскиз', '1080':'1080p', '2048':'2048²', '4k':'4K' };
   const RES_TIER={ thumb:'640p', '1080':'1080p', '2048':'2048²', '4k':'4K' };
   // платформенная привязка пресета к задаче — показываем «подо что» целевые пиксели
@@ -2217,6 +2212,7 @@ const ActionDock = (function(){
       b.onclick=s.run; secEl.appendChild(b);
     });
     syncRec(); updateFmt();
+    resize(); // высота дока могла измениться → пересчитать резерв превью
   }
   return { render, syncRec };
 })();
