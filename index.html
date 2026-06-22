@@ -199,9 +199,14 @@
 
   .brand{ display:flex; align-items:center; gap:10px; margin-bottom: 6px; }
   .brand .logo{
-    width:34px;height:34px;border-radius:12px;
-    background: url("assets/icon-180.png") center / cover no-repeat, var(--ink-700);
+    width:36px;height:36px;border-radius:12px;
+    background: var(--zhizha-glow);
     box-shadow: var(--glow-accent);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .brand .logo::after{
+    content:"Ж"; font-family:'Comfortaa',cursive; font-weight:700; font-size:19px;
+    color: var(--on-accent); line-height:1;
   }
   .brand h1{ font-family:'Comfortaa',cursive; font-size: 20px; font-weight:700; margin:0; letter-spacing:.5px; }
   .brand .sub{ font-size:11px; color:var(--text-dim); margin-top:1px; }
@@ -309,7 +314,26 @@
     background:rgba(255,255,255,.03); transition:.15s; white-space:nowrap; }
   .authorLinks a:hover{ background:rgba(255,255,255,.08); color:var(--text); }
 
-  /* theme picker — выбор оформления */
+  /* theme picker — иконка в шапке + всплывающий выбор */
+  .themePicker{ position:relative; flex:0 0 auto; }
+  .themeBtn{ width:36px; height:36px; border-radius:11px; cursor:pointer;
+    border:1px solid var(--panel-border); background:rgba(255,255,255,.04);
+    display:flex; align-items:center; justify-content:center; padding:0;
+    transition: transform .15s var(--ease-goo), background .15s var(--ease-soft); }
+  .themeBtn:hover{ background:rgba(255,255,255,.09); transform:translateY(-1px); }
+  .themeBtn .dot{ width:20px; height:20px; border-radius:7px;
+    background:var(--zhizha-glow); box-shadow:var(--glow-accent); }
+  .themePop{ position:absolute; top:46px; right:0; z-index:60; width:max-content;
+    background:var(--ink-800); border:1px solid var(--panel-border); border-radius:16px;
+    padding:14px; box-shadow:var(--shadow-panel);
+    animation: themePopIn .16s var(--ease-goo); }
+  .themePop[hidden]{ display:none; }
+  @keyframes themePopIn{ from{ opacity:0; transform:translateY(-6px); } to{ opacity:1; transform:none; } }
+  .themePopTitle{ font-size:11px; letter-spacing:1.2px; text-transform:uppercase;
+    font-weight:700; color:var(--text-dim); margin-bottom:12px; }
+  .themePopHint{ font-size:11px; color:var(--text-mute); margin-top:12px;
+    max-width:236px; line-height:1.4; }
+
   .themeChips{ display:flex; flex-wrap:wrap; gap:12px; }
   .themeChip{ display:flex; flex-direction:column; align-items:center; gap:6px;
     cursor:pointer; border:none; background:transparent; padding:0; }
@@ -470,9 +494,36 @@
 <aside id="panel">
   <div class="brand">
     <div class="logo"></div>
-    <div>
+    <div style="margin-right:auto;">
       <h1>ЖИЖА</h1>
       <div class="sub">живые фоны за 20 секунд</div>
+    </div>
+    <div class="themePicker" id="themePicker">
+      <button type="button" class="themeBtn" id="themeBtn" aria-haspopup="true" aria-expanded="false" aria-label="Тема оформления" title="Тема оформления">
+        <span class="dot"></span>
+      </button>
+      <div class="themePop" id="themePop" role="menu" aria-label="Тема оформления" hidden>
+        <div class="themePopTitle">Тема оформления</div>
+        <div class="themeChips" id="themeChips" role="group" aria-label="Тема оформления">
+          <button type="button" class="themeChip" data-theme-pick="volt" aria-pressed="true" title="Вольт · кибер-электрик">
+            <span class="sw" style="background:linear-gradient(135deg,#C6FF36,#00E6C0,#00B3FF)"></span>
+            <span class="nm">Вольт</span>
+          </button>
+          <button type="button" class="themeChip" data-theme-pick="karamel" aria-pressed="false" title="Карамель · наследие">
+            <span class="sw" style="background:linear-gradient(135deg,#FF5FA8,#8A5CFF,#2FE6C8)"></span>
+            <span class="nm">Карамель</span>
+          </button>
+          <button type="button" class="themeChip" data-theme-pick="magma" aria-pressed="false" title="Магма · тёплый огонь">
+            <span class="sw" style="background:linear-gradient(135deg,#FFB627,#FF5E3A,#E8156F)"></span>
+            <span class="nm">Магма</span>
+          </button>
+          <button type="button" class="themeChip" data-theme-pick="chrome" aria-pressed="false" title="Хром · холодный графит">
+            <span class="sw" style="background:linear-gradient(135deg,#8FB4FF,#3B82FF,#1E5BFF)"></span>
+            <span class="nm">Хром</span>
+          </button>
+        </div>
+        <div class="themePopHint">Меняется только цвет — форма и поведение те же. Выбор запоминается.</div>
+      </div>
     </div>
   </div>
 
@@ -630,30 +681,6 @@
     <div class="hint">Ссылка кодирует всю сцену в URL (<code>#s=</code>) — вставь её обратно, чтобы повторить фон 1-в-1. «Код для встраивания» даёт готовый <code>&lt;iframe&gt;</code> для твоего сайта.</div>
   </div>
   </details>
-
-  <!-- Тема оформления -->
-  <div class="step" id="themeStep">
-    <h2>Тема оформления</h2>
-    <div class="themeChips" id="themeChips" role="group" aria-label="Тема оформления">
-      <button type="button" class="themeChip" data-theme-pick="volt" aria-pressed="true" title="Вольт · кибер-электрик">
-        <span class="sw" style="background:linear-gradient(135deg,#C6FF36,#00E6C0,#00B3FF)"></span>
-        <span class="nm">Вольт</span>
-      </button>
-      <button type="button" class="themeChip" data-theme-pick="karamel" aria-pressed="false" title="Карамель · наследие">
-        <span class="sw" style="background:linear-gradient(135deg,#FF5FA8,#8A5CFF,#2FE6C8)"></span>
-        <span class="nm">Карамель</span>
-      </button>
-      <button type="button" class="themeChip" data-theme-pick="magma" aria-pressed="false" title="Магма · тёплый огонь">
-        <span class="sw" style="background:linear-gradient(135deg,#FFB627,#FF5E3A,#E8156F)"></span>
-        <span class="nm">Магма</span>
-      </button>
-      <button type="button" class="themeChip" data-theme-pick="chrome" aria-pressed="false" title="Хром · холодный графит">
-        <span class="sw" style="background:linear-gradient(135deg,#8FB4FF,#3B82FF,#1E5BFF)"></span>
-        <span class="nm">Хром</span>
-      </button>
-    </div>
-    <div class="hint">Меняется только цвет — форма, шрифты и поведение те же. Выбор запоминается.</div>
-  </div>
 
   <!-- Автор -->
   <div class="author">
@@ -1830,9 +1857,33 @@ init();
   // синхронизировать активную тему (поднята ранним скриптом в <head>)
   applyTheme(document.documentElement.dataset.theme || 'volt');
 
+  // всплывающий выбор темы
+  var pickerBtn = document.getElementById('themeBtn');
+  var pop = document.getElementById('themePop');
+  var picker = document.getElementById('themePicker');
+
+  function openPop(){ pop.hidden = false; pickerBtn.setAttribute('aria-expanded','true'); }
+  function closePop(){ pop.hidden = true; pickerBtn.setAttribute('aria-expanded','false'); }
+  function togglePop(){ pop.hidden ? openPop() : closePop(); }
+
+  if(pickerBtn){
+    pickerBtn.addEventListener('click', function(e){ e.stopPropagation(); togglePop(); });
+    // клик вне попапа — закрыть
+    document.addEventListener('click', function(e){
+      if(!pop.hidden && !picker.contains(e.target)) closePop();
+    });
+    // Esc — закрыть
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && !pop.hidden){ closePop(); pickerBtn.focus(); }
+    });
+  }
+
   var btns = document.querySelectorAll('[data-theme-pick]');
   for(var i=0;i<btns.length;i++){
-    btns[i].addEventListener('click', function(){ applyTheme(this.dataset.themePick); });
+    btns[i].addEventListener('click', function(){
+      applyTheme(this.dataset.themePick);
+      closePop();
+    });
   }
 })();
 </script>
