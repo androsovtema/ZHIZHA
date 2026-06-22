@@ -69,6 +69,10 @@
     --ease-goo:cubic-bezier(.34,1.56,.64,1);
     --ease-soft:cubic-bezier(.4,0,.2,1);
     --dur-1:120ms; --dur-2:200ms; --dur-3:320ms; --dur-4:600ms;
+    /* a11y: тёмная вуаль на кнопках действия, чтобы белый текст --on-accent
+       проходил ≥4.5:1 поверх средне-ярких градиентов. Волт использует тёмный
+       текст на лайме (и так проходит) — для него вуаль выключена. */
+    --accent-veil: transparent;
     /* алиасы совместимости со старым кодом */
     --bg:var(--ink-900); --radius:var(--r-md); --shadow:var(--shadow-panel);
     --accent-2:var(--accent-pink);
@@ -129,6 +133,8 @@
     --glow-accent:0 8px 28px rgba(59,130,255,.45);
     --glow-mint:0 8px 28px rgba(30,91,255,.32);
   }
+  /* белотекстовые темы: вуаль ~26% гасит яркость градиента под белый текст */
+  :root[data-theme="karamel"], :root[data-theme="magma"], :root[data-theme="chrome"]{ --accent-veil: rgba(0,0,0,.26); }
   *{ box-sizing: border-box; }
   html,body{ margin:0; height:100%; }
 
@@ -280,7 +286,7 @@
   .catChips button:hover{ background: rgba(255,255,255,.08); color:var(--text); }
   .catChips button.active{
     color:var(--on-accent); border-color: transparent;
-    background: linear-gradient(135deg,var(--accent),var(--accent-2));
+    background: linear-gradient(var(--accent-veil),var(--accent-veil)), linear-gradient(135deg,var(--accent),var(--accent-2));
   }
   /* creator: mood filter chips */
   .moodChips{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
@@ -288,7 +294,7 @@
     padding:5px 11px; font-size:11px; color:var(--text-dim); background:rgba(255,255,255,.03);
     transition:var(--dur-1) var(--ease-goo); white-space:nowrap; }
   .moodChips button:hover{ background:rgba(255,255,255,.08); color:var(--text); }
-  .moodChips button.active{ color:var(--on-accent); border-color:transparent; background:var(--zhizha-grad); }
+  .moodChips button.active{ color:var(--on-accent); border-color:transparent; background:linear-gradient(var(--accent-veil),var(--accent-veil)), var(--zhizha-grad); }
 
   /* creator: template cards — квадрат, превью на всю плитку, текст оверлеем снизу */
   .tmplCard{
@@ -402,7 +408,7 @@
 
   .primary{ width:100%; cursor:pointer; border:none; border-radius:var(--r-md); padding:12px;
     font-size:14px; font-weight:700; color:var(--on-accent); margin-top:8px;
-    background: var(--zhizha-grad);
+    background: linear-gradient(var(--accent-veil),var(--accent-veil)), var(--zhizha-grad);
     box-shadow: var(--glow-accent); transition:var(--dur-2) var(--ease-goo); }
   .primary:hover{ filter:brightness(1.08); transform: translateY(-1px); }
   .primary:active{ transform: scale(.97); }
@@ -472,7 +478,7 @@
     flex:1 1 auto; min-width:0; display:flex; align-items:center; justify-content:center; gap:8px;
     padding:13px 18px; border:none; border-radius:var(--r-sm); cursor:pointer;
     font:700 13px 'Nunito',sans-serif; color:var(--on-accent);
-    background:var(--zhizha-grad); box-shadow:var(--glow-accent);
+    background:linear-gradient(var(--accent-veil),var(--accent-veil)), var(--zhizha-grad); box-shadow:var(--glow-accent);
     transition:transform var(--dur-1) var(--ease-goo), filter var(--dur-2) var(--ease-soft);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
