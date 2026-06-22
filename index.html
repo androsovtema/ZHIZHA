@@ -467,14 +467,13 @@
   .hint{ font-size:11px; color:var(--text-dim); margin-top:8px; line-height:1.4; }
   .hidden{ display:none !important; }
 
-  #liveBar{ position: fixed; top:70px; right:18px; z-index:10; display:flex; gap:8px;
-    background: var(--panel); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
-    border:1px solid var(--panel-border); border-radius:12px; padding:6px; box-shadow: var(--shadow); }
-  #liveBar button{ cursor:pointer; border:1px solid transparent; background:transparent; color:var(--text);
-    width:38px; height:38px; display:flex; align-items:center; justify-content:center;
-    font-size:21px; line-height:1; border-radius:10px; transition:.15s; }
-  #liveBar button:hover{ background: rgba(255,255,255,.10); border-color:var(--panel-border); color:#fff; }
-  #liveBar button.spin{ animation: reloadSpin .55s var(--ease-goo); }
+  /* Shuffle — угловая кнопка в правом верхнем углу превью */
+  #reloadBtn{ position:absolute; top:10px; right:10px; z-index:4; cursor:pointer;
+    width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+    background: var(--ink-800); border:1px solid var(--panel-border); border-radius: var(--r-sm);
+    color: var(--text-dim); font-size:19px; line-height:1; transition:.15s; }
+  #reloadBtn:hover{ background: var(--ink-700); border-color: var(--accent); color:#fff; }
+  #reloadBtn.spin{ animation: reloadSpin .55s var(--ease-goo); }
   @keyframes reloadSpin{ from{ transform: rotate(0); } to{ transform: rotate(360deg); } }
 
   #recDot{ position:fixed; top:64px; right:18px; z-index:11; display:none; align-items:center; gap:7px;
@@ -506,7 +505,7 @@
     backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
 
   /* embed mode — hide all chrome, background fills the frame */
-  body.embed #topbar, body.embed #panel, body.embed #liveBar, body.embed #fps, body.embed #panelToggle, body.embed #recDot, body.embed #actionDock{ display:none !important; }
+  body.embed #topbar, body.embed #panel, body.embed #reloadBtn, body.embed #fps, body.embed #panelToggle, body.embed #recDot, body.embed #actionDock{ display:none !important; }
   body.embed #stage{ padding:0; }
   body.embed #canvasWrap{ border-radius:0; box-shadow:none; }
 
@@ -586,15 +585,18 @@
   @media (max-width: 760px){
     html, body{ overflow: visible; height: auto; }
     body{ display: block; max-width: 100%; }
-    #topbar{ position: relative; height:52px; }
+    #topbar{ position: relative; height:52px; gap:10px; padding:10px 12px; }
+    .topbarSub{ display:none; }
+    .topbarSystemLabel{ display:none; }
+    .topbarSystem{ gap:8px; padding-left:10px; }
+    #topbar .catChips{ margin-left:2px; }
     #panelResize{ display: none; }
     #stage{ position: sticky; top: 0; z-index: 5; grid-column: auto;
       height: 46vh; padding: 10px; background: var(--ink-900);
       border-bottom: 1px solid var(--panel-border); }
     #stageInner{ height: 100%; }
     #panelToggle{ display: none; }
-    #liveBar{ top: 12px; right: 12px; padding: 5px; }
-    #liveBar button{ width: 36px; height: 36px; font-size: 20px; }
+    #reloadBtn{ top: 8px; right: 8px; }
     #fps{ display: none; }
     #panel{ position: static; height: auto; max-height: none; width: 100%;
       grid-column: auto; overflow: visible; border-right: none;
@@ -617,18 +619,21 @@
     #tmplCards .tmplCard{ flex:0 0 130px; width:130px; scroll-snap-align:start; }
     #tmplHead{ display:flex; }
   }
-  /* mode toggle + per-mode visibility */
-  .modeSeg{ margin: 2px 0 2px; }
-  body.mode-simple .proOnly{ display:none; }
-  body.mode-pro .simpleOnly{ display:none; }
-  /* единый порядок секций для обоих режимов (flex order; скрытые не участвуют) */
-  .brand{ order:0; } .modeSeg{ order:1; }
+  /* layer-tabs + per-layer visibility */
+  .layerSeg{ margin: 2px 0 6px; }
+  .lyr{ display:none; }
+  body.layer-templates .lyr-templates,
+  body.layer-quick .lyr-quick,
+  body.layer-pro .lyr-pro,
+  body.layer-site .lyr-site{ display:block; }
+  /* единый порядок секций (flex order; скрытые не участвуют) */
+  .brand{ order:0; } .layerSeg{ order:1; }
   #creatorStep{ order:5; } #quickStep{ order:6; }
   #sizeStep{ order:10; } #fieldStep{ order:11; } #surfaceStep{ order:12; } #colorStep{ order:13; }
   #exportStep{ order:20; } #forSite{ order:21; } .author{ order:30; }
 </style>
 </head>
-<body class="mode-simple">
+<body class="layer-templates">
 
 <header id="topbar" aria-label="Верхняя панель приложения">
   <div class="topbarBrand" aria-label="ЖИЖА">
@@ -671,6 +676,7 @@
         <div class="readScrim"></div>
         <div class="readText"><span class="rt1">Твой заголовок</span><span class="rt2">и строка поменьше под ним</span></div>
       </div>
+      <button id="reloadBtn" type="button" aria-label="Случайная вариация фона" title="Случайная вариация">⟳</button>
     </div>
   </div>
 
@@ -708,21 +714,20 @@
 <button id="panelToggle" aria-label="Показать или скрыть панель управления" aria-expanded="true" aria-controls="panel">☰</button>
 <div id="panelResize" role="separator" aria-orientation="vertical" aria-label="Изменить ширину панели"></div>
 
-<div id="liveBar">
-  <button id="reloadBtn" type="button" aria-label="Случайная вариация фона" title="Случайная вариация">⟳</button>
-</div>
 <div id="recDot"><span class="blink"></span> <span id="recLabel">Идёт запись…</span> <span id="recTime"></span></div>
 <div id="fps">— FPS</div>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <aside id="panel">
-  <div class="seg modeSeg" id="modeSeg" role="group" aria-label="Режим">
-    <button type="button" id="modeSimple" class="active" aria-pressed="true">✦ Простой</button>
-    <button type="button" id="modePro" aria-pressed="false">⚙ Профи</button>
+  <div class="seg layerSeg" id="layerSeg" role="tablist" aria-label="Слой настроек">
+    <button type="button" data-layer="templates" id="layerTemplates" class="active" role="tab" aria-selected="true">Шаблоны</button>
+    <button type="button" data-layer="quick" id="layerQuick" role="tab" aria-selected="false">Быстро</button>
+    <button type="button" data-layer="pro" id="layerPro" role="tab" aria-selected="false">Профи</button>
+    <button type="button" data-layer="site" id="layerSite" role="tab" aria-selected="false">Сайт</button>
   </div>
 
   <!-- Creator: для чего нужен фон -->
-  <div class="step simpleOnly" id="creatorStep">
+  <div class="step lyr lyr-templates" id="creatorStep">
     <h2>Выбери стиль</h2>
     <div class="moodChips" id="moodChips" role="group" aria-label="Фильтр по настроению"></div>
     <div id="tmplHead">
@@ -734,7 +739,7 @@
   </div>
 
   <!-- Быстрая настройка -->
-  <div class="step simpleOnly" id="quickStep">
+  <div class="step lyr lyr-quick" id="quickStep">
     <h2>Быстрая настройка</h2>
 
     <div class="qlabel" style="margin-top:0;">Цвет</div>
@@ -765,7 +770,7 @@
   <!-- Экспорт: главное действие живёт в доке на превью. Здесь — тех-детали,
        свёрнуты по умолчанию. Селекты #exportRes/#recDur — источник истины,
        с ними двусторонне синхронятся селекты дока. -->
-  <details class="pro" id="exportStep">
+  <details class="pro lyr lyr-pro" id="exportStep">
     <summary>⬇ Экспорт · детали и запасные кнопки</summary>
     <div class="step" style="padding-top:4px;">
       <label for="exportRes" style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:6px;">Разрешение (PNG и видео)</label>
@@ -791,7 +796,7 @@
   </details>
 
   <!-- 01 Размер -->
-  <div class="step proOnly" id="sizeStep">
+  <div class="step lyr lyr-pro" id="sizeStep">
     <h2><span class="num">01</span> Размер</h2>
     <div class="seg" id="ratioSeg" role="group" aria-label="Соотношение сторон">
       <button data-ratio="9:16" aria-pressed="false">9:16</button>
@@ -813,7 +818,7 @@
   </div>
 
   <!-- 02 Поле -->
-  <div class="step proOnly" id="fieldStep">
+  <div class="step lyr lyr-pro" id="fieldStep">
     <h2><span class="num">02</span> Поле</h2>
     <div class="grid3" id="fields"></div>
     <div class="ctrl" style="margin-top:12px;">
@@ -835,7 +840,7 @@
   </div>
 
   <!-- 03 Фактура -->
-  <div class="step proOnly" id="surfaceStep">
+  <div class="step lyr lyr-pro" id="surfaceStep">
     <h2><span class="num">03</span> Фактура</h2>
     <div class="seg" id="screenSeg" role="group" aria-label="Фактура">
       <button data-screen="0" class="active" aria-pressed="true">Гладкая</button>
@@ -857,7 +862,7 @@
   </div>
 
   <!-- 04 Цвета -->
-  <div class="step proOnly" id="colorStep">
+  <div class="step lyr lyr-pro" id="colorStep">
     <h2><span class="num">04</span> Цвета</h2>
     <div class="grid2" id="palettes"></div>
     <div class="colors" id="colorPickers" style="margin-top:12px;"></div>
@@ -865,7 +870,7 @@
   </div>
 
   <!-- Для сайта — ссылка, встраивание, импорт -->
-  <details class="pro proOnly" id="forSite">
+  <details class="pro lyr lyr-site" id="forSite" open>
   <summary>&lt;/&gt; Для сайта · фон-слой на твой сайт</summary>
   <div class="step">
     <div class="qlabel" style="margin-top:0;">Рекомендованный способ</div>
@@ -1856,17 +1861,19 @@ reloadBtn.onclick=()=>{ randomize(); reloadBtn.classList.remove('spin'); void re
 /* ---------- Playback (анимация всегда; ручной тоггл убран) ---------- */
 function setMode(l){ live=l; markDirty(); }
 
-/* ---------- UI mode: Простой / Профи ---------- */
-const modeSimpleBtn=document.getElementById('modeSimple'), modeProBtn=document.getElementById('modePro');
-function setUiMode(pro){
-  document.body.classList.toggle('mode-pro',pro);
-  document.body.classList.toggle('mode-simple',!pro);
-  modeProBtn.classList.toggle('active',pro); modeProBtn.setAttribute('aria-pressed',pro);
-  modeSimpleBtn.classList.toggle('active',!pro); modeSimpleBtn.setAttribute('aria-pressed',!pro);
+/* ---------- Layer-tabs: Шаблоны · Быстро · Профи · Сайт ----------
+   Только видимость секций панели. Сцена/state общие — переключение слоя
+   ничего не сбрасывает (мост сохраняется). */
+const LAYERS=['templates','quick','pro','site'];
+const layerBtns=Array.prototype.slice.call(document.querySelectorAll('#layerSeg [data-layer]'));
+function setLayer(layer){
+  if(LAYERS.indexOf(layer)<0) layer='templates';
+  LAYERS.forEach(l=>document.body.classList.toggle('layer-'+l, l===layer));
+  layerBtns.forEach(b=>{ const on=b.dataset.layer===layer;
+    b.classList.toggle('active',on); b.setAttribute('aria-selected',on); });
 }
-modeSimpleBtn.onclick=()=>setUiMode(false);
-modeProBtn.onclick=()=>setUiMode(true);
-setUiMode(false);
+layerBtns.forEach(b=>{ b.onclick=()=>setLayer(b.dataset.layer); });
+setLayer('templates');
 
 /* ---------- Panel drawer (mobile) ---------- */
 const panelEl=document.getElementById('panel'), panelToggle=document.getElementById('panelToggle');
