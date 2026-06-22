@@ -325,6 +325,10 @@
     flex:1 1 auto; min-width:0; margin-left:6px;
     flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; gap:6px;
     scrollbar-width:none;
+    /* мягкое затухание у краёв вместо жёсткой обрезки — сигнал «есть продолжение» */
+    --cc-fadeL:0px; --cc-fadeR:0px;
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 var(--cc-fadeL), #000 calc(100% - var(--cc-fadeR)), transparent 100%);
+    mask-image:linear-gradient(90deg, transparent 0, #000 var(--cc-fadeL), #000 calc(100% - var(--cc-fadeR)), transparent 100%);
   }
   #topbar .catChips::-webkit-scrollbar{ display:none; }
   #topbar .catChips button{
@@ -336,6 +340,29 @@
     background:linear-gradient(var(--accent-veil),var(--accent-veil)), var(--zhizha-grad);
     color:var(--on-accent);
   }
+  /* выпадающее меню задачи (mobile-альтернатива чипам) — скрыто на desktop */
+  .catSelect{ display:none; position:relative; flex:1 1 auto; min-width:0; margin-left:4px; }
+  .catSelBtn{ width:100%; display:flex; align-items:center; gap:7px; cursor:pointer;
+    background:var(--ink-700); border:1px solid var(--panel-border); border-radius:var(--r-pill);
+    padding:6px 12px; color:var(--text); min-width:0; }
+  .catSelHint{ font:600 9px 'Nunito',sans-serif; letter-spacing:.6px; text-transform:uppercase;
+    color:var(--text-mute); flex:0 0 auto; }
+  .catSelLabel{ font:700 12px 'Nunito',sans-serif; color:var(--text);
+    flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .catSelCaret{ flex:0 0 auto; width:0; height:0; border-left:4px solid transparent; border-right:4px solid transparent;
+    border-top:5px solid var(--text-dim); transition:transform .18s var(--ease-goo); }
+  .catSelBtn[aria-expanded="true"] .catSelCaret{ transform:rotate(180deg); }
+  .catSelList{ position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:70;
+    background:var(--ink-800); border:1px solid var(--panel-border); border-radius:var(--r-md);
+    box-shadow:var(--shadow-panel); padding:6px; display:flex; flex-direction:column; gap:2px;
+    max-height:60vh; overflow-y:auto; animation:catSelIn .16s var(--ease-goo); }
+  .catSelList[hidden]{ display:none; }
+  @keyframes catSelIn{ from{ opacity:0; transform:translateY(-6px); } to{ opacity:1; transform:none; } }
+  .catSelOpt{ text-align:left; cursor:pointer; border:none; background:transparent; color:var(--text-dim);
+    font:600 13px 'Nunito',sans-serif; padding:10px 12px; border-radius:var(--r-sm); white-space:nowrap; }
+  .catSelOpt:hover{ background:rgba(255,255,255,.06); color:var(--text); }
+  .catSelOpt.active{ color:var(--on-accent);
+    background:linear-gradient(var(--accent-veil),var(--accent-veil)), var(--zhizha-grad); }
   /* creator: mood filter chips */
   .moodChips{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
   .moodChips button{ cursor:pointer; border:1px solid var(--panel-border); border-radius:99px;
@@ -588,26 +615,31 @@
 
   /* Mobile: stacked — превью закреплено сверху, контролы листаются снизу */
   @media (max-width: 760px){
-    html, body{ overflow: visible; height: auto; }
-    body{ display: block; max-width: 100%; }
-    #topbar{ position: relative; height:52px; gap:10px; padding:10px 12px; }
+    /* app-shell: внешний контейнер зафиксирован по экрану, скроллятся только
+       внутренние блоки — интерфейс не «прыгает» при показе/скрытии адресной строки */
+    html, body{ height:100%; overflow:hidden; overscroll-behavior:none; }
+    body{ position:fixed; inset:0; display:flex; flex-direction:column;
+      height:100dvh; max-width:100%; }
+    #topbar{ position:relative; flex:0 0 auto; height:52px; gap:10px; padding:10px 12px; }
     .topbarSub{ display:none; }
     .topbarSystemLabel{ display:none; }
     .topbarSystem{ gap:8px; padding-left:10px; }
-    #topbar .catChips{ margin-left:2px; }
+    /* задача: скролл-чипы → компактное выпадающее меню (места под чипы мало) */
+    #topbar .catChips{ display:none; }
+    .catSelect{ display:flex; }
     #panelResize{ display: none; }
-    #stage{ position: sticky; top: 0; z-index: 5; grid-column: auto;
-      height: 46vh; padding: 10px; background: var(--ink-900);
-      border-bottom: 1px solid var(--panel-border); }
+    #stage{ position:relative; flex:0 0 auto; grid-column:auto;
+      height:46dvh; padding:10px; background:var(--ink-900);
+      border-bottom:1px solid var(--panel-border); }
     #stageInner{ height: 100%; }
     #panelToggle{ display: none; }
     #reloadBtn{ top: 8px; right: 8px; }
     #fps{ display: none; }
-    #panel{ position: static; height: auto; max-height: none; width: 100%;
-      grid-column: auto; overflow: visible; border-right: none;
-      border-radius: 22px 22px 0 0; margin-top: -20px; z-index: 6;
-      padding: 24px 14px calc(28px + env(safe-area-inset-bottom));
-      transform: none; box-shadow: 0 -16px 40px rgba(0,0,0,.5); }
+    #panel{ position:relative; flex:1 1 auto; min-height:0; height:auto; max-height:none; width:100%;
+      grid-column:auto; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+      border-right:none; border-radius:22px 22px 0 0; margin-top:-20px; z-index:6;
+      padding:24px 14px calc(28px + env(safe-area-inset-bottom));
+      transform:none; box-shadow:0 -16px 40px rgba(0,0,0,.5); }
     #panel::before{ content: ""; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
       width: 44px; height: 5px; border-radius: 99px; background: rgba(255,255,255,.25); }
     /* нейтрализуем JS-сворачивание оверлея — в stacked панель всегда видна */
@@ -674,6 +706,15 @@
     <span class="topbarSub">живые фоны за 20 секунд</span>
   </div>
   <div class="catChips" id="catChips" role="group" aria-label="Категория фона"></div>
+  <!-- мобильная альтернатива скролл-чипам: выпадающее меню задачи -->
+  <div class="catSelect" id="catSelect">
+    <button type="button" class="catSelBtn" id="catSelBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Задача фона">
+      <span class="catSelHint">Задача</span>
+      <span class="catSelLabel" id="catSelLabel">—</span>
+      <span class="catSelCaret" aria-hidden="true"></span>
+    </button>
+    <div class="catSelList" id="catSelList" role="listbox" aria-label="Задача фона" hidden></div>
+  </div>
   <div class="topbarSystem" aria-label="Системные настройки">
     <span class="topbarSystemLabel">Оформление</span>
     <div class="themePicker" id="themePicker">
@@ -1558,12 +1599,12 @@ function syncGoalToRatio(){
   const match=CREATOR_CATEGORIES.find(c=>c.ratio===state.ratio);
   if(match){
     activeCat=match;
-    document.querySelectorAll('#catChips button').forEach(x=>x.classList.toggle('active', x.dataset.cid===match.id));
+    setActiveCatUI(match);
     catHintEl.textContent=match.exportHint;
   } else {
     // нет задачи с таким соотношением (5:4, 3:2) — снимаем подсветку, цель не выдумываем
     activeCat=null;
-    document.querySelectorAll('#catChips button').forEach(x=>x.classList.remove('active'));
+    setActiveCatUI(null);
     catHintEl.textContent='';
   }
   ActionDock.render();
@@ -1602,7 +1643,7 @@ function toggleSeamless(){
   // больше нет: снимаем подсветку цели в верхней панели, чтобы не путать.
   if(!state.seamless && activeCat && activeCat.seamless){
     activeCat=null;
-    document.querySelectorAll('#catChips button').forEach(x=>x.classList.remove('active'));
+    setActiveCatUI(null);
     catHintEl.textContent='';
     ActionDock.render();
   }
@@ -1776,7 +1817,7 @@ function renderTemplates(cat){
 
 function selectCategory(cat){
   activeCat=cat;
-  document.querySelectorAll('#catChips button').forEach(x=>x.classList.toggle('active', x.dataset.cid===cat.id));
+  setActiveCatUI(cat);
   catHintEl.textContent=cat.exportHint;
   // КАТЕГОРИЯ задаёт формат
   if(RATIOS[cat.ratio]!=null){ state.ratio=cat.ratio; aspectRatio=RATIOS[cat.ratio]; refreshRatioButtons(); resize(); }
@@ -1794,11 +1835,47 @@ function selectCategory(cat){
   ActionDock.render();
 }
 
+const catSelListEl=document.getElementById('catSelList');
+const catSelBtn=document.getElementById('catSelBtn');
+const catSelLabelEl=document.getElementById('catSelLabel');
 CREATOR_CATEGORIES.forEach(cat=>{
   const b=document.createElement('button'); b.type='button'; b.dataset.cid=cat.id; b.textContent=cat.name;
   b.onclick=()=>selectCategory(cat);
   catChipsEl.appendChild(b);
+  // зеркальный пункт выпадающего меню (mobile)
+  const o=document.createElement('button'); o.type='button'; o.className='catSelOpt'; o.dataset.cid=cat.id;
+  o.setAttribute('role','option'); o.textContent=cat.name;
+  o.onclick=()=>{ selectCategory(cat); closeCatSel(); };
+  catSelListEl.appendChild(o);
 });
+
+/* Единая подсветка активной задачи: чипы (desktop) + пункт и подпись меню (mobile) */
+function setActiveCatUI(cat){
+  document.querySelectorAll('#catChips button').forEach(x=>x.classList.toggle('active', !!cat && x.dataset.cid===cat.id));
+  document.querySelectorAll('#catSelList .catSelOpt').forEach(x=>{
+    const on=!!cat && x.dataset.cid===cat.id; x.classList.toggle('active',on); x.setAttribute('aria-selected',on?'true':'false');
+  });
+  catSelLabelEl.textContent = cat ? cat.name : 'Выбрать';
+}
+/* выпадающее меню задачи */
+function openCatSel(){ catSelListEl.hidden=false; catSelBtn.setAttribute('aria-expanded','true'); }
+function closeCatSel(){ catSelListEl.hidden=true; catSelBtn.setAttribute('aria-expanded','false'); }
+catSelBtn.onclick=e=>{ e.stopPropagation(); catSelListEl.hidden?openCatSel():closeCatSel(); };
+catSelListEl.addEventListener('click',e=>e.stopPropagation());
+document.addEventListener('click',()=>{ if(!catSelListEl.hidden) closeCatSel(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !catSelListEl.hidden) closeCatSel(); });
+
+/* мягкое затухание у краёв скролл-ленты задач: показываем фейд только там, где есть скролл */
+function updateCatFade(){
+  const el=catChipsEl;
+  const l = el.scrollLeft>2 ? 24 : 0;
+  const r = (el.scrollLeft + el.clientWidth) < (el.scrollWidth - 2) ? 24 : 0;
+  el.style.setProperty('--cc-fadeL', l+'px');
+  el.style.setProperty('--cc-fadeR', r+'px');
+}
+catChipsEl.addEventListener('scroll', updateCatFade, {passive:true});
+window.addEventListener('resize', updateCatFade);
+requestAnimationFrame(updateCatFade);
 
 /* ---------- Mobile bottom-sheet «Все шаблоны» ----------
    Переиспользует те же данные/действия, что и карусель (templatesForCat, applyTemplate).
@@ -1821,7 +1898,9 @@ function renderSheet(){
     b.onclick=()=>{ activeFam=f||null; renderMoodChips(cat); renderTemplates(cat); renderSheet(); };
     sheetMoodEl.appendChild(b);
   });
-  // карточки
+  // карточки — снимаем прежние канвасы листа из пула превью, затем регистрируем свежие,
+  // чтобы в листе крутилась живая анимация шаблона, а не статичный градиент
+  for(let i=pvCards.length-1;i>=0;i--){ if(sheetCardsEl.contains(pvCards[i])) pvCards.splice(i,1); }
   sheetCardsEl.innerHTML='';
   list.forEach(t=>{
     const stops=PALETTES[t.v[5]].stops;
@@ -1831,20 +1910,44 @@ function renderSheet(){
       `<span class="meta"><span class="tname">${t.name}</span><span class="tmood">${t.mood}</span></span>`;
     card.onclick=()=>{ applyTemplate(t); closeSheet(); };
     sheetCardsEl.appendChild(card);
+    pvRegister(card.querySelector('canvas'), t);
   });
+  pvVisSoon();
 }
-function openSheet(){ renderSheet(); sheetEl.classList.add('open'); document.body.style.overflow='hidden'; }
+function openSheet(){ renderSheet(); sheetEl.classList.add('open'); document.body.style.overflow='hidden'; pvVisSoon(); }
 function closeSheet(){ sheetEl.classList.remove('open'); document.body.style.overflow=''; }
 document.getElementById('allTemplatesBtn').onclick=openSheet;
 document.getElementById('sheetScrim').onclick=closeSheet;
 document.getElementById('sheetGrab').onclick=closeSheet;
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && sheetEl.classList.contains('open')) closeSheet(); });
-// свайп-вниз по панели листа — закрыть
+// свайп-вниз по панели листа — тянем за пальцем, отпустили за порогом → плавно закрыть
 (function(){
-  const panel=sheetEl.querySelector('.sheetPanel'); let y0=null;
-  panel.addEventListener('touchstart',e=>{ y0=e.touches[0].clientY; },{passive:true});
-  panel.addEventListener('touchmove',e=>{ if(y0!=null && panel.scrollTop<=0 && e.touches[0].clientY-y0>70){ y0=null; closeSheet(); } },{passive:true});
-  panel.addEventListener('touchend',()=>{ y0=null; });
+  const panel=sheetEl.querySelector('.sheetPanel');
+  let startY=null, dy=0, dragging=false;
+  panel.addEventListener('touchstart',e=>{
+    if(panel.scrollTop>0){ startY=null; return; }   // тянуть можно только от верха листа
+    startY=e.touches[0].clientY; dy=0; dragging=false; panel.style.transition='none';
+  },{passive:true});
+  panel.addEventListener('touchmove',e=>{
+    if(startY==null) return;
+    dy=e.touches[0].clientY-startY;
+    if(dy>0 && panel.scrollTop<=0){
+      dragging=true; panel.style.transform='translateY('+dy+'px)';
+      e.preventDefault();                            // не даём странице/листу скроллиться
+    } else if(dy<0 && !dragging){ startY=null; panel.style.transform=''; }
+  },{passive:false});
+  function end(){
+    if(startY==null) return;
+    const close=dy>120;
+    panel.style.transition='transform .28s cubic-bezier(.4,0,.2,1)';
+    panel.style.transform=close?'translateY(100%)':'translateY(0)';
+    const done=()=>{ panel.removeEventListener('transitionend',done);
+      panel.style.transition=''; panel.style.transform=''; if(close) closeSheet(); };
+    panel.addEventListener('transitionend',done);
+    startY=null; dragging=false;
+  }
+  panel.addEventListener('touchend',end);
+  panel.addEventListener('touchcancel',end);
 })();
 
 /* ---------- Quick controls (человеческие, без терминов) ----------
