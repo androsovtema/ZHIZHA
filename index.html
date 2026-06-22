@@ -656,16 +656,17 @@
           </linearGradient>
         </defs>
         <path fill="url(#logoGrad)"
-          d="M50,11 C71,11 89,29 89,50 C89,71 71,89 50,89 C29,89 11,71 11,50 C11,29 29,11 50,11 Z">
-          <animate attributeName="d" dur="9.5s" repeatCount="indefinite" calcMode="spline"
-            keyTimes="0;0.33;0.66;1"
-            keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"
-            values="M50,11 C71,11 89,29 89,50 C89,71 71,89 50,89 C29,89 11,71 11,50 C11,29 29,11 50,11 Z;
-                    M53,14 C75,17 86,33 84,53 C82,73 65,87 46,84 C27,81 15,65 18,46 C21,29 33,12 53,14 Z;
-                    M47,13 C69,9 91,29 87,50 C84,69 73,91 50,87 C30,84 9,71 14,49 C18,30 29,16 47,13 Z;
-                    M50,11 C71,11 89,29 89,50 C89,71 71,89 50,89 C29,89 11,71 11,50 C11,29 29,11 50,11 Z"/>
+          d="M50,9 C72,9 92,27 90,49 C88,70 70,91 49,89 C28,87 9,69 11,48 C13,28 28,9 50,9 Z">
+          <animate attributeName="d" dur="8s" repeatCount="indefinite" calcMode="spline"
+            keyTimes="0;0.25;0.5;0.75;1"
+            keySplines="0.42 0 0.58 1;0.42 0 0.58 1;0.42 0 0.58 1;0.42 0 0.58 1"
+            values="M50,15 C76,12 92,30 89,50 C86,69 72,85 50,85 C26,85 11,66 13,47 C15,29 27,17 50,15 Z;
+                    M51,20 C77,15 96,33 92,51 C89,66 74,79 50,82 C24,84 7,65 9,49 C11,31 28,24 51,20 Z;
+                    M49,7 C70,9 84,28 82,52 C80,76 66,93 49,92 C33,93 20,72 18,50 C16,27 31,5 49,7 Z;
+                    M57,13 C81,19 90,37 84,57 C77,78 55,86 39,79 C21,71 16,55 22,38 C27,23 37,8 57,13 Z;
+                    M50,15 C76,12 92,30 89,50 C86,69 72,85 50,85 C26,85 11,66 13,47 C15,29 27,17 50,15 Z"/>
           <animateTransform attributeName="transform" type="rotate"
-            from="0 50 50" to="360 50 50" dur="32s" repeatCount="indefinite"/>
+            from="0 50 50" to="360 50 50" dur="26s" repeatCount="indefinite"/>
         </path>
       </svg>
     </span>
@@ -1341,7 +1342,13 @@ const TEMPLATES = [
   { id:'noir',      name:'Нуар',         mood:'контраст · кино',     fam:'mono',     v:[0.30,1.90,4.0,0.020, 4, 7, 0, 0, 0, 1, 10] },
 ];
 const TEMPLATE_BY_ID = Object.fromEntries(TEMPLATES.map(t=>[t.id,t]));
-function templatesForCat(cat, fam){ return TEMPLATES.filter(t=>cat.fams.includes(t.fam) && (!fam || t.fam===fam)); }
+/* Для бесшовной задачи (Паттерн) жёстко оставляем только шаблоны, чьё поле реально
+   различимо в бесшовном (Поток/Клетки/Труше) — остальные схлопываются в pfbm и не
+   соответствуют своему превью (Спираль/Калейдо и т.п. не «тайлятся»). */
+function templatesForCat(cat, fam){
+  return TEMPLATES.filter(t=>cat.fams.includes(t.fam) && (!fam || t.fam===fam)
+    && (!cat.seamless || SEAMLESS_FIELDS.indexOf(t.v[4])>=0));
+}
 const FAM_LABELS={ calm:'Спокойные', energy:'Яркие', deep:'Глубокие', graphic:'Графика', ornament:'Узоры', mono:'Монохром' };
 
 /* ---------- Creator categories (для чего нужен фон) ----------
@@ -1355,7 +1362,7 @@ const CREATOR_CATEGORIES = [
   { id:'text',    name:'Фон под текст',  ratio:'16:9', mainExport:'png',   readability:true, exportHint:'Читаемый центр, мягкое медленное движение.',          default:'quiet',    fams:['calm','deep','mono'] },
   { id:'cover',   name:'Обложка',        ratio:'4:5',  mainExport:'png',   exportHint:'Сильная статичная картинка — скачивай PNG.',          default:'firework', fams:['energy','ornament','graphic','deep','mono'] },
   { id:'present', name:'Презентация',    ratio:'16:9', mainExport:'png',   exportHint:'Спокойные палитры, ровное движение.',                 default:'mist',     fams:['calm','deep','graphic','mono'] },
-  { id:'pattern', name:'Паттерн',        ratio:'1:1',  mainExport:'png',   seamless:true, exportHint:'Бесшовная плитка — повторяется без швов.',            default:'hexcomb',  fams:['graphic','ornament','mono'] },
+  { id:'pattern', name:'Паттерн',        ratio:'1:1',  mainExport:'png',   seamless:true, exportHint:'Бесшовная плитка — повторяется без швов.',            default:'mosaic',   fams:['graphic','mono'] },
   { id:'loop',    name:'Абстрактный луп',ratio:'16:9', mainExport:'video', exportHint:'Движение и эксперименты.',                            default:'galaxy',   fams:['energy','deep','ornament'] },
 ];
 
@@ -1589,7 +1596,17 @@ function refreshSeamless(){
   wrap.classList.toggle('seamless',on); tileCtrl.classList.toggle('hidden',!on);
   refreshFieldAvail();
 }
-function toggleSeamless(){ state.seamless=state.seamless?0:1; refreshSeamless(); syncUniforms(); }
+function toggleSeamless(){
+  state.seamless=state.seamless?0:1; refreshSeamless(); syncUniforms();
+  // ключевая настройка задачи «Паттерн» — бесшовность. Сняли её → задачи Паттерн
+  // больше нет: снимаем подсветку цели в верхней панели, чтобы не путать.
+  if(!state.seamless && activeCat && activeCat.seamless){
+    activeCat=null;
+    document.querySelectorAll('#catChips button').forEach(x=>x.classList.remove('active'));
+    catHintEl.textContent='';
+    ActionDock.render();
+  }
+}
 seamlessToggle.onclick=toggleSeamless;
 seamlessToggle.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleSeamless();} };
 
