@@ -601,8 +601,11 @@
   /* bottom-sheet «Все шаблоны» */
   #tmplSheet{ position:fixed; inset:0; z-index:60; display:none; }
   #tmplSheet.open{ display:block; }
-  #tmplSheet .sheetScrim{ position:absolute; inset:0; background:rgba(0,0,0,.55); }
-  #tmplSheet .sheetPanel{ position:absolute; left:0; right:0; bottom:0; max-height:82vh; overflow-y:auto;
+  #tmplSheet .sheetScrim{ position:absolute; inset:0; background:rgba(0,0,0,.3); }
+  /* лист открывается только до низа превью/дока (topbar 52px + превью 46dvh),
+     чтобы фон оставался виден, пока листаешь и тыкаешь шаблоны */
+  #tmplSheet .sheetPanel{ position:absolute; left:0; right:0; bottom:0;
+    max-height:calc(100dvh - 52px - 46dvh); overflow-y:auto;
     background:var(--ink-800); border:1px solid var(--panel-border); border-bottom:none;
     border-radius:var(--r-lg) var(--r-lg) 0 0; box-shadow:var(--shadow-panel);
     padding:10px 14px calc(20px + env(safe-area-inset-bottom)); animation:sheetUp var(--dur-3) var(--ease-soft); }
@@ -1719,8 +1722,12 @@ function pvRegister(canvas,t){
 function pvVisCalc(){
   pvVisible.clear();
   const vh=window.innerHeight||800, m=220;
+  const sheetOpen = typeof sheetEl!=='undefined' && sheetEl && sheetEl.classList.contains('open');
   for(const cv of pvCards){
     if(!cv.isConnected) continue;
+    // лист «Все» открыт → анимируем ВСЕ его карточки сразу (без ленивой подгрузки),
+    // иначе нижние мелькают статичным градиентом при доскролле
+    if(sheetOpen && sheetCardsEl.contains(cv)){ pvVisible.add(cv); continue; }
     const r=cv.getBoundingClientRect();
     if(r.width>0 && r.bottom>-m && r.top<vh+m) pvVisible.add(cv);
   }
@@ -1773,7 +1780,7 @@ function applyTemplate(t){
   if(keepSeamless!==state.seamless){ state.seamless=keepSeamless; refreshSeamless(); }
   refreshRatioButtons(); resize();
   document.querySelectorAll('#presets .chip').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('#tmplCards .tmplCard').forEach(x=>x.classList.toggle('active', x.dataset.tid===t.id));
+  document.querySelectorAll('#tmplCards .tmplCard, #sheetCards .tmplCard').forEach(x=>x.classList.toggle('active', x.dataset.tid===t.id));
   updateProCtx(t.name);
 }
 
@@ -1901,14 +1908,15 @@ function renderSheet(){
   // карточки — снимаем прежние канвасы листа из пула превью, затем регистрируем свежие,
   // чтобы в листе крутилась живая анимация шаблона, а не статичный градиент
   for(let i=pvCards.length-1;i>=0;i--){ if(sheetCardsEl.contains(pvCards[i])) pvCards.splice(i,1); }
+  const curTid=document.querySelector('#tmplCards .tmplCard.active')?.dataset.tid;
   sheetCardsEl.innerHTML='';
   list.forEach(t=>{
     const stops=PALETTES[t.v[5]].stops;
-    const card=document.createElement('button'); card.type='button'; card.className='tmplCard'; card.dataset.tid=t.id;
+    const card=document.createElement('button'); card.type='button'; card.className='tmplCard'+(t.id===curTid?' active':''); card.dataset.tid=t.id;
     card.setAttribute('aria-label','Шаблон: '+t.name);
     card.innerHTML=`<canvas class="thumb" aria-hidden="true" style="background:${gradCss(stops)}"></canvas>`+
       `<span class="meta"><span class="tname">${t.name}</span><span class="tmood">${t.mood}</span></span>`;
-    card.onclick=()=>{ applyTemplate(t); closeSheet(); };
+    card.onclick=()=>{ applyTemplate(t); };  // лист не закрываем — пользователь листает и пробует сколько хочет, закрывает свайпом
     sheetCardsEl.appendChild(card);
     pvRegister(card.querySelector('canvas'), t);
   });
