@@ -2464,5 +2464,55 @@ init();
   }
 })();
 </script>
+<script>
+(() => {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const S = 64;
+  const cv = document.createElement('canvas'); cv.width = cv.height = S;
+  const ctx = cv.getContext('2d');
+
+  let link = document.querySelector('link[rel~="icon"]');
+  if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+
+  const css = getComputedStyle(document.documentElement);
+  const col = n => css.getPropertyValue(n).trim() || '#7c5cff';
+
+  function frame(t) {
+    t *= 0.001;
+    ctx.clearRect(0, 0, S, S);
+    const cx = S/2, cy = S/2, base = S*0.40;
+
+    ctx.beginPath();
+    const N = 32;
+    for (let i = 0; i <= N; i++) {
+      const a = (i/N) * Math.PI*2;
+      const r = base * (1 + 0.08*Math.sin(a*3 + t*1.4) + 0.05*Math.sin(a*2 - t));
+      const x = cx + Math.cos(a)*r, y = cy + Math.sin(a)*r;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.closePath();
+
+    const ang = t*0.5, dx = Math.cos(ang)*base, dy = Math.sin(ang)*base;
+    const g = ctx.createLinearGradient(cx-dx, cy-dy, cx+dx, cy+dy);
+    g.addColorStop(0,   col('--accent-pink'));
+    g.addColorStop(0.5, col('--accent'));
+    g.addColorStop(1,   col('--accent-mint'));
+    ctx.fillStyle = g; ctx.fill();
+  }
+
+  let last = 0;
+  function loop(now) {
+    if (now - last > 90) {
+      frame(now);
+      link.href = cv.toDataURL('image/png');
+      last = now;
+    }
+    requestAnimationFrame(loop);
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) last = 0; });
+  requestAnimationFrame(loop);
+})();
+</script>
 </body>
 </html>
