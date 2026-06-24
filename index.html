@@ -662,8 +662,8 @@
        вправо лента вытекает к краю; вертикальные padding+отрицательный margin дают
        свечению активной карточки место и не режут его (overflow-x:auto клипает) */
     #tmplCards{ display:flex; grid-template-columns:none; gap:9px; overflow-x:auto; overflow-y:hidden;
-      scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch;
-      margin:-22px -13px -24px 0; padding:22px 13px 30px 0; }
+      scroll-snap-type:x proximity; scroll-padding-left:27px; -webkit-overflow-scrolling:touch;
+      margin:-22px -27px -24px; padding:22px 27px 30px; }
     #tmplCards .tmplCard{ flex:0 0 130px; width:130px; scroll-snap-align:start; }
     #tmplHead{ display:flex; }
   }
@@ -777,7 +777,7 @@
         <select id="dockRes" aria-label="Разрешение экспорта">
           <option value="thumb">Эскиз · 640px</option>
           <option value="1080" selected>1080p · Full HD</option>
-          <option value="2048">2048×2048</option>
+          <option value="2k">2K · QHD</option>
           <option value="4k">4K · Ultra HD</option>
         </select>
         <label for="dockDur">Длительность видео</label>
@@ -1455,7 +1455,7 @@ try {
   wrap.innerHTML = '<div style="padding:40px;color:#fff;font:14px sans-serif;max-width:340px;text-align:center;">Ваш браузер не поддерживает WebGL — фон отрисовать нельзя. Попробуйте свежий Chrome, Firefox или Edge.</div>';
   throw err;
 }
-const MAX_DPR = 1.5;
+const MAX_DPR = 2.5; // retina-чёткость превью на современных экранах (было 1.5 — «прошлый век»)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_DPR));
 wrap.appendChild(renderer.domElement);
 
@@ -1697,7 +1697,7 @@ function loadPreset(p){
    Один отдельный WebGL-рендерер рисует сцену каждого ВИДИМОГО стиля в мелком
    размере и копирует картинку в 2D-canvas карточки. Так один контекст обслуживает
    сотни карточек (обходим лимит WebGL-контекстов в браузере). */
-const PV_W=240, PV_H=240, PV_FPS=20;
+const PV_W=480, PV_H=480, PV_FPS=20; // источник миниатюр в 2× — чёткие превью на retina
 let pvOK=true, pvRenderer, pvScene, pvCamera, pvUniforms;
 try{
   pvRenderer=new THREE.WebGLRenderer({antialias:true, alpha:false, preserveDrawingBuffer:true, powerPreference:'low-power'});
@@ -1722,20 +1722,22 @@ function pvReset(){ pvCards.length=0; pvVisible.clear(); }
 function pvRegister(canvas,t){
   if(!canvas) return;
   canvas._tpl=t;
-  const dpr=Math.min(window.devicePixelRatio||1,1.5);
+  const dpr=Math.min(window.devicePixelRatio||1,2.5);
   canvas.width=Math.round(canvas.clientWidth*dpr)||PV_W;
   canvas.height=Math.round(canvas.clientHeight*dpr)||PV_H;
   pvCards.push(canvas);
 }
 function pvVisCalc(){
   pvVisible.clear();
-  const vh=window.innerHeight||800, m=220;
+  const vh=window.innerHeight||800, m=520; // прогрев на ~несколько рядов вперёд
   const sheetOpen = typeof sheetEl!=='undefined' && sheetEl && sheetEl.classList.contains('open');
   for(const cv of pvCards){
     if(!cv.isConnected) continue;
-    // лист «Все» открыт → анимируем ВСЕ его карточки сразу (без ленивой подгрузки),
-    // иначе нижние мелькают статичным градиентом при доскролле
-    if(sheetOpen && sheetCardsEl.contains(cv)){ pvVisible.add(cv); continue; }
+    const inSheet = sheetCardsEl.contains(cv);
+    // лист «Все» открыт → карточки ленты под ним скрыты, не тратим кадры
+    if(sheetOpen && !inSheet) continue;
+    // кулинг по вьюпорту (а не «все сразу»): меньше одновременных рендеров →
+    // main-thread свободен, подписи/подложка не выскакивают при скролле, скролл плавный
     const r=cv.getBoundingClientRect();
     if(r.width>0 && r.bottom>-m && r.top<vh+m) pvVisible.add(cv);
   }
@@ -2164,10 +2166,9 @@ document.addEventListener('visibilitychange',()=>{
 
 /* ---------- target dimensions for export (PNG + video) ---------- */
 function targetDims(res){
-  let base; if(res==='thumb')base=640; else if(res==='1080')base=1080; else if(res==='2048')base=2048; else base=2160;
+  let base; if(res==='thumb')base=640; else if(res==='1080')base=1080; else if(res==='2k')base=1440; else base=2160;
   let w,h;
-  if(res==='2048'){ w=h=2048; }
-  else if(aspectRatio>=1){ h=base; w=Math.round(base*aspectRatio); }
+  if(aspectRatio>=1){ h=base; w=Math.round(base*aspectRatio); }
   else { w=base; h=Math.round(base/aspectRatio); }
   if(w>4096){ const s=4096/w; w=Math.round(w*s); h=Math.round(h*s); }
   return {w,h};
@@ -2335,8 +2336,8 @@ const ActionDock = (function(){
   const dockPx=document.getElementById('dockFmtPx');
   const panelRes=dockRes;
   const panelDur=dockDur;
-  const RES_LABEL={ thumb:'Эскиз', '1080':'1080p', '2048':'2048²', '4k':'4K' };
-  const RES_TIER={ thumb:'640p', '1080':'1080p', '2048':'2048²', '4k':'4K' };
+  const RES_LABEL={ thumb:'Эскиз', '1080':'1080p', '2k':'2K', '4k':'4K' };
+  const RES_TIER={ thumb:'640p', '1080':'1080p', '2k':'2K', '4k':'4K' };
   // платформенная привязка пресета к задаче — показываем «подо что» целевые пиксели
   const PLATFORM={ tiktok:'Reels/TikTok', stories:'Stories', youtube:'YouTube',
     text:'обложка', cover:'обложка', present:'слайд', pattern:'плитка', loop:'видео' };
