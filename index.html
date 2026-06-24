@@ -174,11 +174,14 @@
   }
   .topbarBrand{ display:flex; align-items:center; gap:9px; flex:0 0 auto; min-width:0; }
   /* анимированный логотип-капля «жижа»: морфит форму + крутит градиент по теме */
+  /* бокс 44px (визуальная капля ~28px за счёт padding во viewBox) + margin:-8px →
+     раскладка как у 28px, но свечение умещается ВНУТРИ бокса и не режется
+     overflow:hidden у предков (iOS) */
   .topbarLogo{
-    width:28px; height:28px; flex:0 0 auto; display:block;
+    width:44px; height:44px; margin:-8px; flex:0 0 auto; display:block;
     filter: drop-shadow(0 0 7px color-mix(in srgb, var(--accent) 55%, transparent));
   }
-  .logoBlob{ display:block; width:28px; height:28px; overflow:visible; }
+  .logoBlob{ display:block; width:44px; height:44px; overflow:visible; }
   .logoBlob .s1{ stop-color: var(--accent-pink); }
   .logoBlob .s2{ stop-color: var(--accent); }
   .logoBlob .s3{ stop-color: var(--accent-mint); }
@@ -655,9 +658,12 @@
     .dockSecondary button{ padding:11px 9px; gap:5px; font-size:11px; }
     .dockFmt{ padding:11px 7px; }
     /* шаблоны → горизонтальная карусель (главная боль mobile: стена шаблонов) */
+    /* лента: первый шаблон выровнен по контенту панели (margin-left:0, padding-left:0),
+       вправо лента вытекает к краю; вертикальные padding+отрицательный margin дают
+       свечению активной карточки место и не режут его (overflow-x:auto клипает) */
     #tmplCards{ display:flex; grid-template-columns:none; gap:9px; overflow-x:auto; overflow-y:hidden;
-      scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
-      margin:0 -14px; padding:2px 14px 6px; }
+      scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch;
+      margin:-22px -13px -24px 0; padding:22px 13px 30px 0; }
     #tmplCards .tmplCard{ flex:0 0 130px; width:130px; scroll-snap-align:start; }
     #tmplHead{ display:flex; }
   }
@@ -680,7 +686,7 @@
 <header id="topbar" aria-label="Верхняя панель приложения">
   <div class="topbarBrand" aria-label="ЖИЖА">
     <span class="topbarLogo" aria-hidden="true">
-      <svg class="logoBlob" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <svg class="logoBlob" viewBox="-15 -15 130 130" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" class="s1"/>
