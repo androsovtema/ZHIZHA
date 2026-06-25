@@ -2223,11 +2223,15 @@ function applyTemplate(t){
     state.maskFont = t.text.font || 0;
     state.textScale = t.text.scale || 1;
     state.maskBg = t.text.bg || state.maskBg;
-    maskSig='';
-    renderTextFields();
-    set('maskMode',state.maskMode); set('maskFont',state.maskFont);
-    set('textScale',state.textScale); set('maskBg',state.maskBg);
+  } else {
+    setMaskTexts(['']);
+    state.maskMode = 0;
   }
+  maskSig='';
+  renderTextFields();
+  set('maskMode',state.maskMode); set('maskFont',state.maskFont);
+  set('textScale',state.textScale); set('maskBg',state.maskBg);
+  refreshQuickText();
   state.ratio=keepRatio; aspectRatio=RATIOS[keepRatio];
   if(keepSeamless!==state.seamless){ state.seamless=keepSeamless; refreshSeamless(); }
   refreshRatioButtons(); updateLabels(); syncUniforms(); resize();
