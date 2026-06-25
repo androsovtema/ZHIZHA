@@ -396,10 +396,18 @@
   .swatchRow{ display:flex; gap:8px; flex-wrap:wrap; }
   .swatchRow .swatch{ width:30px; height:30px; border-radius:8px; cursor:pointer;
     border:2px solid transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); transition:.15s; }
-  .swatchRow .swatch:hover{ transform: translateY(-1px); }
-  .swatchRow .swatch.active{ border-color:#fff; }
+	  .swatchRow .swatch:hover{ transform: translateY(-1px); }
+	  .swatchRow .swatch.active{ border-color:#fff; }
+  .textFields{ display:flex; flex-direction:column; gap:7px; }
+  .textFieldRow{ display:flex; gap:7px; align-items:center; }
+  .textFieldRow input{ width:100%; min-width:0; background:rgba(255,255,255,.05); color:var(--text);
+    border:1px solid var(--panel-border); border-radius:var(--r-sm); padding:9px; font-size:13px; }
+  .textMiniBtn{ flex:0 0 36px; height:36px; cursor:pointer; border:1px solid var(--panel-border);
+    border-radius:var(--r-sm); background:rgba(255,255,255,.04); color:var(--text); font-size:18px; line-height:1; }
+  .textMiniBtn:hover{ background:rgba(255,255,255,.08); }
+  .textMiniBtn[disabled]{ opacity:.45; cursor:not-allowed; }
 
-  /* author footer */
+	  /* author footer */
   .author{ margin-top:16px; padding-top:14px; border-top:1px solid var(--panel-border); }
   .authorLinks{ display:flex; flex-wrap:wrap; gap:7px; }
   .authorLinks a{ text-decoration:none; font-size:12px; color:var(--text-dim);
@@ -677,7 +685,8 @@
   /* единый порядок секций (flex order; скрытые не участвуют) */
   .brand{ order:0; } .layerSeg{ order:1; }
   #creatorStep{ order:5; } #quickStep{ order:6; }
-  #sizeStep{ order:10; } #fieldStep{ order:11; } #surfaceStep{ order:12; } #colorStep{ order:13; }
+  #sizeStep{ order:10; } #fieldStep{ order:11; } #layersStep{ order:12; }
+  #surfaceStep{ order:13; } #colorStep{ order:14; } #textMaskStep{ order:15; }
   #forSite{ order:21; } .author{ order:30; }
 </style>
 </head>
@@ -848,6 +857,16 @@
       <button type="button" data-fx="pixel">Пиксель</button>
       <button type="button" data-fx="dots">Полутон</button>
       <button type="button" data-fx="ascii">ASCII</button>
+      <button type="button" data-fx="dither">Dither</button>
+    </div>
+
+    <div class="qlabel">Текст</div>
+    <div class="textFields" id="qTextFields" aria-label="Тексты на фоне"></div>
+    <button type="button" class="textMiniBtn" id="qAddText" aria-label="Добавить текст" style="width:100%;margin-top:7px;">+</button>
+    <div class="seg" id="quickTextMode" role="group" aria-label="Режим текста" style="margin-top:8px;">
+      <button type="button" data-text="none" class="active">Нет</button>
+      <button type="button" data-text="word">Слово</button>
+      <button type="button" data-text="pattern">Паттерн</button>
     </div>
   </div>
 
@@ -892,23 +911,51 @@
       <label for="warp"><span>Искажение <span class="tech">warp</span></span> <span class="val" id="vWarp"></span></label>
       <input type="range" id="warp" aria-label="Искажение (warp)" min="0" max="9" step="0.05" value="4.5">
     </div>
+    <div class="ctrl">
+      <label for="sym">Симметрия <span class="val" id="vSym"></span></label>
+      <input type="range" id="sym" aria-label="Симметрия" min="0" max="12" step="1" value="0">
+    </div>
     <div class="ctrl" style="margin-bottom:0;">
       <label for="grain">Зерно <span class="val" id="vGrain"></span></label>
       <input type="range" id="grain" aria-label="Зернистость" min="0" max="0.3" step="0.005" value="0.06">
     </div>
   </div>
 
+  <div class="step lyr lyr-pro" id="layersStep">
+    <h2><span class="num">03</span> Слои</h2>
+    <div class="grid2">
+      <select id="field2" aria-label="Второй стиль" style="width:100%;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--panel-border);border-radius:var(--r-sm);padding:8px;font-size:12px;"></select>
+      <select id="blend" aria-label="Смешивание" style="width:100%;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--panel-border);border-radius:var(--r-sm);padding:8px;font-size:12px;">
+        <option value="0">Normal</option>
+        <option value="1">Multiply</option>
+        <option value="2">Screen</option>
+        <option value="3">Add</option>
+        <option value="4">Difference</option>
+        <option value="5">Overlay</option>
+      </select>
+    </div>
+    <div class="ctrl" style="margin-top:12px;margin-bottom:0;">
+      <label for="layerMix">Сила второго слоя <span class="val" id="vLayerMix"></span></label>
+      <input type="range" id="layerMix" aria-label="Сила второго слоя" min="0" max="1" step="0.02" value="0">
+    </div>
+  </div>
+
   <!-- 03 Фактура -->
   <div class="step lyr lyr-pro" id="surfaceStep">
-    <h2><span class="num">03</span> Фактура</h2>
+    <h2><span class="num">04</span> Фактура</h2>
     <div class="seg" id="screenSeg" role="group" aria-label="Фактура">
       <button data-screen="0" class="active" aria-pressed="true">Гладкая</button>
       <button data-screen="1" aria-pressed="false">Гекс</button>
       <button data-screen="2" aria-pressed="false">ASCII</button>
+      <button data-screen="3" aria-pressed="false">Dither</button>
     </div>
     <div class="ctrl" id="pixelCtrl" style="margin-top:12px;">
       <label for="pixel">Пикселизация / ячейка <span class="val" id="vPixel"></span></label>
       <input type="range" id="pixel" aria-label="Пикселизация" min="1" max="40" step="1" value="1">
+    </div>
+    <div class="ctrl hidden" id="ditherCtrl" style="margin-top:12px;">
+      <label for="dither">Порог dither <span class="val" id="vDither"></span></label>
+      <input type="range" id="dither" aria-label="Порог dither" min="0" max="1" step="0.01" value="0.5">
     </div>
     <div class="switch" id="dotsRow" style="margin-top:12px;">
       <span id="dotsLabel">Полутон</span>
@@ -922,10 +969,37 @@
 
   <!-- 04 Цвета -->
   <div class="step lyr lyr-pro" id="colorStep">
-    <h2><span class="num">04</span> Цвета</h2>
+    <h2><span class="num">05</span> Цвета</h2>
     <div class="grid2" id="palettes"></div>
     <div class="colors" id="colorPickers" style="margin-top:12px;"></div>
     <div class="hint">Выбери палитру или собери свою — клик по плашке меняет цвет градиента.</div>
+  </div>
+
+  <div class="step lyr lyr-pro" id="textMaskStep">
+    <h2><span class="num">06</span> Текст</h2>
+    <div class="textFields" id="maskTextFields" aria-label="Тексты внутри живого фона"></div>
+    <button type="button" class="textMiniBtn" id="addMaskText" aria-label="Добавить текст" style="width:100%;margin-top:7px;">+</button>
+    <div class="grid2" style="margin-top:8px;">
+      <select id="maskMode" aria-label="Режим текста" style="width:100%;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--panel-border);border-radius:var(--r-sm);padding:8px;font-size:12px;">
+        <option value="0">Крупное слово</option>
+        <option value="1">Паттерн</option>
+      </select>
+      <select id="maskFont" aria-label="Шрифт текста" style="width:100%;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--panel-border);border-radius:var(--r-sm);padding:8px;font-size:12px;">
+        <option value="0">Heavy</option>
+        <option value="1">Comfortaa</option>
+        <option value="2">Mono</option>
+        <option value="3">Serif</option>
+        <option value="4">Impact</option>
+      </select>
+    </div>
+    <div class="ctrl" style="margin-top:12px;">
+      <label for="textScale">Размер текста <span class="val" id="vTextScale"></span></label>
+      <input type="range" id="textScale" aria-label="Размер текста" min="0.5" max="2.4" step="0.02" value="1">
+    </div>
+    <div class="grid2" style="margin-top:8px;">
+      <input id="maskBg" type="color" value="#07090a" aria-label="Цвет фона за текстом" style="width:100%;height:36px;background:transparent;border:0;padding:0;" />
+    </div>
+    <div class="hint">Если поле пустое, фон работает как обычно. Текст сохраняется в ссылке на сцену.</div>
   </div>
 
   <!-- Для сайта — ссылка, встраивание, импорт -->
@@ -1001,16 +1075,26 @@ uniform float u_grain;
 uniform float u_pixel;
 uniform float u_dots;
 uniform float u_dot;
+uniform float u_dither;
 uniform int   u_pal;
 uniform vec3  u_c0;
 uniform vec3  u_c1;
 uniform vec3  u_c2;
 uniform vec3  u_c3;
 uniform int   u_field;
+uniform int   u_field2;
+uniform int   u_blend;
+uniform float u_layerMix;
+uniform float u_sym;
 uniform int   u_screen;
 uniform float u_seamless;
 uniform float u_tile;
 uniform sampler2D u_glyph;
+uniform sampler2D u_mask;
+uniform float u_hasMask;
+uniform int   u_textMode;
+uniform float u_textScale;
+uniform vec3  u_maskBg;
 uniform vec2  u_mouse;
 uniform float u_mouseAmt;
 
@@ -1159,6 +1243,78 @@ float fieldGolden(vec2 p, float t){
   float rings = cos(n * 3.14159265 - t * 0.1);
   return 0.5 + 0.5 * spiral * rings;
 }
+float spreadF(float v, float g){ return clamp((v - 0.5) * g + 0.5, 0.0, 1.0); }
+/* field K: billowing smoke / volumetric plasma */
+float fieldSmoke(vec2 p, float t){
+  float w = max(u_warp, 1.0);
+  vec2 a1 = vec2(sin(t * 0.20), cos(t * 0.17)) * 0.8;
+  vec2 a2 = vec2(cos(t * 0.15), sin(t * 0.24)) * 0.8;
+  vec2 q = vec2(fbm(p + a1), fbm(p + vec2(5.2, 1.3) - a2));
+  vec2 r = vec2(
+    fbm(p + w * 0.42 * q + vec2(1.7, 9.2) + a2),
+    fbm(p + w * 0.42 * q + vec2(8.3, 2.8) - a1)
+  );
+  float body = fbm(p + w * 0.5 * r);
+  float fine = fbm(p * 2.4 + r * 1.6 + a1 * 0.4);
+  float d = body * 0.72 + fine * 0.28;
+  return pow(clamp((d - 0.15) * 1.65, 0.0, 1.0), 1.6);
+}
+/* field L: quasicrystal / sharp light facets */
+float fieldQuasi(vec2 p, float t){
+  float n = 5.0 + floor(u_warp * 0.6);
+  float v = 0.0;
+  for (int i = 0; i < 12; i++){
+    float on = step(float(i), n - 0.5);
+    float a = 3.14159265 * float(i) / max(n, 1.0);
+    v += on * cos((p.x * cos(a) + p.y * sin(a)) * 8.0 + t * 0.65);
+  }
+  return spreadF(0.5 + 0.5 * (v / n), 1.5);
+}
+/* field M: true hex lattice with pulsing cells */
+float fieldHoneycomb(vec2 p, float t){
+  vec2 hp = p * (1.3 + u_warp * 0.35);
+  vec2 c = hexCenter(hp);
+  vec2 gv = hp - c;
+  float hd = max(abs(gv.x), max(abs(0.5 * gv.x + 0.8660254 * gv.y), abs(-0.5 * gv.x + 0.8660254 * gv.y)));
+  float cell = 0.5 + 0.5 * sin(hash(c) * 6.2831853 + t * 0.7);
+  float wall = smoothstep(0.40, 0.48, hd);
+  return mix(cell, 0.04, wall);
+}
+
+float bayer2(vec2 a){ a = floor(a); return fract(a.x * 0.5 + a.y * a.y * 0.75); }
+float bayer4(vec2 a){ return bayer2(0.5 * a) * 0.25 + bayer2(a); }
+float bayer8(vec2 a){ return bayer4(0.5 * a) * 0.25 + bayer2(a); }
+
+float fieldOf(int eng, vec2 p, float t, vec2 drift){
+  if (eng == 1){ return fieldFlow(p, drift); }
+  else if (eng == 2){ return fieldCellular(p, t); }
+  else if (eng == 3){ return fieldGyroid(p, t); }
+  else if (eng == 4){ return fieldTruchet(p, t); }
+  else if (eng == 5){ return fieldInterf(p, t); }
+  else if (eng == 6){ return fieldKaleido(p, t); }
+  else if (eng == 7){ return fieldLines(p, t); }
+  else if (eng == 8){ return fieldGrid(p, t); }
+  else if (eng == 9){ return fieldGolden(p, t); }
+  else if (eng == 10){ return fieldSmoke(p, t); }
+  else if (eng == 11){ return fieldQuasi(p, t); }
+  else if (eng == 12){ return fieldHoneycomb(p, t); }
+  vec2 q = vec2(fbm(p), fbm(p + vec2(5.2, 1.3)));
+  vec2 disp = vec2(
+    fbm(p + u_warp * q + vec2(1.7, 9.2) + drift.x),
+    fbm(p + u_warp * q + vec2(8.3, 2.8) + drift.y)
+  );
+  return fbm(p + u_warp * disp);
+}
+float blendField(float a, float b, int mode, float amt){
+  float r;
+  if (mode == 1){ r = a * b; }
+  else if (mode == 2){ r = 1.0 - (1.0 - a) * (1.0 - b); }
+  else if (mode == 3){ r = min(a + b, 1.0); }
+  else if (mode == 4){ r = abs(a - b); }
+  else if (mode == 5){ r = a < 0.5 ? 2.0 * a * b : 1.0 - 2.0 * (1.0 - a) * (1.0 - b); }
+  else { r = b; }
+  return mix(a, r, amt);
+}
 
 vec3 ramp4(float t, vec3 a, vec3 b, vec3 c, vec3 d){
   t = clamp(t, 0.0, 1.0);
@@ -1181,6 +1337,7 @@ void main(){
   vec2 fc = gl_FragCoord.xy;
   if (u_screen == 1){ float cs = max(u_pixel, 3.0); fc = hexCenter(fc / cs) * cs; }
   else if (u_screen == 2){ fc = (floor(fc / csA) + 0.5) * csA; }
+  else if (u_screen == 3){ float cd = max(u_pixel, 3.0); fc = (floor(fc / cd) + 0.5) * cd; }
   else if (u_pixel > 1.5){
     /* square screen (0): pixelate when the slider is above 1 — this stacks with
        halftone below, exactly like the reference (Square + halftone + pixelate) */
@@ -1228,22 +1385,20 @@ void main(){
       f = pfbm(p + u_warp * disp, tile2);
     }
   }
-  else if (u_field == 1){ f = fieldFlow(p, vec2(d1, d2)); }
-  else if (u_field == 2){ f = fieldCellular(p, u_time); }
-  else if (u_field == 3){ f = fieldGyroid(p, u_time); }
-  else if (u_field == 4){ f = fieldTruchet(p, u_time); }
-  else if (u_field == 5){ f = fieldInterf(p, u_time); }
-  else if (u_field == 6){ f = fieldKaleido(p, u_time); }
-  else if (u_field == 7){ f = fieldLines(p, u_time); }
-  else if (u_field == 8){ f = fieldGrid(p, u_time); }
-  else if (u_field == 9){ f = fieldGolden(p, u_time); }
   else {
-    vec2 q = vec2(fbm(p), fbm(p + vec2(5.2, 1.3)));
-    disp = vec2(
-      fbm(p + u_warp * q + vec2(1.7, 9.2) + d1),
-      fbm(p + u_warp * q + vec2(8.3, 2.8) + d2)
-    );
-    f = fbm(p + u_warp * disp);
+    if (u_sym >= 1.5){
+      float ka = atan(p.y, p.x);
+      float kr = length(p);
+      float kseg = 6.2831853 / u_sym;
+      ka = mod(ka, kseg);
+      ka = abs(ka - 0.5 * kseg);
+      p = vec2(cos(ka), sin(ka)) * kr;
+    }
+    f = fieldOf(u_field, p, u_time, vec2(d1, d2));
+    if (u_layerMix > 0.001){
+      float f2 = fieldOf(u_field2, p, u_time, vec2(d2, -d1));
+      f = blendField(f, f2, u_blend, u_layerMix);
+    }
   }
   f = smoothstep(0.08, 0.92, f);
 
@@ -1269,6 +1424,11 @@ void main(){
     vec2 guv = vec2((gi + cl.x) / 10.0, 1.0 - cl.y);
     col *= texture2D(u_glyph, guv).r;
   }
+  if (u_screen == 3){
+    float cd = max(u_pixel, 3.0);
+    float bit = step(bayer8(gl_FragCoord.xy / cd), clamp(f + (u_dither - 0.5), 0.0, 1.0));
+    col = mix(u_c1, u_c3, bit);
+  }
 
   /* 6 - grain + vignette (skipped in seamless so the tile stays clean) */
   if (u_seamless < 0.5){
@@ -1278,6 +1438,24 @@ void main(){
   }
 
   col = clamp(col, 0.0, 1.0);
+  if (u_hasMask > 0.5){
+    vec2 muv = vec2(gl_FragCoord.x / u_res.x, 1.0 - gl_FragCoord.y / u_res.y);
+    if (u_textMode == 1){
+      float asp = max(u_res.x / max(u_res.y, 1.0), 0.2);
+      vec2 tuv = vec2(muv.x * asp, muv.y) - vec2(0.5 * asp, 0.5);
+      float ca = cos(-0.16), sa = sin(-0.16);
+      tuv = mat2(ca, -sa, sa, ca) * tuv + vec2(0.5 * asp, 0.5);
+      float repeat = 2.25 / max(u_textScale, 0.25);
+      tuv = tuv * repeat + vec2(u_time * 0.035, -u_time * 0.022);
+      float mk = texture2D(u_mask, fract(tuv)).r;
+      float ink = smoothstep(0.22, 0.70, mk);
+      vec3 paper = mix(u_maskBg, col, 0.18);
+      col = mix(paper, col, ink);
+    } else {
+      float mk = texture2D(u_mask, muv).r;
+      col = mix(u_maskBg, col, smoothstep(0.42, 0.58, mk));
+    }
+  }
   gl_FragColor = vec4(col, 1.0);
 }
 `;
@@ -1299,6 +1477,7 @@ const FIELDS = [
   { id:0, name:'Поток' }, { id:1, name:'Течение' }, { id:2, name:'Клетки' },
   { id:3, name:'Гироид' }, { id:4, name:'Труше' }, { id:5, name:'Интерф.' },
   { id:6, name:'Калейдо' }, { id:7, name:'Линии' }, { id:8, name:'Сетка' }, { id:9, name:'Золото' },
+  { id:10, name:'Дым' }, { id:11, name:'Кристалл' }, { id:12, name:'Соты+' },
 ];
 
 /* presets: [speed,scale,warp,grain, field, pal, seamless, screen, dots, pixel, dot] */
@@ -1392,37 +1571,57 @@ const TEMPLATES = [
   { id:'steel',     name:'Сталь',        mood:'металл · холод',      fam:'mono',     v:[0.32,1.60,4.5,0.020, 3, 7, 0, 0, 0, 1, 10] },
   { id:'smoke',     name:'Дым',          mood:'мягко · моно',        fam:'mono',     v:[0.22,2.00,2.6,0.018, 0, 7, 0, 0, 0, 1, 10] },
   { id:'noir',      name:'Нуар',         mood:'контраст · кино',     fam:'mono',     v:[0.30,1.90,4.0,0.020, 4, 7, 0, 0, 0, 1, 10] },
+  /* — новая волна: отличающиеся движки/смешивание, а не только перенастройки — */
+  { id:'smokeflow',  name:'Жидкий дым',   mood:'вязко · клубится',     fam:'calm',     tags:['new'],        v:[0.28,1.70,4.8,0.020,10, 3, 0, 0, 0, 1, 10, 0, 1, 2,0.26,0.50] },
+  { id:'ionstorm',   name:'Ионный шторм', mood:'лучи · заряд',        fam:'energy',   tags:['new'],        v:[0.82,1.22,7.8,0.035, 5, 6, 0, 0, 0, 1, 10, 6,10, 4,0.46,0.50] },
+  { id:'deepplume',  name:'Плюм',         mood:'темно · объём',        fam:'deep',     tags:['new'],        v:[0.34,1.35,6.8,0.020,10, 2, 0, 0, 0, 1, 10, 0, 3, 1,0.34,0.50] },
+  { id:'printwave',  name:'Ризограф',     mood:'печать · зерно',       fam:'graphic',  tags:['new'],        v:[0.30,1.55,4.4,0.025, 8, 1, 0, 3, 0, 7, 10, 0,11, 5,0.38,0.46] },
+  { id:'crystalweb', name:'Кристалл',     mood:'грани · сеть',         fam:'ornament', tags:['new'],        v:[0.30,1.35,5.5,0.020,11, 6, 0, 0, 0, 1, 10, 8, 6, 3,0.42,0.50] },
+  { id:'honeylaser', name:'Сотовый луч',  mood:'соты · свет',          fam:'graphic',  tags:['new'],        v:[0.38,1.45,5.2,0.020,12, 5, 0, 0, 0, 1, 10, 0, 7, 4,0.32,0.50] },
+  { id:'mirrorfluid',name:'Зеркальная',   mood:'симметрия · жидко',    fam:'ornament', tags:['new'],        v:[0.36,1.45,6.2,0.025,10, 0, 0, 0, 0, 1, 10, 8, 6, 2,0.28,0.50] },
+  { id:'cybermono',  name:'Кибермоно',    mood:'сетка · шум',          fam:'mono',     tags:['new'],        v:[0.34,1.65,3.8,0.020,11, 7, 0, 3, 0, 6, 10, 0, 8, 5,0.36,0.48] },
+  { id:'typewall',   name:'Типостена',    mood:'текст · постер',       fam:'graphic',  tags:['new','type'], v:[0.34,1.55,5.2,0.025,10, 5, 0, 0, 0, 1, 10, 0, 8, 2,0.30,0.50], text:{mode:1,font:0,scale:1.18,bg:'#07100f',value:'ЖИЖА'} },
+  { id:'broadcast',  name:'Эфир текст',   mood:'стрим · бегущее',      fam:'energy',   tags:['new','type'], v:[0.60,1.32,6.5,0.030, 5, 0, 0, 3, 0, 6, 10, 0,11, 4,0.34,0.48], text:{mode:1,font:2,scale:1.02,bg:'#05070a',value:'LIVE'} },
+  { id:'softtitle',  name:'Титр',         mood:'слово · чисто',        fam:'calm',     tags:['new','type'], v:[0.22,2.10,2.4,0.018, 1, 6, 0, 0, 0, 1, 10, 0,10, 2,0.18,0.50], text:{mode:0,font:1,scale:0.92,bg:'#07100f',value:'TITLE'} },
+  { id:'noiseword',  name:'Шум-слово',    mood:'типо · dither',        fam:'mono',     tags:['new','type'], v:[0.30,1.60,4.0,0.020,11, 7, 0, 3, 0, 6, 10, 0, 8, 5,0.34,0.48], text:{mode:1,font:2,scale:0.92,bg:'#080808',value:'NOISE'} },
 ];
 const TEMPLATE_BY_ID = Object.fromEntries(TEMPLATES.map(t=>[t.id,t]));
 /* Для бесшовной задачи (Паттерн) жёстко оставляем только шаблоны, чьё поле реально
    различимо в бесшовном (Поток/Клетки/Труше) — остальные схлопываются в pfbm и не
    соответствуют своему превью (Спираль/Калейдо и т.п. не «тайлятся»). */
+function tmplHasTag(t, tag){ return (t.tags||[]).includes(tag); }
+function tmplMatchesFam(t, fam){ return t.fam===fam || tmplHasTag(t,fam); }
 function templatesForCat(cat, fam){
-  return TEMPLATES.filter(t=>cat.fams.includes(t.fam) && (!fam || t.fam===fam)
-    && (!cat.seamless || SEAMLESS_FIELDS.indexOf(t.v[4])>=0));
+  return TEMPLATES.filter(t=>{
+    const inCat=cat.fams.some(f=>tmplMatchesFam(t,f));
+    const inFam=!fam || tmplMatchesFam(t,fam);
+    return inCat && inFam && (!cat.seamless || SEAMLESS_FIELDS.indexOf(t.v[4])>=0);
+  });
 }
-const FAM_LABELS={ calm:'Спокойные', energy:'Яркие', deep:'Глубокие', graphic:'Графика', ornament:'Узоры', mono:'Монохром' };
+const FAM_LABELS={ new:'Новые', type:'Текстовые', calm:'Спокойные', energy:'Яркие', deep:'Глубокие', graphic:'Графика', ornament:'Узоры', mono:'Монохром' };
 
 /* ---------- Creator categories (для чего нужен фон) ----------
    Задача — это пресет: формат + фильтр шаблонов + РЕКОМЕНДОВАННЫЙ ЭКСПОРТ
    (mainExport: video|png|embed) + поведенческие умолчания (seamless, readability).
    Производные дока (формат-чип, набор кнопок) вычисляются из задачи, не дублируются. */
 const CREATOR_CATEGORIES = [
-  { id:'tiktok',  name:'TikTok / Reels', ratio:'9:16', mainExport:'video', exportHint:'Вертикальное видео — экспорт видео на первом месте.', default:'flash',    fams:['energy','deep','ornament','graphic'] },
-  { id:'stories', name:'Stories',        ratio:'9:16', mainExport:'video', exportHint:'Чистый фон под текст и стикеры.',                      default:'silk',     fams:['calm','deep','graphic','mono'] },
-  { id:'youtube', name:'YouTube',        ratio:'16:9', mainExport:'video', exportHint:'Анимированный фон для монтажа — интро, аутро, подложка.',  default:'aurora',   fams:['deep','graphic','energy','calm','mono'] },
-  { id:'text',    name:'Фон под текст',  ratio:'16:9', mainExport:'png',   readability:true, exportHint:'Читаемый центр, мягкое медленное движение.',          default:'quiet',    fams:['calm','deep','mono'] },
-  { id:'cover',   name:'Обложка',        ratio:'4:5',  mainExport:'png',   exportHint:'Сильная статичная картинка — скачивай PNG.',          default:'firework', fams:['energy','ornament','graphic','deep','mono'] },
-  { id:'present', name:'Презентация',    ratio:'16:9', mainExport:'png',   exportHint:'Спокойные палитры, ровное движение.',                 default:'mist',     fams:['calm','deep','graphic','mono'] },
+  { id:'tiktok',  name:'TikTok / Reels', ratio:'9:16', mainExport:'video', exportHint:'Вертикальное видео — экспорт видео на первом месте.', default:'flash',    fams:['new','type','energy','deep','ornament','graphic'] },
+  { id:'stories', name:'Stories',        ratio:'9:16', mainExport:'video', exportHint:'Чистый фон под текст и стикеры.',                      default:'silk',     fams:['new','type','calm','deep','graphic','mono'] },
+  { id:'youtube', name:'YouTube',        ratio:'16:9', mainExport:'video', exportHint:'Анимированный фон для монтажа — интро, аутро, подложка.',  default:'aurora',   fams:['new','type','deep','graphic','energy','calm','mono','ornament'] },
+  { id:'text',    name:'Фон под текст',  ratio:'16:9', mainExport:'png',   readability:true, exportHint:'Читаемый центр, мягкое медленное движение.',          default:'quiet',    fams:['type','new','calm','deep','mono'] },
+  { id:'cover',   name:'Обложка',        ratio:'4:5',  mainExport:'png',   exportHint:'Сильная статичная картинка — скачивай PNG.',          default:'firework', fams:['new','type','energy','ornament','graphic','deep','mono'] },
+  { id:'present', name:'Презентация',    ratio:'16:9', mainExport:'png',   exportHint:'Спокойные палитры, ровное движение.',                 default:'mist',     fams:['new','type','calm','deep','graphic','mono'] },
   { id:'pattern', name:'Паттерн',        ratio:'1:1',  mainExport:'png',   seamless:true, exportHint:'Бесшовная плитка — повторяется без швов.',            default:'mosaic',   fams:['graphic','mono'] },
-  { id:'loop',    name:'Абстрактный луп',ratio:'16:9', mainExport:'video', exportHint:'Движение и эксперименты.',                            default:'galaxy',   fams:['energy','deep','ornament'] },
+  { id:'loop',    name:'Абстрактный луп',ratio:'16:9', mainExport:'video', exportHint:'Движение и эксперименты.',                            default:'galaxy',   fams:['new','type','energy','deep','ornament','graphic'] },
 ];
 
 /* ---------- State ---------- */
 const state = {
   speed:0.6, scale:1.6, warp:4.5, grain:0.06,
   field:0, pal:0, seamless:0, tile:5,
-  screen:0, pixel:1, dots:0, dot:10,
+  screen:0, pixel:1, dots:0, dot:10, dither:0.5,
+  sym:0, field2:1, blend:2, layerMix:0,
+  maskText:'', maskTexts:[''], maskMode:0, maskFont:0, textScale:1, maskBg:'#07090a',
   cols: PALETTES[0].stops.map(s=>s.slice()),
   seed: 3 + Math.random()*89,
   ratio:'16:9',
@@ -1446,6 +1645,18 @@ function buildGlyphTexture(){
   return tex;
 }
 
+function buildMaskTexture(){
+  const c = document.createElement('canvas');
+  c.width = 2; c.height = 2;
+  const x = c.getContext('2d');
+  x.fillStyle = '#000'; x.fillRect(0,0,2,2);
+  const tex = new THREE.CanvasTexture(c);
+  tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter;
+  tex.wrapS = THREE.ClampToEdgeWrapping; tex.wrapT = THREE.ClampToEdgeWrapping;
+  tex.flipY = false;
+  return { canvas:c, ctx:x, tex };
+}
+
 /* ---------- Setup ---------- */
 const wrap = document.getElementById('canvasWrap');
 let renderer;
@@ -1461,6 +1672,7 @@ wrap.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+const maskTexData = buildMaskTexture();
 
 const uniforms = {
   u_res:      { value: new THREE.Vector2(1,1) },
@@ -1472,16 +1684,26 @@ const uniforms = {
   u_pixel:    { value: 1 },
   u_dots:     { value: 0 },
   u_dot:      { value: state.dot },
+  u_dither:   { value: state.dither },
   u_pal:      { value: 0 },
   u_c0:       { value: new THREE.Color() },
   u_c1:       { value: new THREE.Color() },
   u_c2:       { value: new THREE.Color() },
   u_c3:       { value: new THREE.Color() },
   u_field:    { value: 0 },
+  u_field2:   { value: state.field2 },
+  u_blend:    { value: state.blend },
+  u_layerMix: { value: state.layerMix },
+  u_sym:      { value: state.sym },
   u_screen:   { value: 0 },
   u_seamless: { value: 0 },
   u_tile:     { value: state.tile },
   u_glyph:    { value: buildGlyphTexture() },
+  u_mask:     { value: maskTexData.tex },
+  u_hasMask:  { value: 0 },
+  u_textMode: { value: state.maskMode },
+  u_textScale:{ value: state.textScale },
+  u_maskBg:   { value: new THREE.Color(state.maskBg) },
   u_mouse:    { value: new THREE.Vector2(0.5,0.5) },
   u_mouseAmt: { value: 0 },
 };
@@ -1505,12 +1727,22 @@ function syncUniforms(){
   uniforms.u_warp.value = state.warp;
   uniforms.u_grain.value = state.grain;
   uniforms.u_field.value = state.field;
+  uniforms.u_field2.value = state.field2;
+  uniforms.u_blend.value = state.blend;
+  uniforms.u_layerMix.value = state.seamless ? 0 : state.layerMix;
+  uniforms.u_sym.value = state.seamless ? 0 : state.sym;
   uniforms.u_seamless.value = state.seamless;
   uniforms.u_tile.value = state.tile;
   uniforms.u_screen.value = state.screen;
   uniforms.u_pixel.value = state.pixel; // shader pixelates square only when >1.5; hex/ascii use it as cell size
   uniforms.u_dots.value = state.dots;
   uniforms.u_dot.value = state.dot;
+  uniforms.u_dither.value = state.dither;
+  uniforms.u_hasMask.value = activeMaskTexts().length ? 1 : 0;
+  uniforms.u_textMode.value = state.maskMode;
+  uniforms.u_textScale.value = state.textScale;
+  uniforms.u_maskBg.value.set(state.maskBg);
+  updateMaskTexture();
   applyCols();
   markDirty();
 }
@@ -1521,6 +1753,115 @@ function hexToRgb01(h){ h=h.replace('#',''); return [parseInt(h.substr(0,2),16)/
 function gradCss(stops){ return `linear-gradient(135deg, ${stops.map(rgb01ToHex).join(',')})`; }
 function set(id,v){ const el=document.getElementById(id); if(el) el.value=v; }
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); }
+const MAX_TEXT_FIELDS=4;
+function normalizedMaskTexts(values){
+  const src=Array.isArray(values) ? values : [values||''];
+  const out=src.slice(0,MAX_TEXT_FIELDS).map(v=>String(v||'').slice(0,48));
+  return out.length ? out : [''];
+}
+function setMaskTexts(values){
+  state.maskTexts=normalizedMaskTexts(values);
+  state.maskText=state.maskTexts[0]||'';
+  maskSig='';
+}
+function activeMaskTexts(){
+  const src=normalizedMaskTexts(state.maskTexts && state.maskTexts.length ? state.maskTexts : [state.maskText]);
+  return src.map(v=>v.trim()).filter(Boolean);
+}
+const MASK_FONTS = [
+  { stack:'"Arial Black", Impact, system-ui, sans-serif', weight:'900', upper:false },
+  { stack:'Comfortaa, Nunito, system-ui, sans-serif', weight:'700', upper:false },
+  { stack:'"JetBrains Mono", ui-monospace, Menlo, monospace', weight:'700', upper:false },
+  { stack:'Georgia, "Times New Roman", serif', weight:'700', upper:false },
+  { stack:'Impact, "Arial Black", system-ui, sans-serif', weight:'400', upper:true },
+];
+let maskSig='';
+function recreateMaskTexture(){
+  maskTexData.tex.dispose();
+  maskTexData.tex = new THREE.CanvasTexture(maskTexData.canvas);
+  maskTexData.tex.minFilter = THREE.LinearFilter; maskTexData.tex.magFilter = THREE.LinearFilter;
+  maskTexData.tex.wrapS = THREE.ClampToEdgeWrapping; maskTexData.tex.wrapT = THREE.ClampToEdgeWrapping;
+  maskTexData.tex.flipY = false;
+  uniforms.u_mask.value = maskTexData.tex;
+}
+function updateMaskTexture(){
+  const texts=activeMaskTexts();
+  const ar=aspectRatio || 1;
+  const mode=state.maskMode||0;
+  const sig=[texts.join('\n'),mode,state.maskFont,state.textScale,state.maskBg,ar.toFixed(3)].join('|');
+  if(sig===maskSig) return;
+  maskSig=sig;
+  const c=maskTexData.canvas, x=maskTexData.ctx;
+  if(!texts.length){
+    const resized = c.width!==2 || c.height!==2;
+    c.width=2; c.height=2;
+    if(resized) recreateMaskTexture();
+    x.fillStyle='#000'; x.fillRect(0,0,2,2);
+    maskTexData.tex.needsUpdate=true;
+    return;
+  }
+  const F=MASK_FONTS[state.maskFont] || MASK_FONTS[0];
+  const phrases=texts.map(t=>(F.upper ? t.toUpperCase() : t).replace(/\s+/g,' ').trim()).filter(Boolean);
+  if(mode===1){
+    const S=1024;
+    const resized = c.width!==S || c.height!==S;
+    c.width=S; c.height=S;
+    if(resized) recreateMaskTexture();
+    x.fillStyle='#000'; x.fillRect(0,0,S,S);
+    x.fillStyle='#fff';
+    x.textAlign='center'; x.textBaseline='middle';
+    const fs=Math.max(42, Math.min(160, 92 * state.textScale));
+    x.font=`${F.weight} ${fs}px ${F.stack}`;
+    const widestPhrase=phrases.reduce((m,p)=>Math.max(m,x.measureText(p).width),1);
+    const desiredX=Math.max(fs*3.6, widestPhrase + fs*2.0);
+    const cols=Math.max(2, Math.floor(S/desiredX));
+    const stepX=S/cols;
+    const desiredY=fs*1.85;
+    let rows=Math.max(2, Math.floor(S/desiredY));
+    if(rows%2) rows-=1;
+    rows=Math.max(2, rows);
+    const stepY=S/rows;
+    const drawWrapped=(str,px,py)=>{
+      for(let oy=-1;oy<=1;oy++){
+        for(let ox=-1;ox<=1;ox++) x.fillText(str, px+ox*S, py+oy*S);
+      }
+    };
+    for(let row=0; row<rows; row++){
+      const y=(row+0.5)*stepY;
+      const off=(row%2)*stepX*0.5;
+      for(let col=0; col<cols; col++){
+        const px=(col+0.5)*stepX+off;
+        const phrase=phrases[(row*cols+col)%phrases.length];
+        drawWrapped(phrase, px, y);
+      }
+    }
+    maskTexData.tex.needsUpdate=true;
+    return;
+  }
+  const LONG=2048;
+  const W=ar>=1 ? LONG : Math.max(1,Math.round(LONG*ar));
+  const H=ar>=1 ? Math.max(1,Math.round(LONG/ar)) : LONG;
+  const resized = c.width!==W || c.height!==H;
+  if(resized){
+    c.width=W; c.height=H;
+    recreateMaskTexture();
+  }
+  x.fillStyle='#000'; x.fillRect(0,0,W,H);
+  x.fillStyle='#fff';
+  x.textAlign='center'; x.textBaseline='middle';
+  const lines=phrases.slice(0,MAX_TEXT_FIELDS);
+  const maxW=W*0.86, maxH=H*0.78;
+  const setFont=s=>{ x.font=`${F.weight} ${s}px ${F.stack}`; };
+  let fs=H*0.58*state.textScale; setFont(fs);
+  let widest=1;
+  lines.forEach(line=>{ widest=Math.max(widest, x.measureText(line || ' ').width); });
+  fs=fs*(maxW/widest); setFont(fs);
+  const totalH=lines.length*fs*1.08;
+  if(totalH>maxH){ fs=fs*(maxH/totalH); setFont(fs); }
+  const lh=fs*1.08, y0=H/2-(lines.length-1)*lh/2;
+  lines.forEach((line,i)=>x.fillText(line,W/2,y0+i*lh));
+  maskTexData.tex.needsUpdate=true;
+}
 
 /* ---------- Build UI: presets ---------- */
 const presetsEl = document.getElementById('presets');
@@ -1543,6 +1884,16 @@ FIELDS.forEach(f=>{
   b.onclick=()=>{ state.field=f.id; refreshFieldButtons(); syncUniforms(); };
   fieldsEl.appendChild(b);
 });
+const field2El=document.getElementById('field2');
+if(field2El){
+  FIELDS.forEach(f=>{
+    const o=document.createElement('option'); o.value=f.id; o.textContent=f.name; field2El.appendChild(o);
+  });
+  field2El.value=state.field2;
+  field2El.addEventListener('change',e=>{ state.field2=parseInt(e.target.value,10)||0; syncUniforms(); });
+}
+const blendEl=document.getElementById('blend');
+if(blendEl) blendEl.addEventListener('change',e=>{ state.blend=parseInt(e.target.value,10)||0; syncUniforms(); });
 
 /* ---------- Build UI: palettes ---------- */
 const palettesEl = document.getElementById('palettes');
@@ -1574,12 +1925,13 @@ function buildColorPickers(){
 }
 
 /* ---------- Sliders ---------- */
-const sliderMap = { speed:'speed', scale:'scale', warp:'warp', grain:'grain', tile:'tile', pixel:'pixel', dot:'dot' };
+const sliderMap = { speed:'speed', scale:'scale', warp:'warp', sym:'sym', grain:'grain', tile:'tile', pixel:'pixel', dot:'dot', dither:'dither', layerMix:'layerMix', textScale:'textScale' };
 Object.keys(sliderMap).forEach(id=>{
   const el=document.getElementById(id);
+  if(!el) return;
   el.addEventListener('input', e=>{
     const v=parseFloat(e.target.value);
-    if(id==='tile'||id==='pixel'||id==='dot') state[id]=Math.round(v); else state[id]=v;
+    if(id==='tile'||id==='pixel'||id==='dot'||id==='sym') state[id]=Math.round(v); else state[id]=v;
     updateLabels(); syncUniforms(); refreshQuick();
   });
 });
@@ -1587,11 +1939,84 @@ function updateLabels(){
   document.getElementById('vSpeed').textContent = state.speed.toFixed(2);
   document.getElementById('vScale').textContent = state.scale.toFixed(2);
   document.getElementById('vWarp').textContent = state.warp.toFixed(2);
+  document.getElementById('vSym').textContent = state.sym;
   document.getElementById('vGrain').textContent = state.grain.toFixed(3);
   document.getElementById('vTile').textContent = state.tile;
   document.getElementById('vPixel').textContent = state.pixel;
   document.getElementById('vDot').textContent = state.dot;
+  document.getElementById('vDither').textContent = state.dither.toFixed(2);
+  document.getElementById('vLayerMix').textContent = state.layerMix.toFixed(2);
+  document.getElementById('vTextScale').textContent = state.textScale.toFixed(2);
 }
+
+const maskModeEl=document.getElementById('maskMode');
+const maskFontEl=document.getElementById('maskFont');
+const maskBgEl=document.getElementById('maskBg');
+function updateTextFieldButtons(){
+  const full=state.maskTexts.length>=MAX_TEXT_FIELDS;
+  ['addMaskText','qAddText'].forEach(id=>{ const b=document.getElementById(id); if(b) b.disabled=full; });
+}
+function renderTextFields(scope){
+  const groups=scope==='pro' ? ['mask'] : scope==='quick' ? ['quick'] : ['mask','quick'];
+  groups.forEach(group=>{
+    const wrap=document.getElementById(group==='mask'?'maskTextFields':'qTextFields');
+    if(!wrap) return;
+    wrap.innerHTML='';
+    state.maskTexts.forEach((value,i)=>{
+      const row=document.createElement('div'); row.className='textFieldRow';
+      const inp=document.createElement('input');
+      inp.type='text'; inp.maxLength=48; inp.value=value;
+      inp.dataset.idx=i; inp.placeholder=i?'Ещё слово':'Текст на фоне';
+      inp.id=(group==='mask'&&i===0)?'maskText':(group==='quick'&&i===0)?'qText':'';
+      inp.setAttribute('aria-label',(i+1)+' текст на фоне');
+      row.appendChild(inp);
+      if(i>0){
+        const rm=document.createElement('button'); rm.type='button'; rm.className='textMiniBtn';
+        rm.textContent='×'; rm.dataset.remove=i; rm.setAttribute('aria-label','Удалить текст '+(i+1));
+        row.appendChild(rm);
+      }
+      wrap.appendChild(row);
+    });
+  });
+  updateTextFieldButtons();
+}
+function onTextFieldInput(e,scope){
+  if(!e.target.matches('input[data-idx]')) return;
+  const i=parseInt(e.target.dataset.idx,10)||0;
+  const had=activeMaskTexts().length>0;
+  const next=normalizedMaskTexts(state.maskTexts);
+  next[i]=e.target.value.slice(0,48);
+  setMaskTexts(next);
+  if(activeMaskTexts().length && !had) state.maskMode=1;
+  set('maskMode',state.maskMode);
+  renderTextFields(scope==='mask'?'quick':'pro');
+  refreshQuickText();
+  syncUniforms();
+}
+function onTextFieldRemove(e){
+  const btn=e.target.closest('button[data-remove]');
+  if(!btn) return;
+  const i=parseInt(btn.dataset.remove,10);
+  const next=normalizedMaskTexts(state.maskTexts).filter((_,idx)=>idx!==i);
+  setMaskTexts(next.length?next:['']);
+  renderTextFields();
+  refreshQuickText();
+  syncUniforms();
+}
+document.getElementById('maskTextFields').addEventListener('input',e=>onTextFieldInput(e,'mask'));
+document.getElementById('qTextFields').addEventListener('input',e=>onTextFieldInput(e,'quick'));
+document.getElementById('maskTextFields').addEventListener('click',onTextFieldRemove);
+document.getElementById('qTextFields').addEventListener('click',onTextFieldRemove);
+function addTextField(){
+  if(state.maskTexts.length>=MAX_TEXT_FIELDS) return;
+  setMaskTexts([...state.maskTexts,'']);
+  renderTextFields();
+}
+document.getElementById('addMaskText').onclick=addTextField;
+document.getElementById('qAddText').onclick=addTextField;
+if(maskModeEl) maskModeEl.addEventListener('change',e=>{ state.maskMode=parseInt(e.target.value,10)||0; maskSig=''; syncUniforms(); });
+if(maskFontEl) maskFontEl.addEventListener('change',e=>{ state.maskFont=parseInt(e.target.value,10)||0; maskSig=''; syncUniforms(); });
+if(maskBgEl) maskBgEl.addEventListener('input',e=>{ state.maskBg=e.target.value; syncUniforms(); });
 
 /* ---------- Ratio segment ---------- */
 document.querySelectorAll('#ratioSeg button').forEach(b=>{
@@ -1664,6 +2089,7 @@ seamlessToggle.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault(
 
 /* ---------- Surface (screen) segment ---------- */
 const pixelCtrl=document.getElementById('pixelCtrl');
+const ditherCtrl=document.getElementById('ditherCtrl');
 const dotsRow=document.getElementById('dotsRow');
 const dotCtrl=document.getElementById('dotCtrl');
 const dotsToggle=document.getElementById('dotsToggle');
@@ -1672,6 +2098,7 @@ function refreshSurface(){
   // pixel slider always available: 1 = smooth, >1 = pixelate (square) / cell size (hex, ascii)
   // halftone (точки) lives on the square surface and STACKS with pixelation
   dotsRow.classList.toggle('hidden', state.screen!==0);
+  ditherCtrl.classList.toggle('hidden', state.screen!==3);
   dotsToggle.classList.toggle('on',!!state.dots); dotsToggle.setAttribute('aria-checked',!!state.dots);
   dotCtrl.classList.toggle('hidden', !(state.screen===0 && state.dots));
 }
@@ -1684,10 +2111,10 @@ dotsToggle.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();to
 
 /* ---------- Load preset ---------- */
 function loadPreset(p){
-  const [speed,scale,warp,grain,field,pal,seamless,screen,dots,pixel=1,dot=10]=p.v;
-  Object.assign(state,{speed,scale,warp,grain,field,pal,seamless,screen,dots,pixel,dot});
+  const [speed,scale,warp,grain,field,pal,seamless,screen,dots,pixel=1,dot=10,sym=0,field2=1,blend=2,layerMix=0,dither=0.5]=p.v;
+  Object.assign(state,{speed,scale,warp,grain,field,pal,seamless,screen,dots,pixel,dot,sym,field2,blend,layerMix,dither});
   if(pal!==8) state.cols=PALETTES[pal].stops.map(s=>s.slice());
-  set('speed',speed); set('scale',scale); set('warp',warp); set('grain',grain); set('pixel',pixel); set('dot',dot);
+  set('speed',speed); set('scale',scale); set('warp',warp); set('sym',sym); set('grain',grain); set('pixel',pixel); set('dot',dot); set('dither',dither); set('layerMix',layerMix); set('field2',field2); set('blend',blend);
   refreshFieldButtons(); refreshPaletteButtons(); refreshSeamless(); refreshSurface();
   buildColorPickers(); updateLabels(); syncUniforms();
   if(typeof refreshQuick==='function') refreshQuick();
@@ -1706,11 +2133,13 @@ try{
   pvUniforms={
     u_res:{value:new THREE.Vector2(PV_W,PV_H)}, u_time:{value:0}, u_seed:{value:3.7},
     u_scale:{value:1.6}, u_warp:{value:4}, u_grain:{value:0.02}, u_pixel:{value:1},
-    u_dots:{value:0}, u_dot:{value:10}, u_pal:{value:0},
+    u_dots:{value:0}, u_dot:{value:10}, u_dither:{value:0.5}, u_pal:{value:0},
     u_c0:{value:new THREE.Color()}, u_c1:{value:new THREE.Color()},
     u_c2:{value:new THREE.Color()}, u_c3:{value:new THREE.Color()},
-    u_field:{value:0}, u_screen:{value:0}, u_seamless:{value:0}, u_tile:{value:5},
-    u_glyph:{value:buildGlyphTexture()}, u_mouse:{value:new THREE.Vector2(0.5,0.5)}, u_mouseAmt:{value:0},
+    u_field:{value:0}, u_field2:{value:1}, u_blend:{value:2}, u_layerMix:{value:0}, u_sym:{value:0},
+    u_screen:{value:0}, u_seamless:{value:0}, u_tile:{value:5},
+    u_glyph:{value:buildGlyphTexture()}, u_mask:{value:buildMaskTexture().tex}, u_hasMask:{value:0}, u_textMode:{value:0}, u_textScale:{value:1}, u_maskBg:{value:new THREE.Color('#07090a')},
+    u_mouse:{value:new THREE.Vector2(0.5,0.5)}, u_mouseAmt:{value:0},
   };
   const pvMat=new THREE.ShaderMaterial({vertexShader:VERT, fragmentShader:FRAG, uniforms:pvUniforms});
   pvScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), pvMat));
@@ -1747,14 +2176,16 @@ function pvVisSoon(){ if(pvVisQueued) return; pvVisQueued=true; requestAnimation
 window.addEventListener('scroll', pvVisSoon, {passive:true, capture:true});
 window.addEventListener('resize', pvVisSoon);
 function pvSetUniforms(v,time){
-  const [speed,scale,warp,grain,field,pal,seamless,screen,dots,pixel=1,dot=10]=v;
+  const [speed,scale,warp,grain,field,pal,seamless,screen,dots,pixel=1,dot=10,sym=0,field2=1,blend=2,layerMix=0,dither=0.5]=v;
   const stops=PALETTES[pal].stops;
   pvUniforms.u_c0.value.setRGB(...stops[0]); pvUniforms.u_c1.value.setRGB(...stops[1]);
   pvUniforms.u_c2.value.setRGB(...stops[2]); pvUniforms.u_c3.value.setRGB(...stops[3]);
   pvUniforms.u_pal.value=pal; pvUniforms.u_field.value=field; pvUniforms.u_screen.value=screen;
   pvUniforms.u_scale.value=scale; pvUniforms.u_warp.value=warp; pvUniforms.u_grain.value=grain;
-  pvUniforms.u_pixel.value=pixel; pvUniforms.u_dots.value=dots; pvUniforms.u_dot.value=dot;
-  pvUniforms.u_seamless.value=0; pvUniforms.u_time.value=time*speed*1.6;
+  pvUniforms.u_pixel.value=pixel; pvUniforms.u_dots.value=dots; pvUniforms.u_dot.value=dot; pvUniforms.u_dither.value=dither;
+  pvUniforms.u_field2.value=field2; pvUniforms.u_blend.value=blend; pvUniforms.u_layerMix.value=seamless ? 0 : layerMix; pvUniforms.u_sym.value=seamless ? 0 : sym;
+  pvUniforms.u_hasMask.value=0; pvUniforms.u_textMode.value=0; pvUniforms.u_textScale.value=1;
+  pvUniforms.u_seamless.value=seamless; pvUniforms.u_time.value=time*speed*1.6;
 }
 let pvT=0, pvLast=0;
 function pvTick(now){
@@ -1786,9 +2217,20 @@ function applyTemplate(t){
   const keepRatio=state.ratio;
   const keepSeamless=(activeCat && activeCat.seamless) ? 1 : state.seamless;
   loadPreset({v:t.v});                 // applies field/palette/surface state + UI
+  if(t.text){
+    if(!activeMaskTexts().length) setMaskTexts([t.text.value || 'ЖИЖА']);
+    state.maskMode = t.text.mode || 0;
+    state.maskFont = t.text.font || 0;
+    state.textScale = t.text.scale || 1;
+    state.maskBg = t.text.bg || state.maskBg;
+    maskSig='';
+    renderTextFields();
+    set('maskMode',state.maskMode); set('maskFont',state.maskFont);
+    set('textScale',state.textScale); set('maskBg',state.maskBg);
+  }
   state.ratio=keepRatio; aspectRatio=RATIOS[keepRatio];
   if(keepSeamless!==state.seamless){ state.seamless=keepSeamless; refreshSeamless(); }
-  refreshRatioButtons(); resize();
+  refreshRatioButtons(); updateLabels(); syncUniforms(); resize();
   document.querySelectorAll('#presets .chip').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('#tmplCards .tmplCard, #sheetCards .tmplCard').forEach(x=>x.classList.toggle('active', x.dataset.tid===t.id));
   updateProCtx(t.name);
@@ -1976,8 +2418,10 @@ const FX_PRESETS={
   pixel: { screen:0, dots:0, pixel:10 },  // пикселизация
   dots:  { screen:0, dots:1, pixel:4  },  // полутон (точки)
   ascii: { screen:2, dots:0, pixel:8  },  // ASCII-атлас
+  dither:{ screen:3, dots:0, pixel:6, dither:0.5 },
 };
 function currentFx(){
+  if(state.screen===3) return 'dither';
   if(state.screen===2) return 'ascii';
   if(state.screen===0 && state.dots) return 'dots';
   if(state.screen===0 && state.pixel>1) return 'pixel';
@@ -1993,8 +2437,31 @@ PALETTES.filter(p=>p.id!==8).forEach(pl=>{   // без «Свой»
 });
 document.querySelectorAll('#quickFx button').forEach(b=>{
   b.onclick=()=>{ Object.assign(state, FX_PRESETS[b.dataset.fx]);
-    set('pixel',state.pixel); set('dot',state.dot);
+    set('pixel',state.pixel); set('dot',state.dot); set('dither',state.dither);
     refreshSurface(); updateLabels(); syncUniforms(); refreshQuick(); };
+});
+function currentTextFx(){
+  if(!activeMaskTexts().length) return 'none';
+  return state.maskMode===1 ? 'pattern' : 'word';
+}
+function refreshQuickText(){
+  const tx=currentTextFx();
+  document.querySelectorAll('#quickTextMode button').forEach(x=>x.classList.toggle('active', x.dataset.text===tx));
+}
+document.querySelectorAll('#quickTextMode button').forEach(b=>{
+  b.onclick=()=>{
+    const mode=b.dataset.text;
+    if(mode==='none'){
+      setMaskTexts(['']);
+    } else {
+      if(!activeMaskTexts().length) setMaskTexts(['ЖИЖА']);
+      state.maskMode=mode==='pattern' ? 1 : 0;
+      state.textScale=mode==='pattern' ? Math.max(0.8,state.textScale) : Math.min(1.2,state.textScale);
+    }
+    maskSig='';
+    renderTextFields(); set('maskMode',state.maskMode); set('textScale',state.textScale);
+    updateLabels(); refreshQuickText(); syncUniforms();
+  };
 });
 function bindQuick(qid, proId, key){
   document.getElementById(qid).addEventListener('input', e=>{
@@ -2018,21 +2485,39 @@ function refreshQuick(){
   document.querySelectorAll('#quickPalettes .swatch').forEach(x=>x.classList.toggle('active', +x.dataset.pal===state.pal));
   const fx=currentFx();
   document.querySelectorAll('#quickFx button').forEach(x=>x.classList.toggle('active', x.dataset.fx===fx));
+  refreshQuickText();
 }
 
 /* ---------- Random ---------- */
 function randomize(){
   state.seed=Math.random()*100;
   state.field=Math.floor(Math.random()*FIELDS.length);
+  state.field2=Math.floor(Math.random()*FIELDS.length);
+  if(state.field2===state.field) state.field2=(state.field2+1)%FIELDS.length;
+  state.blend=Math.floor(Math.random()*6);
+  state.layerMix=Math.random()<0.35 ? 0.18+Math.random()*0.45 : 0;
+  state.sym=Math.random()<0.22 ? 3+Math.floor(Math.random()*6) : 0;
   state.speed=0.3+Math.random()*1.0;
   state.scale=1.0+Math.random()*3.0;
   state.warp=Math.random()*9.0;
   state.pal=Math.floor(Math.random()*8);
+  state.screen=Math.random()<0.18 ? 3 : 0;
+  state.dither=0.42+Math.random()*0.18;
+  state.pixel=state.screen===3 ? 4+Math.floor(Math.random()*7) : 1;
+  state.dots=0;
+  if(activeMaskTexts().length){
+    state.maskMode=Math.random()<0.55 ? 1 : 0;
+    state.textScale=0.75+Math.random()*0.95;
+    maskSig='';
+  }
   state.cols=PALETTES[state.pal].stops.map(s=>s.slice());
   set('speed',state.speed); set('scale',state.scale); set('warp',state.warp);
+  set('sym',state.sym); set('field2',state.field2); set('blend',state.blend); set('layerMix',state.layerMix);
+  set('pixel',state.pixel); set('dither',state.dither);
+  set('maskMode',state.maskMode); set('textScale',state.textScale);
   document.querySelectorAll('#presets .chip').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('#tmplCards .tmplCard').forEach(x=>x.classList.remove('active'));
-  refreshFieldButtons(); refreshPaletteButtons(); buildColorPickers(); updateLabels(); refreshQuick(); syncUniforms();
+  refreshFieldButtons(); refreshPaletteButtons(); refreshSurface(); buildColorPickers(); updateLabels(); refreshQuick(); syncUniforms();
 }
 const reloadBtn=document.getElementById('reloadBtn');
 reloadBtn.onclick=()=>{ randomize(); reloadBtn.classList.remove('spin'); void reloadBtn.offsetWidth; reloadBtn.classList.add('spin'); };
@@ -2129,6 +2614,7 @@ function resize(){
   wrap.style.width=w+'px'; wrap.style.height=h+'px';
   renderer.setSize(w,h,false);
   uniforms.u_res.value.set(w*renderer.getPixelRatio(), h*renderer.getPixelRatio());
+  updateMaskTexture();
   markDirty();
 }
 window.addEventListener('resize',resize);
@@ -2259,17 +2745,29 @@ function encodeState(){
   const s=state;
   const o={ sp:+s.speed.toFixed(3), sc:+s.scale.toFixed(3), wa:+s.warp.toFixed(3), gr:+s.grain.toFixed(3),
     fl:s.field, pa:s.pal, sm:s.seamless, ti:s.tile, scr:s.screen, px:s.pixel, dt:s.dots, dz:s.dot,
+    di:+s.dither.toFixed(3), sy:s.sym, f2:s.field2, bm:s.blend, lm:+s.layerMix.toFixed(3),
+    mt:s.maskText || '', mx:normalizedMaskTexts(s.maskTexts), mm:s.maskMode || 0, mf:s.maskFont || 0, tx:+s.textScale.toFixed(3), mb:(s.maskBg||'#07090a').replace('#',''),
     sd:+s.seed.toFixed(2), ar:s.ratio, co:s.cols.map(c=>c.map(v=>Math.round(v*255))) };
-  return btoa(JSON.stringify(o)).replace(/=+$/,'');
+  return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/=+$/,'');
 }
 function decodeState(b64){
   try{
-    const o=JSON.parse(atob(b64));
+    const o=JSON.parse(decodeURIComponent(escape(atob(b64))));
     Object.assign(state,{ speed:o.sp, scale:o.sc, warp:o.wa, grain:o.gr, field:o.fl, pal:o.pa,
       seamless:o.sm, tile:o.ti, screen:o.scr, pixel:o.px, dots:o.dt, dot:o.dz, seed:o.sd, ratio:o.ar });
+    Object.assign(state,{
+      dither:o.di==null?0.5:o.di, sym:o.sy||0, field2:o.f2==null?1:o.f2,
+      blend:o.bm==null?2:o.bm, layerMix:o.lm||0,
+      maskMode:o.mm||0, maskFont:o.mf||0, textScale:o.tx==null?1:o.tx, maskBg:o.mb?('#'+o.mb.replace('#','')):'#07090a'
+    });
+    setMaskTexts(o.mx || [o.mt||'']);
     if(o.co) state.cols=o.co.map(c=>c.map(v=>v/255));
     if(!(state.ratio in RATIOS)) state.ratio='16:9';
+    if(!/^#[0-9a-fA-F]{6}$/.test(state.maskBg)) state.maskBg='#07090a';
+    state.maskMode = state.maskMode===1 ? 1 : 0;
+    state.textScale = Math.max(0.5, Math.min(2.4, +state.textScale || 1));
     aspectRatio=RATIOS[state.ratio];
+    maskSig='';
     return true;
   }catch(e){ return false; }
 }
@@ -2317,9 +2815,12 @@ document.getElementById('importBtn').onclick=()=>{
 /* ---------- Full UI refresh from state ---------- */
 function refreshAllUI(){
   set('speed',state.speed); set('scale',state.scale); set('warp',state.warp); set('grain',state.grain);
-  set('tile',state.tile); set('pixel',state.pixel); set('dot',state.dot);
+  set('sym',state.sym); set('tile',state.tile); set('pixel',state.pixel); set('dot',state.dot); set('dither',state.dither);
+  set('field2',state.field2); set('blend',state.blend); set('layerMix',state.layerMix);
+  renderTextFields(); set('maskMode',state.maskMode); set('maskFont',state.maskFont); set('textScale',state.textScale); set('maskBg',state.maskBg);
   refreshRatioButtons(); refreshFieldButtons(); refreshPaletteButtons(); refreshSeamless(); refreshSurface();
   buildColorPickers(); updateLabels();
+  if(typeof refreshQuick==='function') refreshQuick();
 }
 
 /* ---------- Action-док (самостоятельный компонент) ----------
